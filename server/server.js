@@ -67,7 +67,7 @@ const PORT = process.env.PORT || 5000;
 
 const startServer = async () => {
   await connectDB();
-  
+
   // Run seed data after DB connection
   try {
     await seedData();
@@ -84,3 +84,4 @@ const startServer = async () => {
 };
 
 startServer();
+module.exports = app;
