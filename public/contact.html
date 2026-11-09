@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Contact Utkarsh Samajik Seva Sansthan — Jaipur office: Surya Sadan, M.D. Road. Delhi office: Rohini. Phone: 98293-44949.">
+  <title>Contact Us | Utkarsh Samajik Seva Sansthan</title>
+  <link rel="stylesheet" href="/css/main.css">
+</head>
+<body>
+
+  <!-- NAVBAR -->
+  <nav class="navbar scrolled" id="main-navbar">
+    <div class="navbar-inner">
+      <a href="/" class="navbar-logo">
+        <img src="/images/utkarsh-logo.png" alt="Utkarsh NGO Logo" style="height:52px;width:52px;object-fit:contain;">
+        <div class="logo-text">
+          <div class="org-name">Utkarsh Samajik Seva Sansthan</div>
+          <div class="org-tagline">Est. 26 Jan 2005 • Jaipur</div>
+        </div>
+      </a>
+      <ul class="nav-links" id="nav-links">
+        <button class="nav-close" id="nav-close">✕</button>
+        <li><a href="/" class="nav-link">Home</a></li>
+        <li><a href="/about" class="nav-link">About</a></li>
+        <li><a href="/programmes" class="nav-link">Programmes</a></li>
+        <li><a href="/media" class="nav-link">Media</a></li>
+        <li><a href="/contact" class="nav-link active">Contact</a></li>
+        <li><a href="/sursukoon" class="nav-link sursukoon-btn">🎵 Sur-Sukoon</a></li>
+      </ul>
+      <div class="nav-actions">
+        <div class="lang-toggle">
+          <button class="lang-btn active" data-lang="en">EN</button>
+          <button class="lang-btn" data-lang="hi">हिं</button>
+        </div>
+        <button class="hamburger" id="hamburger"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- PAGE HERO -->
+  <section style="background:linear-gradient(135deg,var(--green-dark),var(--green-primary));padding:120px 0 60px;margin-top:72px;">
+    <div class="container text-center">
+      <span class="hero-label" style="margin-bottom:16px;display:inline-flex;">Get in Touch</span>
+      <h1 style="color:var(--white);margin-bottom:12px;">Contact Us</h1>
+      <p style="color:rgba(255,255,255,0.75);">We'd love to hear from you. Reach us at our Jaipur or Delhi office.</p>
+    </div>
+  </section>
+
+  <!-- CONTACT SECTION -->
+  <section class="section-padding">
+    <div class="container">
+      <div class="contact-grid">
+
+        <!-- LEFT: Contact info -->
+        <div>
+          <div class="contact-card fade-in">
+            <div class="office-name" data-i18n="contact.jaipur">🏛️ Jaipur Office (Main)</div>
+            <h3 style="margin-bottom:16px;">Utkarsh Samajik Seva Sansthan</h3>
+            <div class="contact-info-item">
+              <span class="icon">📍</span>
+              <span>Surya Sadan, Laddu Wali Bagichi, M.D. Road, Jaipur — 302004, Rajasthan, India</span>
+            </div>
+            <div class="contact-info-item">
+              <span class="icon">📞</span>
+              <a href="tel:+919829344949" style="color:var(--text-medium);">+91 98293-44949</a>
+            </div>
+            <div class="contact-info-item">
+              <span class="icon">📋</span>
+              <span>Reg. No. 357/Jaipur/2004-05 (dt. 16.08.2004)</span>
+            </div>
+            <div style="margin-top:20px;">
+              <a href="https://wa.me/919829344949" target="_blank" class="btn btn-primary btn-sm">💬 Chat on WhatsApp</a>
+            </div>
+          </div>
+
+          <!-- Social Media -->
+          <div class="contact-card fade-in">
+            <div class="office-name">🌐 Follow Us</div>
+            <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;">
+              <a href="#" class="btn btn-outline btn-sm" id="social-facebook" target="_blank" rel="noopener">f Facebook</a>
+              <a href="https://www.instagram.com/sursukoon_music/" class="btn btn-outline btn-sm" id="social-instagram" target="_blank" rel="noopener">📸 Instagram</a>
+              <a href="https://www.youtube.com/@utkarshsursukoon" class="btn btn-outline btn-sm" id="social-youtube" target="_blank" rel="noopener">▶ YouTube</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT: Contact form -->
+        <div class="fade-in">
+          <div class="contact-card">
+            <div class="office-name">✉️ Send Us a Message</div>
+            <h3 style="margin-bottom:24px;">We'll reply within 24 hours</h3>
+            <form id="contact-form" novalidate>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label class="form-label" for="contact-name">Full Name <span class="required">*</span></label>
+                  <input class="form-input" type="text" id="contact-name" name="fullName" required placeholder="Your full name">
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="contact-phone">Phone <span class="required">*</span></label>
+                  <input class="form-input" type="tel" id="contact-phone" name="phone" required placeholder="Your phone number">
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="contact-email">Email Address</label>
+                <input class="form-input" type="email" id="contact-email" name="email" placeholder="Your email address">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="contact-query">Query Type</label>
+                <select class="form-select" id="contact-query" name="queryType">
+                  <option value="NGO Related">NGO Related</option>
+                  <option value="Sur-Sukoon Related">Sur-Sukoon Related</option>
+                  <option value="Volunteering">Volunteering</option>
+                  <option value="General Inquiry">General Inquiry</option>
+                  <option value="Media / Press">Media / Press</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="contact-message">Message <span class="required">*</span></label>
+                <textarea class="form-textarea" id="contact-message" name="message" required placeholder="How can we help you?" style="min-height:120px;"></textarea>
+              </div>
+              <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;">Send Message →</button>
+              <p style="font-size:0.8rem;color:var(--text-light);text-align:center;margin-top:12px;">
+                Or <a href="https://wa.me/919829344949" target="_blank" style="color:var(--green-primary);font-weight:600;">message us on WhatsApp</a>
+              </p>
+            </form>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+            <div style="width:44px;height:44px;background:linear-gradient(135deg,#0F4C3A,#1A6B53);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#D4AF37;font-weight:800;font-size:1.2rem;">U</div>
+            <img src="/images/utkarsh-logo.png" alt="Utkarsh NGO" style="height:48px;width:48px;object-fit:contain;margin-right:10px;"><div class="logo-text">Utkarsh Samajik Seva Sansthan</div>
+          </div>
+          <p>Dridh Sankalp, Nihswarth Seva, Jankalyan.</p>
+          <p class="reg-number" style="margin-top:12px;font-size:0.72rem;color:rgba(255,255,255,0.35);">Reg. No. 357/Jaipur/2004-05</p>
+        </div>
+        <div>
+          <div class="footer-title">Quick Links</div>
+          <ul class="footer-links">
+            <li><a href="/" class="footer-link">Home</a></li>
+            <li><a href="/about" class="footer-link">About</a></li>
+            <li><a href="/programmes" class="footer-link">Programmes</a></li>
+            <li><a href="/media" class="footer-link">Media</a></li>
+            <li><a href="/contact" class="footer-link">Contact</a></li>
+          </ul>
+        </div>
+        <div>
+          <div class="footer-title">Contact</div>
+          <div class="footer-contact-item"><span class="icon">📍</span><span>Surya Sadan, M.D. Road, Jaipur — 302004</span></div>
+          <div class="footer-contact-item"><span class="icon">📞</span><a href="tel:+919829344949" style="color:inherit;">98293-44949</a></div>
+        </div>
+        <div>
+          <div class="footer-title">Sur-Sukoon</div>
+          <a href="/sursukoon" class="btn btn-sm" style="background:linear-gradient(135deg,#8B005D,#C0006A);color:white;border-radius:50px;margin-top:8px;">🎵 Visit Sur-Sukoon</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="container" style="width:100%;display:flex;justify-content:space-between;flex-wrap:wrap;gap:16px;">
+        <p>© 2025 Utkarsh Samajik Seva Sansthan. All rights reserved.</p>
+        <div class="footer-socials"><a href="#" class="social-link">f</a><a href="#" class="social-link">ig</a><a href="#" class="social-link">▶</a></div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="/js/translations.js"></script>
+  <script src="/js/common.js"></script>
+  <script>
+    // Load social links from settings (only update Facebook from settings; Instagram & YouTube are hardcoded)
+    document.addEventListener('DOMContentLoaded', async () => {
+      try {
+        const res = await fetch('/api/settings?keys=socialLinks');
+        const data = await res.json();
+        const links = data.data?.socialLinks || {};
+        const fb = document.getElementById('social-facebook');
+        if (fb && links.facebook && links.facebook !== '#') fb.href = links.facebook;
+      } catch {}
+    });
+  </script>
+</body>
+</html>

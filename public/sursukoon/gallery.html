@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gallery | Sur-Sukoon by Utkarsh</title>
+  <link rel="stylesheet" href="/css/sursukoon.css">
+</head>
+<body class="sursukoon-body">
+  <div id="ss-gallery-page">
+  <div class="ss-bg-stars"></div>
+
+  <nav class="ss-navbar scrolled" id="ss-navbar">
+    <div class="ss-navbar-inner">
+      <a href="/sursukoon" class="ss-logo" style="text-decoration:none;">
+        <div class="logo-icon">🎵</div>
+        <div><div class="logo-name">Sur-Sukoon</div><div class="logo-sub">by Utkarsh</div></div>
+      </a>
+      <ul class="ss-nav-links" id="ss-nav-links">
+        <button class="nav-close" id="ss-nav-close" style="position:absolute;top:24px;right:24px;background:none;border:none;color:white;font-size:2rem;cursor:pointer;">✕</button>
+        <li><a href="/sursukoon" class="ss-nav-link">Home</a></li>
+        <li><a href="/sursukoon/about" class="ss-nav-link">About</a></li>
+        <li><a href="/sursukoon/gallery" class="ss-nav-link active">Gallery</a></li>
+        <li><a href="/" class="ss-back-btn">← Back to Utkarsh</a></li>
+      </ul>
+      <div style="display:flex;gap:12px;align-items:center;">
+        <a href="/sursukoon/register" class="ss-register-btn">Register 🎤</a>
+        <button class="ss-hamburger" id="ss-hamburger"><span></span><span></span><span></span></button>
+      </div>
+    </div>
+  </nav>
+
+  <section style="background:radial-gradient(ellipse at center,var(--ss-purple),var(--ss-dark));padding:120px 0 60px;">
+    <div class="ss-container" style="text-align:center;">
+      <div class="ss-hero-label" style="display:inline-flex;margin-bottom:16px;">📸 Gallery</div>
+      <h1 style="font-family:var(--ss-font-display);color:var(--ss-white);font-size:clamp(2rem,5vw,3.5rem);">Memories <span style="color:var(--ss-gold);">Captured</span></h1>
+      <p style="color:var(--ss-text-dim);margin-top:12px;">Relive the magical moments from past Sur-Sukoon events.</p>
+    </div>
+  </section>
+
+  <!-- PHOTO GALLERY -->
+  <section class="ss-section">
+    <div class="ss-container">
+      <div class="ss-section-header ss-fade-in">
+        <div class="label">Photos</div>
+        <h2>Photo <span>Gallery</span></h2>
+        <div class="gold-line-ss"></div>
+      </div>
+      <div class="ss-gallery-grid" id="ss-photo-gallery">
+        <div style="text-align:center;padding:60px;column-span:all;color:var(--ss-text-dim);">
+          <div style="width:40px;height:40px;border:2px solid rgba(255,255,255,0.1);border-top-color:var(--ss-magenta);border-radius:50%;animation:sspin 0.7s linear infinite;margin:0 auto 16px;"></div>
+          <style>@keyframes sspin{to{transform:rotate(360deg)}}</style>
+          <p>Loading gallery...</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- VIDEO GALLERY -->
+  <section class="ss-section" style="background:rgba(255,255,255,0.02);">
+    <div class="ss-container">
+      <div class="ss-section-header ss-fade-in">
+        <div class="label">Videos</div>
+        <h2>Event <span>Videos</span></h2>
+        <div class="gold-line-ss"></div>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;" id="ss-video-gallery">
+        <div style="text-align:center;padding:40px;grid-column:1/-1;color:var(--ss-text-dim);">
+          <p>Loading videos...</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <footer style="background:var(--ss-black);border-top:1px solid var(--ss-border-magenta);padding:32px 0 24px;">
+    <div class="ss-container" style="text-align:center;">
+      <p style="color:var(--ss-text-dim);font-size:0.85rem;">© 2025 Sur-Sukoon by Utkarsh Samajik Seva Sansthan</p>
+      <a href="/sursukoon" style="color:var(--ss-gold);font-size:0.85rem;display:inline-block;margin-top:8px;">← Back to Sur-Sukoon Home</a>
+    </div>
+  </footer>
+
+  </div>
+  <script src="/js/sursukoon.js"></script>
+</body>
+</html>

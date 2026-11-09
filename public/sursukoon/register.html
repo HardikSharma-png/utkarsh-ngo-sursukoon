@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Register for Sur-Sukoon — Utkarsh's musical evening. Register as Performer (paid) or Audience (free entry). Fill the form now.">
+  <title>Register | Sur-Sukoon by Utkarsh</title>
+  <link rel="stylesheet" href="/css/sursukoon.css">
+</head>
+<body class="sursukoon-body">
+  <div id="ss-register-page">
+  <div class="ss-bg-stars"></div>
+
+  <!-- NAVBAR -->
+  <nav class="ss-navbar scrolled" id="ss-navbar">
+    <div class="ss-navbar-inner">
+      <a href="/sursukoon" class="ss-logo" style="text-decoration:none;">
+        <div class="logo-icon">🎵</div>
+        <div>
+          <div class="logo-name">Sur-Sukoon</div>
+          <div class="logo-sub">by Utkarsh</div>
+        </div>
+      </a>
+      <ul class="ss-nav-links" id="ss-nav-links">
+        <button class="nav-close" id="ss-nav-close" style="position:absolute;top:24px;right:24px;background:none;border:none;color:white;font-size:2rem;cursor:pointer;">✕</button>
+        <li><a href="/sursukoon" class="ss-nav-link">Home</a></li>
+        <li><a href="/sursukoon/about" class="ss-nav-link">About</a></li>
+        <li><a href="/sursukoon/gallery" class="ss-nav-link">Gallery</a></li>
+        <li><a href="/" class="ss-back-btn">← Back to Utkarsh</a></li>
+      </ul>
+      <button class="ss-hamburger" id="ss-hamburger"><span></span><span></span><span></span></button>
+    </div>
+  </nav>
+
+  <!-- PAGE HEADER -->
+  <section style="background:radial-gradient(ellipse at center,var(--ss-purple),var(--ss-dark));padding:120px 0 60px;">
+    <div class="ss-container" style="text-align:center;">
+      <div class="ss-hero-label" style="display:inline-flex;margin-bottom:16px;">📝 Registration</div>
+      <h1 style="font-family:var(--ss-font-display);color:var(--ss-white);font-size:clamp(2rem,5vw,3.5rem);">Join <span style="color:var(--ss-gold);">Sur-Sukoon</span></h1>
+      <p style="color:var(--ss-text-dim);margin-top:12px;">Choose your role and fill the form below. We'll confirm on WhatsApp!</p>
+    </div>
+  </section>
+
+  <!-- REGISTRATION FORMS -->
+  <section class="ss-section">
+    <div class="ss-container">
+
+      <div id="ss-register-container">
+        <!-- TOGGLE -->
+        <div class="ss-form-toggle ss-fade-in">
+          <button class="ss-toggle-btn active" id="toggle-performer">🎤 Performer</button>
+          <button class="ss-toggle-btn" id="toggle-audience">👥 Audience</button>
+        </div>
+
+        <!-- PERFORMER FORM -->
+        <div class="ss-form-container ss-fade-in" id="performer-form">
+          <h3 style="color:var(--ss-white);margin-bottom:8px;">Performer Registration</h3>
+          <p style="color:var(--ss-text-dim);font-size:0.9rem;margin-bottom:28px;">Fill in your details to perform at Sur-Sukoon. Limited seats available!</p>
+
+          <form id="performer-registration-form" novalidate enctype="multipart/form-data">
+            <div class="ss-form-grid">
+              <div class="ss-form-group">
+                <label class="ss-form-label">Full Name <span class="req">*</span></label>
+                <input class="ss-form-input" type="text" name="fullName" required placeholder="Your full name">
+              </div>
+              <div class="ss-form-group">
+                <label class="ss-form-label">Phone Number <span class="req">*</span></label>
+                <input class="ss-form-input" type="tel" name="phone" required placeholder="+91 XXXXX XXXXX">
+              </div>
+            </div>
+            <div class="ss-form-grid">
+              <div class="ss-form-group">
+                <label class="ss-form-label">Email Address <span class="req">*</span></label>
+                <input class="ss-form-input" type="email" name="email" required placeholder="Your email">
+              </div>
+              <div class="ss-form-group">
+                <label class="ss-form-label">City</label>
+                <input class="ss-form-input" type="text" name="city" placeholder="Your city">
+              </div>
+            </div>
+            <div class="ss-form-group">
+              <label class="ss-form-label">Select Event <span class="req">*</span></label>
+              <select class="ss-form-select ss-event-select" name="eventId" required></select>
+            </div>
+            <div class="ss-form-grid">
+              <div class="ss-form-group">
+                <label class="ss-form-label">Song Name or Genre <span class="req">*</span></label>
+                <input class="ss-form-input" type="text" name="songGenre" required placeholder="e.g. Lag Jaa Gale / Ghazal">
+              </div>
+              <div class="ss-form-group">
+                <label class="ss-form-label">Performance Duration</label>
+                <select class="ss-form-select" name="duration">
+                  <option value="5 minutes">5 minutes</option>
+                  <option value="8 minutes">8 minutes</option>
+                  <option value="10 minutes">10 minutes</option>
+                  <option value="15 minutes">15 minutes</option>
+                </select>
+              </div>
+            </div>
+            <div class="ss-form-group">
+              <label class="ss-form-label">Special Requirements (optional)</label>
+              <textarea class="ss-form-textarea" name="specialRequirements" placeholder="Any special technical, music, or stage requirements..."></textarea>
+            </div>
+
+            <!-- PAYMENT SECTION -->
+            <div class="ss-payment-section">
+              <h4>💳 Payment Details</h4>
+              <p style="color:var(--ss-text-dim);font-size:0.88rem;margin-bottom:16px;">Registration Fee: <strong style="color:var(--ss-gold);">₹<span class="ss-reg-fee-display">500</span></strong> — Pay via UPI or Bank Transfer</p>
+
+              <div class="ss-qr-box">
+                <img id="ss-upi-qr" src="https://via.placeholder.com/160x160/0F0913/FFD700?text=UPI+QR" alt="UPI QR Code">
+                <div class="ss-qr-label">Scan to pay via any UPI app</div>
+              </div>
+
+              <div class="ss-bank-details">
+                <div class="detail-row">
+                  <span class="detail-label">UPI ID:</span>
+                  <span class="detail-value" id="ss-upi-id">—</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Bank Name:</span>
+                  <span class="detail-value" id="ss-bank-name">—</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Account Name:</span>
+                  <span class="detail-value" id="ss-account-name">—</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">Account Number:</span>
+                  <span class="detail-value" id="ss-account-number">—</span>
+                </div>
+                <div class="detail-row">
+                  <span class="detail-label">IFSC Code:</span>
+                  <span class="detail-value" id="ss-ifsc-code">—</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="ss-form-group">
+              <label class="ss-form-label">Upload Payment Screenshot <span class="req">*</span></label>
+              <input class="ss-form-input" type="file" name="paymentScreenshot" id="payment-screenshot" accept="image/*" style="padding:10px;">
+              <div id="screenshot-preview" style="margin-top:10px;"></div>
+            </div>
+
+            <button type="submit" class="ss-btn ss-btn-primary" style="width:100%;justify-content:center;font-size:1rem;padding:16px;">
+              Register as Performer 🎤
+            </button>
+            <p style="text-align:center;color:var(--ss-text-dim);font-size:0.8rem;margin-top:12px;">After registration, send payment proof on WhatsApp for confirmation.</p>
+          </form>
+        </div>
+
+        <!-- AUDIENCE FORM -->
+        <div class="ss-form-container ss-fade-in hidden" id="audience-form">
+          <h3 style="color:var(--ss-white);margin-bottom:8px;">Audience Registration</h3>
+          <p style="color:var(--ss-text-dim);font-size:0.9rem;margin-bottom:8px;">Entry is <strong style="color:#00C896;">FREE</strong>! Pre-register to secure your spot.</p>
+          <div style="background:rgba(0,200,150,0.08);border:1px solid rgba(0,200,150,0.2);border-radius:10px;padding:12px 16px;margin-bottom:24px;">
+            <span style="color:#00C896;font-weight:600;">✅ Free Entry</span> — No payment required. Just register and come enjoy the evening!
+          </div>
+
+          <form id="audience-registration-form" novalidate>
+            <div class="ss-form-grid">
+              <div class="ss-form-group">
+                <label class="ss-form-label">Full Name <span class="req">*</span></label>
+                <input class="ss-form-input" type="text" name="fullName" required placeholder="Your full name">
+              </div>
+              <div class="ss-form-group">
+                <label class="ss-form-label">Phone Number <span class="req">*</span></label>
+                <input class="ss-form-input" type="tel" name="phone" required placeholder="+91 XXXXX XXXXX">
+              </div>
+            </div>
+            <div class="ss-form-grid">
+              <div class="ss-form-group">
+                <label class="ss-form-label">Email Address</label>
+                <input class="ss-form-input" type="email" name="email" placeholder="Your email (optional)">
+              </div>
+              <div class="ss-form-group">
+                <label class="ss-form-label">Number of People</label>
+                <select class="ss-form-select" name="numberOfPeople">
+                  <option value="1">Just me (1)</option>
+                  <option value="2">2 People</option>
+                  <option value="3">3 People</option>
+                  <option value="4">4 People</option>
+                  <option value="5">5 People</option>
+                  <option value="more">More than 5</option>
+                </select>
+              </div>
+            </div>
+            <div class="ss-form-group">
+              <label class="ss-form-label">Select Event <span class="req">*</span></label>
+              <select class="ss-form-select ss-event-select" name="eventId" required></select>
+            </div>
+            <div class="ss-form-group">
+              <label class="ss-form-label">How did you hear about Sur-Sukoon?</label>
+              <select class="ss-form-select" name="heardFrom">
+                <option value="WhatsApp">WhatsApp</option>
+                <option value="Instagram">Instagram</option>
+                <option value="Facebook">Facebook</option>
+                <option value="Friend/Family">Friend / Family</option>
+                <option value="Poster/Banner">Poster / Banner</option>
+                <option value="Newspaper">Newspaper</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
+            <button type="submit" class="ss-btn ss-btn-gold" style="width:100%;justify-content:center;font-size:1rem;padding:16px;">
+              Register as Audience 👥
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SUR-SUKOON FOOTER -->
+  <footer style="background:var(--ss-black);border-top:1px solid var(--ss-border-magenta);padding:40px 0 24px;">
+    <div class="ss-container" style="text-align:center;">
+      <p style="color:var(--ss-text-dim);font-size:0.85rem;margin-bottom:12px;">Questions? Reach us on WhatsApp</p>
+      <a href="https://wa.me/919829344949" target="_blank" class="ss-btn ss-btn-primary" style="background:#25D366;box-shadow:none;justify-content:center;">💬 98293-44949</a>
+      <p style="color:rgba(255,255,255,0.3);font-size:0.75rem;margin-top:24px;">© 2025 Sur-Sukoon by Utkarsh Samajik Seva Sansthan</p>
+    </div>
+  </footer>
+
+  </div><!-- #ss-register-page -->
+
+  <script src="/js/sursukoon.js"></script>
+</body>
+</html>

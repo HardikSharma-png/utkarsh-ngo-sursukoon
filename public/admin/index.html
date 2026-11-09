@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Admin Panel | Utkarsh NGO & Sur-Sukoon</title>
+  <link rel="stylesheet" href="/css/admin.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚙️</text></svg>">
+</head>
+<body>
+
+<!-- ====== LOGIN PAGE ====== -->
+<div id="admin-login-page" style="display:none;">
+  <div class="admin-login-page">
+    <div class="admin-login-card">
+      <div class="brand">
+        <img src="/images/utkarsh-logo.png" alt="Utkarsh NGO Logo" style="width:76px;height:76px;object-fit:contain;margin-bottom:8px;">
+        <h1>Admin Panel</h1>
+        <p>Utkarsh NGO & Sur-Sukoon CMS</p>
+      </div>
+      <div class="admin-login-error" id="login-error"></div>
+      <form id="login-form" novalidate>
+        <div class="admin-form-group">
+          <label class="admin-form-label">Email Address</label>
+          <div class="admin-input-wrap">
+            <span class="admin-input-icon">✉️</span>
+            <input class="admin-input" type="email" id="admin-email" name="email" required placeholder="admin@email.com" autocomplete="username">
+          </div>
+        </div>
+        <div class="admin-form-group">
+          <label class="admin-form-label">Password</label>
+          <div class="admin-input-wrap">
+            <span class="admin-input-icon">🔒</span>
+            <input class="admin-input" type="password" id="admin-password" name="password" required placeholder="••••••••" autocomplete="current-password">
+          </div>
+        </div>
+        <button type="submit" class="admin-login-btn">Sign In →</button>
+      </form>
+      <p class="admin-access-hint">🔒 Secured access — authorised personnel only</p>
+    </div>
+  </div>
+</div>
+
+<!-- ====== DASHBOARD PAGE ====== -->
+<div id="admin-dashboard-page" style="display:none;" class="admin-layout">
+
+  <!-- Mobile sidebar toggle -->
+  <button class="sidebar-toggle-btn" id="sidebar-toggle">
+    <span></span><span></span><span></span>
+  </button>
+
+  <!-- SIDEBAR -->
+  <aside class="admin-sidebar" id="admin-sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-brand">
+        <img src="/images/utkarsh-logo.png" alt="Utkarsh" style="width:42px;height:42px;object-fit:contain;flex-shrink:0;">
+        <div>
+          <div class="brand-name">Utkarsh Admin</div>
+          <div class="brand-sub">Content Management</div>
+        </div>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-title">Overview</div>
+      <div class="sidebar-nav-item active" data-section="dashboard">
+        <span class="nav-icon">📊</span> Dashboard
+      </div>
+
+      <div class="nav-section-title">NGO Management</div>
+      <div class="sidebar-nav-item" data-section="ngo-programmes">
+        <span class="nav-icon">📋</span> Core Programmes
+      </div>
+      <div class="sidebar-nav-item" data-section="upcoming-events">
+        <span class="nav-icon">📅</span> Upcoming Programmes
+      </div>
+      <div class="sidebar-nav-item" data-section="join-submissions">
+        <span class="nav-icon">🙋</span> Join Us Submissions
+      </div>
+
+      <div class="nav-section-title">Sur-Sukoon</div>
+      <div class="sidebar-nav-item" data-section="ss-events">
+        <span class="nav-icon">🎵</span> SS Events
+      </div>
+      <div class="sidebar-nav-item" data-section="ss-performers">
+        <span class="nav-icon">🎤</span> Performer Regs
+        <span class="nav-badge" id="pending-badge">0</span>
+      </div>
+      <div class="sidebar-nav-item" data-section="ss-audience">
+        <span class="nav-icon">👥</span> Audience Regs
+      </div>
+
+      <div class="nav-section-title">Media</div>
+      <div class="sidebar-nav-item" data-section="media-photos">
+        <span class="nav-icon">📷</span> Photos
+      </div>
+      <div class="sidebar-nav-item" data-section="media-videos">
+        <span class="nav-icon">🎬</span> Videos
+      </div>
+      <div class="sidebar-nav-item" data-section="media-press">
+        <span class="nav-icon">📰</span> Press Coverage
+      </div>
+
+      <div class="nav-section-title">Configuration</div>
+      <div class="sidebar-nav-item" data-section="page-content">
+        <span class="nav-icon">✏️</span> Page Content
+      </div>
+      <div class="sidebar-nav-item" data-section="settings">
+        <span class="nav-icon">⚙️</span> Site Settings
+      </div>
+      <div class="sidebar-nav-item" data-section="password">
+        <span class="nav-icon">🔑</span> Change Password
+      </div>
+    </nav>
+
+    <div class="sidebar-footer">
+      <button class="sidebar-logout-btn" id="logout-btn">
+        <span>🚪</span> Sign Out
+      </button>
+      <div style="margin-top:8px;">
+        <a href="/" target="_blank" style="font-size:0.78rem;color:var(--admin-text-dim);">← View NGO Site</a>
+        &nbsp;&nbsp;
+        <a href="/sursukoon" target="_blank" style="font-size:0.78rem;color:var(--admin-text-dim);">🎵 Sur-Sukoon</a>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="admin-main">
+    <div class="admin-topbar">
+      <div class="admin-page-title" id="admin-page-title">Dashboard Overview</div>
+      <div class="topbar-actions">
+        <a href="/" target="_blank" class="topbar-site-link">🌐 View Site</a>
+        <div class="admin-avatar" title="Logged in as Admin">A</div>
+      </div>
+    </div>
+
+    <div class="admin-content">
+
+      <!-- ===== DASHBOARD ===== -->
+      <div class="admin-section active" id="section-dashboard">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-header">
+              <div><div class="stat-label">Total Registrations</div><div class="stat-number" id="stat-total-regs">—</div></div>
+              <div class="stat-icon green">🙋</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-header">
+              <div><div class="stat-label">Upcoming Events</div><div class="stat-number" id="stat-upcoming-events">—</div></div>
+              <div class="stat-icon gold">📅</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-header">
+              <div><div class="stat-label">Media Files</div><div class="stat-number" id="stat-media-count">—</div></div>
+              <div class="stat-icon blue">📷</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-header">
+              <div><div class="stat-label">Pending Payments</div><div class="stat-number" id="stat-pending-payments">—</div></div>
+              <div class="stat-icon red">💳</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-header">
+              <div><div class="stat-label">Programmes</div><div class="stat-number" id="stat-programmes">—</div></div>
+              <div class="stat-icon green">📋</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-header">
+              <div><div class="stat-label">Performers</div><div class="stat-number" id="stat-performers">—</div></div>
+              <div class="stat-icon magenta">🎤</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-header">
+              <div><div class="stat-label">Audience Regs</div><div class="stat-number" id="stat-audience">—</div></div>
+              <div class="stat-icon gold">👥</div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-header">
+              <div><div class="stat-label">Volunteer Submissions</div><div class="stat-number" id="stat-submissions">—</div></div>
+              <div class="stat-icon blue">📝</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="admin-card">
+          <h3 style="margin-bottom:16px;">Quick Actions</h3>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;">
+            <button class="admin-btn admin-btn-primary" onclick="loadSection('ss-events');openAddSSEvent();">+ Add Sur-Sukoon Event</button>
+            <button class="admin-btn admin-btn-green" onclick="loadSection('ngo-programmes');openAddProgramme();">+ Add Programme</button>
+            <button class="admin-btn admin-btn-gold" onclick="loadSection('media-photos');">📷 Upload Photo</button>
+            <button class="admin-btn admin-btn-magenta" onclick="loadSection('ss-performers');">🎤 View Performers</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== NGO PROGRAMMES ===== -->
+      <div class="admin-section" id="section-ngo-programmes">
+        <div class="admin-section-header">
+          <div>
+            <div class="admin-section-title">Core Programmes</div>
+            <div class="admin-section-subtitle">Manage all NGO programme entries</div>
+          </div>
+          <button class="admin-btn admin-btn-primary" onclick="openAddProgramme()">+ Add Programme</button>
+        </div>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead>
+              <tr><th>Title</th><th>Category</th><th>Status</th><th>Joinable</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="programmes-tbody">
+              <tr><td colspan="5" style="text-align:center;padding:40px;color:var(--admin-text-dim);">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===== UPCOMING EVENTS ===== -->
+      <div class="admin-section" id="section-upcoming-events">
+        <div class="admin-section-header">
+          <div><div class="admin-section-title">Upcoming Programmes</div></div>
+          <button class="admin-btn admin-btn-primary" onclick="openAddProgramme()">+ Add Upcoming Programme</button>
+        </div>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead><tr><th>Title</th><th>Date</th><th>Venue</th><th>Join Open</th><th>Actions</th></tr></thead>
+            <tbody id="upcoming-tbody"><tr><td colspan="5" style="text-align:center;padding:40px;">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===== JOIN SUBMISSIONS ===== -->
+      <div class="admin-section" id="section-join-submissions">
+        <div class="admin-section-header">
+          <div><div class="admin-section-title">Join Us Submissions</div></div>
+          <button class="admin-btn admin-btn-gold" onclick="exportJoinCSV()">📥 Export CSV (selected)</button>
+        </div>
+        <!-- Programme Filter -->
+        <div class="admin-card" style="margin-bottom:16px;padding:16px;">
+          <label class="admin-form-label" style="margin-bottom:8px;display:block;">🔽 Filter by Programme</label>
+          <select class="admin-form-control" id="join-prog-filter" style="max-width:360px;" onchange="renderJoinSubmissions(this.value)">
+            <option value="">All Programmes</option>
+          </select>
+        </div>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead><tr><th>Name</th><th>Phone</th><th>Email</th><th>Programme</th><th>Date</th><th>Action</th></tr></thead>
+            <tbody id="join-tbody"><tr><td colspan="6" style="text-align:center;padding:40px;">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===== SUR-SUKOON EVENTS ===== -->
+      <div class="admin-section" id="section-ss-events">
+        <div class="admin-section-header">
+          <div><div class="admin-section-title">Sur-Sukoon Events</div></div>
+          <button class="admin-btn admin-btn-magenta" onclick="openAddSSEvent()">+ Add Event</button>
+        </div>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead><tr><th>Event Name</th><th>Date</th><th>Venue</th><th>Seats Left</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="ss-events-tbody"><tr><td colspan="6" style="text-align:center;padding:40px;">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===== PERFORMER REGISTRATIONS ===== -->
+      <div class="admin-section" id="section-ss-performers">
+        <div class="admin-section-header">
+          <div><div class="admin-section-title">Performer Registrations</div></div>
+          <button class="admin-btn admin-btn-gold" onclick="exportPerformersCSV()">📥 Export CSV</button>
+        </div>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead><tr><th>Name</th><th>Phone</th><th>Song/Genre</th><th>City</th><th>Payment</th><th>Actions</th></tr></thead>
+            <tbody id="performers-tbody"><tr><td colspan="6" style="text-align:center;padding:40px;">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===== AUDIENCE REGISTRATIONS ===== -->
+      <div class="admin-section" id="section-ss-audience">
+        <div class="admin-section-header">
+          <div><div class="admin-section-title">Audience Registrations</div></div>
+          <button class="admin-btn admin-btn-gold" onclick="exportAudienceCSV()">📥 Export CSV</button>
+        </div>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead><tr><th>Name</th><th>Phone</th><th>Email</th><th>No. of People</th><th>Heard From</th><th>Actions</th></tr></thead>
+            <tbody id="audience-tbody"><tr><td colspan="6" style="text-align:center;padding:40px;">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===== MEDIA — PHOTOS ===== -->
+      <div class="admin-section" id="section-media-photos">
+        <div class="admin-section-header">
+          <div><div class="admin-section-title">Photo Gallery</div></div>
+        </div>
+
+        <!-- Upload Card -->
+        <div class="admin-card" style="margin-bottom:20px;">
+          <h4 style="margin-bottom:16px;">📤 Upload New Photo</h4>
+          <form id="photo-upload-form" enctype="multipart/form-data">
+            <div class="admin-form-grid">
+              <div class="admin-form-group">
+                <label class="admin-form-label">Select Photo <span style="color:var(--admin-red)">*</span></label>
+                <input class="admin-form-control" type="file" id="photo-file" name="photo" accept="image/*" required>
+              </div>
+              <div class="admin-form-group">
+                <label class="admin-form-label">Title</label>
+                <input class="admin-form-control" type="text" id="photo-title" placeholder="e.g. Award Ceremony 2024">
+              </div>
+            </div>
+            <div class="admin-form-grid">
+              <div class="admin-form-group">
+                <label class="admin-form-label">Section <span style="color:var(--admin-red)">*</span></label>
+                <select class="admin-form-control" id="photo-section" onchange="loadPhotoAlbumsForSection()">
+                  <option value="ngo">🌿 NGO Media</option>
+                  <option value="sursukoon">🎤 Sur-Sukoon Media</option>
+                </select>
+              </div>
+              <div class="admin-form-group">
+                <label class="admin-form-label">Album <span style="color:var(--admin-red)">*</span></label>
+                <select class="admin-form-control" id="photo-album-select" onchange="onPhotoAlbumChange()">
+                  <option value="">-- Loading albums... --</option>
+                  <option value="__new__">➕ Create New Album</option>
+                </select>
+              </div>
+            </div>
+            <div class="admin-form-group" id="new-photo-album-group" style="display:none;">
+              <label class="admin-form-label">New Album Name <span style="color:var(--admin-red)">*</span></label>
+              <input class="admin-form-control" type="text" id="photo-new-album-name" placeholder="e.g. Jal Bachao Campaign 2024">
+              <small style="color:var(--admin-text-dim);font-size:0.78rem;margin-top:4px;display:block;">All future photos can be added to this album by selecting it from the dropdown.</small>
+            </div>
+            <button type="submit" class="admin-btn admin-btn-primary">📤 Upload Photo</button>
+          </form>
+        </div>
+
+        <!-- Filter + Gallery -->
+        <div class="admin-card" style="padding:16px;margin-bottom:16px;">
+          <div style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;">
+            <div>
+              <label class="admin-form-label" style="margin-bottom:6px;display:block;">Section</label>
+              <select class="admin-form-control" id="photo-filter-section" style="min-width:190px;" onchange="onPhotoFilterSectionChange()">
+                <option value="">All Sections</option>
+                <option value="ngo">🌿 NGO Media</option>
+                <option value="sursukoon">🎤 Sur-Sukoon Media</option>
+              </select>
+            </div>
+            <div>
+              <label class="admin-form-label" style="margin-bottom:6px;display:block;">Album</label>
+              <select class="admin-form-control" id="photo-filter-album" style="min-width:220px;" onchange="applyPhotoFilter()">
+                <option value="">All Albums</option>
+              </select>
+            </div>
+            <button class="admin-btn admin-btn-outline admin-btn-sm" onclick="resetPhotoFilters()">✕ Clear</button>
+          </div>
+        </div>
+        <div id="photo-gallery-label" style="font-size:0.85rem;color:var(--admin-text-dim);margin-bottom:8px;padding:0 4px;"></div>
+        <div class="admin-gallery-grid" id="admin-photo-grid">
+          <p style="grid-column:1/-1;text-align:center;padding:40px;color:var(--admin-text-dim);">Loading...</p>
+        </div>
+      </div>
+
+      <!-- ===== MEDIA — VIDEOS ===== -->
+      <div class="admin-section" id="section-media-videos">
+        <div class="admin-section-header">
+          <div><div class="admin-section-title">Video Gallery</div></div>
+        </div>
+
+        <!-- Add Video Card -->
+        <div class="admin-card" style="margin-bottom:20px;">
+          <h4 style="margin-bottom:16px;">▶ Add New Video</h4>
+          <form id="add-video-form">
+            <div class="admin-form-grid">
+              <div class="admin-form-group">
+                <label class="admin-form-label">Title <span style="color:var(--admin-red)">*</span></label>
+                <input class="admin-form-control" type="text" id="video-title" required placeholder="e.g. Sur-Sukoon Season 4 Highlights">
+              </div>
+              <div class="admin-form-group">
+                <label class="admin-form-label">YouTube URL <span style="color:var(--admin-red)">*</span></label>
+                <input class="admin-form-control" type="url" id="video-url" required placeholder="https://youtube.com/watch?v=...">
+              </div>
+            </div>
+            <div class="admin-form-grid">
+              <div class="admin-form-group">
+                <label class="admin-form-label">Section <span style="color:var(--admin-red)">*</span></label>
+                <select class="admin-form-control" id="video-section" onchange="loadVideoAlbumsForSection()">
+                  <option value="ngo">🌿 NGO Media</option>
+                  <option value="sursukoon">🎤 Sur-Sukoon Media</option>
+                </select>
+              </div>
+              <div class="admin-form-group">
+                <label class="admin-form-label">Album</label>
+                <select class="admin-form-control" id="video-album-select" onchange="onVideoAlbumChange()">
+                  <option value="">-- Loading albums... --</option>
+                  <option value="__new__">➕ Create New Album</option>
+                </select>
+              </div>
+            </div>
+            <div class="admin-form-group" id="new-video-album-group" style="display:none;">
+              <label class="admin-form-label">New Album Name</label>
+              <input class="admin-form-control" type="text" id="video-new-album-name" placeholder="e.g. Sur-Sukoon Season 5">
+            </div>
+            <div class="admin-form-group">
+              <label class="admin-form-label">Date</label>
+              <input class="admin-form-control" type="date" id="video-date">
+            </div>
+            <button type="submit" class="admin-btn admin-btn-primary">+ Add Video</button>
+          </form>
+        </div>
+
+        <!-- Filter + Table -->
+        <div class="admin-card" style="padding:16px;margin-bottom:16px;">
+          <div style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap;">
+            <div>
+              <label class="admin-form-label" style="margin-bottom:6px;display:block;">Section</label>
+              <select class="admin-form-control" id="video-filter-section" style="min-width:190px;" onchange="onVideoFilterSectionChange()">
+                <option value="">All Sections</option>
+                <option value="ngo">🌿 NGO Media</option>
+                <option value="sursukoon">🎤 Sur-Sukoon Media</option>
+              </select>
+            </div>
+            <div>
+              <label class="admin-form-label" style="margin-bottom:6px;display:block;">Album</label>
+              <select class="admin-form-control" id="video-filter-album" style="min-width:220px;" onchange="applyVideoFilter()">
+                <option value="">All Albums</option>
+              </select>
+            </div>
+            <button class="admin-btn admin-btn-outline admin-btn-sm" onclick="resetVideoFilters()">✕ Clear</button>
+          </div>
+        </div>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead><tr><th>Title</th><th>Section</th><th>Album</th><th>Date</th><th>URL</th><th>Actions</th></tr></thead>
+            <tbody id="videos-tbody"><tr><td colspan="6" style="text-align:center;padding:40px;">Loading...</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===== MEDIA — PRESS ===== -->
+      <div class="admin-section" id="section-media-press">
+        <div class="admin-section-header">
+          <div><div class="admin-section-title">Press Coverage</div></div>
+        </div>
+        <div class="admin-card" style="margin-bottom:20px;">
+          <h4 style="margin-bottom:16px;">Add Press Article</h4>
+          <form id="add-press-form">
+            <div class="admin-form-grid">
+              <div class="admin-form-group">
+                <label class="admin-form-label">Title <span style="color:var(--admin-red)">*</span></label>
+                <input class="admin-form-control" type="text" id="press-title" required placeholder="Article headline">
+              </div>
+              <div class="admin-form-group">
+                <label class="admin-form-label">Source (Newspaper/Channel)</label>
+                <input class="admin-form-control" type="text" id="press-source" placeholder="e.g. Dainik Bhaskar">
+              </div>
+            </div>
+            <div class="admin-form-grid">
+              <div class="admin-form-group">
+                <label class="admin-form-label">Article Link (URL)</label>
+                <input class="admin-form-control" type="url" id="press-link" placeholder="https://...">
+              </div>
+              <div class="admin-form-group">
+                <label class="admin-form-label">Publication Date</label>
+                <input class="admin-form-control" type="date" id="press-date">
+              </div>
+            </div>
+            <button type="submit" class="admin-btn admin-btn-primary">+ Add Press Article</button>
+          </form>
+        </div>
+        <div class="admin-table-wrap">
+          <table class="admin-table">
+            <thead><tr><th>Title</th><th>Source</th><th>Date</th><th>Link</th><th>Actions</th></tr></thead>
+            <tbody id="press-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ===== PAGE CONTENT ===== -->
+      <div class="admin-section" id="section-page-content">
+        <div class="admin-section-header">
+          <div>
+            <div class="admin-section-title">Page Content Editor</div>
+            <div class="admin-section-subtitle">Override text content for any page section (bilingual: EN & HI)</div>
+          </div>
+          <button class="admin-btn admin-btn-primary" onclick="document.getElementById('edit-content-panel').style.display='block'">+ Add Content</button>
+        </div>
+        <div id="page-content-list">Loading...</div>
+
+        <!-- Edit Panel -->
+        <div id="edit-content-panel" class="admin-card mt-8" style="display:none;margin-top:20px;">
+          <h4 style="margin-bottom:16px;">Edit / Add Page Content</h4>
+          <input type="hidden" id="edit-content-id">
+          <div class="admin-form-grid">
+            <div class="admin-form-group">
+              <label class="admin-form-label">Page Key</label>
+              <select class="admin-form-control" id="edit-content-page">
+                <option value="home">Home</option>
+                <option value="about">About</option>
+                <option value="programmes">Programmes</option>
+                <option value="contact">Contact</option>
+                <option value="sursukoon">Sur-Sukoon Home</option>
+                <option value="sursukoon-about">Sur-Sukoon About</option>
+              </select>
+            </div>
+            <div class="admin-form-group">
+              <label class="admin-form-label">Section Identifier</label>
+              <input class="admin-form-control" type="text" id="edit-content-section" placeholder="e.g. hero.title, mission.text">
+            </div>
+          </div>
+          <div class="admin-form-group">
+            <label class="admin-form-label">Content (English)</label>
+            <textarea class="admin-form-control admin-form-textarea" id="edit-content-en" placeholder="English content..."></textarea>
+          </div>
+          <div class="admin-form-group">
+            <label class="admin-form-label">Content (Hindi)</label>
+            <textarea class="admin-form-control admin-form-textarea" id="edit-content-hi" placeholder="Hindi content..."></textarea>
+          </div>
+          <div style="display:flex;gap:12px;">
+            <button class="admin-btn admin-btn-primary" id="save-page-content-btn">Save Content</button>
+            <button class="admin-btn admin-btn-outline" onclick="document.getElementById('edit-content-panel').style.display='none'">Cancel</button>
+          </div>
+        </div>
+
+        <!-- Sur-Sukoon Testimonials -->
+        <div class="admin-card" style="margin-top:20px;">
+          <h4 style="margin-bottom:16px;">Sur-Sukoon Testimonials</h4>
+          <form id="add-testimonial-form">
+            <div class="admin-form-grid">
+              <div class="admin-form-group">
+                <label class="admin-form-label">Participant Name</label>
+                <input class="admin-form-control" type="text" id="test-name" placeholder="Name" required>
+              </div>
+              <div class="admin-form-group">
+                <label class="admin-form-label">Role</label>
+                <input class="admin-form-control" type="text" id="test-role" placeholder="e.g. Performer — Season 3">
+              </div>
+            </div>
+            <div class="admin-form-group">
+              <label class="admin-form-label">Testimonial Quote</label>
+              <textarea class="admin-form-control admin-form-textarea" id="test-quote" placeholder="Their words..." required></textarea>
+            </div>
+            <button type="submit" class="admin-btn admin-btn-magenta">+ Add Testimonial</button>
+          </form>
+        </div>
+      </div>
+
+      <!-- ===== SETTINGS ===== -->
+      <div class="admin-section" id="section-settings">
+        <div class="admin-section-title" style="margin-bottom:20px;">Site Settings</div>
+        <form id="settings-form">
+          <div class="admin-card" style="margin-bottom:16px;">
+            <h4 style="margin-bottom:16px;color:var(--admin-green);">📞 WhatsApp & Contact</h4>
+            <div class="admin-form-group">
+              <label class="admin-form-label">WhatsApp Number (with country code, no +)</label>
+              <input class="admin-form-control" type="text" id="set-whatsapp" placeholder="919829344949">
+            </div>
+          </div>
+
+          <div class="admin-card" style="margin-bottom:16px;">
+            <h4 style="margin-bottom:16px;color:var(--admin-gold);">💳 Payment Details (Sur-Sukoon)</h4>
+            <div class="admin-form-grid">
+              <div class="admin-form-group">
+                <label class="admin-form-label">UPI ID</label>
+                <input class="admin-form-control" type="text" id="set-upi-id" placeholder="name@upi">
+              </div>
+              <div class="admin-form-group">
+                <label class="admin-form-label">Bank Name</label>
+                <input class="admin-form-control" type="text" id="set-bank-name" placeholder="State Bank of India">
+              </div>
+            </div>
+            <div class="admin-form-grid">
+              <div class="admin-form-group">
+                <label class="admin-form-label">Account Name</label>
+                <input class="admin-form-control" type="text" id="set-account-name">
+              </div>
+              <div class="admin-form-group">
+                <label class="admin-form-label">Account Number</label>
+                <input class="admin-form-control" type="text" id="set-account-number">
+              </div>
+            </div>
+            <div class="admin-form-group">
+              <label class="admin-form-label">IFSC Code</label>
+              <input class="admin-form-control" type="text" id="set-ifsc" placeholder="SBIN0XXXXXX">
+            </div>
+          </div>
+
+          <div class="admin-card" style="margin-bottom:16px;">
+            <h4 style="margin-bottom:16px;color:var(--admin-blue);">📊 Impact Numbers (Home Page)</h4>
+            <div class="admin-form-grid">
+              <div class="admin-form-group">
+                <label class="admin-form-label">Cities Reached</label>
+                <input class="admin-form-control" type="number" id="set-impact-cities" placeholder="13">
+              </div>
+              <div class="admin-form-group">
+                <label class="admin-form-label">Volunteers</label>
+                <input class="admin-form-control" type="number" id="set-impact-volunteers" placeholder="50">
+              </div>
+            </div>
+            <div class="admin-form-group">
+              <label class="admin-form-label">Total Programmes</label>
+              <input class="admin-form-control" type="number" id="set-impact-programmes" placeholder="8">
+            </div>
+          </div>
+
+          <div class="admin-card" style="margin-bottom:16px;">
+            <h4 style="margin-bottom:16px;">🌐 Social Media Links</h4>
+            <div class="admin-form-grid">
+              <div class="admin-form-group">
+                <label class="admin-form-label">Facebook URL</label>
+                <input class="admin-form-control" type="url" id="set-facebook" placeholder="https://facebook.com/...">
+              </div>
+              <div class="admin-form-group">
+                <label class="admin-form-label">Instagram URL</label>
+                <input class="admin-form-control" type="url" id="set-instagram" placeholder="https://instagram.com/...">
+              </div>
+            </div>
+            <div class="admin-form-grid">
+              <div class="admin-form-group">
+                <label class="admin-form-label">YouTube URL</label>
+                <input class="admin-form-control" type="url" id="set-youtube" placeholder="https://youtube.com/...">
+              </div>
+              <div class="admin-form-group">
+                <label class="admin-form-label">Twitter/X URL</label>
+                <input class="admin-form-control" type="url" id="set-twitter" placeholder="https://x.com/...">
+              </div>
+            </div>
+          </div>
+
+          <div class="admin-card" style="margin-bottom:16px;">
+            <h4 style="margin-bottom:16px;color:var(--admin-yellow);">⚠️ Maintenance Mode</h4>
+            <label class="admin-form-check">
+              <input type="checkbox" id="set-maintenance">
+              Enable Maintenance Mode (shows maintenance notice on public site)
+            </label>
+          </div>
+
+          <button type="submit" class="admin-btn admin-btn-primary">💾 Save All Settings</button>
+        </form>
+      </div>
+
+      <!-- ===== CHANGE PASSWORD ===== -->
+      <div class="admin-section" id="section-password">
+        <div class="admin-section-title" style="margin-bottom:20px;">Change Password</div>
+        <div class="admin-card" style="max-width:480px;">
+          <form id="password-form" novalidate>
+            <div class="admin-form-group">
+              <label class="admin-form-label">Current Password</label>
+              <input class="admin-form-control" type="password" id="curr-password" required placeholder="••••••••">
+            </div>
+            <div class="admin-form-group">
+              <label class="admin-form-label">New Password</label>
+              <input class="admin-form-control" type="password" id="new-password" required placeholder="New password (min 6 chars)">
+            </div>
+            <div class="admin-form-group">
+              <label class="admin-form-label">Confirm New Password</label>
+              <input class="admin-form-control" type="password" id="confirm-password" required placeholder="Confirm new password">
+            </div>
+            <button type="submit" class="admin-btn admin-btn-primary">🔑 Change Password</button>
+          </form>
+        </div>
+      </div>
+
+    </div><!-- admin-content -->
+  </main>
+
+</div><!-- admin-dashboard-page -->
+
+<!-- ===== PROGRAMME MODAL ===== -->
+<div class="admin-modal-overlay" id="programme-modal">
+  <div class="admin-modal">
+    <div class="admin-modal-header">
+      <h3 id="modal-prog-title">Add New Programme</h3>
+      <button class="admin-modal-close" data-close-modal="programme-modal">✕</button>
+    </div>
+    <form id="programme-form">
+      <div class="admin-form-group">
+        <label class="admin-form-label">Title <span style="color:var(--admin-red)">*</span></label>
+        <input class="admin-form-control" type="text" id="prog-title" required>
+      </div>
+      <div class="admin-form-grid">
+        <div class="admin-form-group">
+          <label class="admin-form-label">Category</label>
+          <select class="admin-form-control" id="prog-category">
+            <option value="health">Health</option>
+            <option value="environment">Environment</option>
+            <option value="empowerment">Empowerment</option>
+            <option value="education">Education</option>
+            <option value="general">General</option>
+          </select>
+        </div>
+        <div class="admin-form-group">
+          <label class="admin-form-label">Status</label>
+          <select class="admin-form-control" id="prog-status">
+            <option value="active">Active</option>
+            <option value="upcoming">Upcoming</option>
+            <option value="past">Past</option>
+          </select>
+        </div>
+      </div>
+      <div class="admin-form-group">
+        <label class="admin-form-label">Short Description <span style="color:var(--admin-red)">*</span></label>
+        <textarea class="admin-form-control admin-form-textarea" id="prog-description" required></textarea>
+      </div>
+      <div class="admin-form-group">
+        <label class="admin-form-label">Full Description</label>
+        <textarea class="admin-form-control admin-form-textarea" id="prog-full-description" style="min-height:100px;"></textarea>
+      </div>
+      <div class="admin-form-grid">
+        <div class="admin-form-group">
+          <label class="admin-form-label">Date</label>
+          <input class="admin-form-control" type="date" id="prog-date">
+        </div>
+        <div class="admin-form-group">
+          <label class="admin-form-label">Venue</label>
+          <input class="admin-form-control" type="text" id="prog-venue">
+        </div>
+      </div>
+      <div class="admin-form-group">
+        <label class="admin-form-check">
+          <input type="checkbox" id="prog-joinable">
+          Enable "Join Us" form for this programme
+        </label>
+      </div>
+      <div class="admin-modal-footer">
+        <button type="button" class="admin-btn admin-btn-outline" data-close-modal="programme-modal">Cancel</button>
+        <button type="submit" class="admin-btn admin-btn-primary">Save Programme</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ===== SUR-SUKOON EVENT MODAL ===== -->
+<div class="admin-modal-overlay" id="ss-event-modal">
+  <div class="admin-modal">
+    <div class="admin-modal-header">
+      <h3 id="modal-ss-event-title">Add Sur-Sukoon Event</h3>
+      <button class="admin-modal-close" data-close-modal="ss-event-modal">✕</button>
+    </div>
+    <form id="ss-event-form">
+      <input type="hidden" id="ss-event-id">
+      <div class="admin-form-group">
+        <label class="admin-form-label">Event Name <span style="color:var(--admin-red)">*</span></label>
+        <input class="admin-form-control" type="text" id="ss-event-name" required placeholder="e.g. Sur-Sukoon — Season 5">
+      </div>
+      <div class="admin-form-grid">
+        <div class="admin-form-group">
+          <label class="admin-form-label">Date <span style="color:var(--admin-red)">*</span></label>
+          <input class="admin-form-control" type="date" id="ss-event-date" required>
+        </div>
+        <div class="admin-form-group">
+          <label class="admin-form-label">Time</label>
+          <input class="admin-form-control" type="text" id="ss-event-time" placeholder="e.g. 6:00 PM onwards">
+        </div>
+      </div>
+      <div class="admin-form-group">
+        <label class="admin-form-label">Venue</label>
+        <input class="admin-form-control" type="text" id="ss-event-venue" placeholder="e.g. Ravindra Manch, Jaipur">
+      </div>
+      <div class="admin-form-grid">
+        <div class="admin-form-group">
+          <label class="admin-form-label">Performer Seats</label>
+          <input class="admin-form-control" type="number" id="ss-event-seats" min="1" value="20">
+        </div>
+        <div class="admin-form-group">
+          <label class="admin-form-label">Registration Fee (₹)</label>
+          <input class="admin-form-control" type="number" id="ss-event-fee" min="0" value="500">
+        </div>
+      </div>
+      <div class="admin-form-grid">
+        <div class="admin-form-group">
+          <label class="admin-form-label">Last Registration Date</label>
+          <input class="admin-form-control" type="date" id="ss-event-deadline">
+        </div>
+        <div class="admin-form-group">
+          <label class="admin-form-label">Status</label>
+          <select class="admin-form-control" id="ss-event-status">
+            <option value="upcoming">Upcoming</option>
+            <option value="ongoing">Ongoing</option>
+            <option value="past">Past</option>
+          </select>
+        </div>
+      </div>
+      <div class="admin-form-group">
+        <label class="admin-form-label">Description</label>
+        <textarea class="admin-form-control admin-form-textarea" id="ss-event-description"></textarea>
+      </div>
+      <div class="admin-form-group">
+        <label class="admin-form-label">Promo Video URL (YouTube)</label>
+        <input class="admin-form-control" type="url" id="ss-event-promo" placeholder="https://youtube.com/...">
+      </div>
+      <div class="admin-form-group">
+        <label class="admin-form-check">
+          <input type="checkbox" id="ss-event-reg-open" checked>
+          Registration Open
+        </label>
+      </div>
+      <div class="admin-modal-footer">
+        <button type="button" class="admin-btn admin-btn-outline" data-close-modal="ss-event-modal">Cancel</button>
+        <button type="submit" class="admin-btn admin-btn-magenta">Save Event</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="/js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Sur-Sukoon — Ek Manch, Aapki Awaaz ke Naam. Musical cultural evening by Utkarsh Samajik Seva Sansthan. Register as performer or audience.">
+  <meta name="keywords" content="Sur-Sukoon, Utkarsh Jaipur, music event Jaipur, cultural programme Rajasthan">
+  <title>Sur-Sukoon | Utkarsh Presents — Ek Manch Aapki Awaaz ke Naam</title>
+  <link rel="stylesheet" href="/css/sursukoon.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎵</text></svg>">
+</head>
+<body class="sursukoon-body">
+  <div id="ss-home-page">
+  <div class="ss-bg-stars"></div>
+
+  <!-- NAVBAR -->
+  <nav class="ss-navbar" id="ss-navbar">
+    <div class="ss-navbar-inner">
+      <div class="ss-logo">
+        <div class="logo-icon">🎵</div>
+        <div>
+          <div class="logo-name">Sur-Sukoon</div>
+          <div class="logo-sub">by Utkarsh</div>
+        </div>
+      </div>
+
+      <ul class="ss-nav-links" id="ss-nav-links">
+        <button class="nav-close" id="ss-nav-close" style="position:absolute;top:24px;right:24px;background:none;border:none;color:white;font-size:2rem;cursor:pointer;">✕</button>
+        <li><a href="/sursukoon" class="ss-nav-link active">Home</a></li>
+        <li><a href="/sursukoon/about" class="ss-nav-link">About</a></li>
+        <li><a href="/sursukoon/gallery" class="ss-nav-link">Gallery</a></li>
+        <li><a href="/" class="ss-back-btn">← Back to Utkarsh</a></li>
+      </ul>
+
+      <div style="display:flex;align-items:center;gap:12px;">
+        <a href="/sursukoon/register" class="ss-register-btn" id="ss-reg-nav-btn">Register Now 🎤</a>
+        <button class="ss-hamburger" id="ss-hamburger">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="ss-hero">
+    <div class="ss-container">
+      <div class="ss-hero-content">
+        <div class="ss-hero-label">✨ Utkarsh Presents</div>
+
+        <div class="ss-mic-visual">
+          <span class="ss-mic">🎤</span>
+        </div>
+
+        <h1 class="ss-hero-title">
+          Sur-<span class="gold">Sukoon</span>
+        </h1>
+        <p class="ss-hero-tagline">"Ek Manch... <span>Aapki Awaaz ke Naam</span>"</p>
+
+        <!-- EVENT DETAILS STRIP -->
+        <div class="ss-event-strip ss-fade-in">
+          <div class="ss-event-item">
+            <span class="icon">📅</span>
+            <div>
+              <div style="font-size:0.72rem;color:var(--ss-gold);font-weight:600;letter-spacing:1px;text-transform:uppercase;">Date</div>
+              <div class="value" id="ss-event-date">Loading...</div>
+            </div>
+          </div>
+          <div class="ss-event-item">
+            <span class="icon">🕐</span>
+            <div>
+              <div style="font-size:0.72rem;color:var(--ss-gold);font-weight:600;letter-spacing:1px;text-transform:uppercase;">Time</div>
+              <div class="value" id="ss-event-time">—</div>
+            </div>
+          </div>
+          <div class="ss-event-item">
+            <span class="icon">📍</span>
+            <div>
+              <div style="font-size:0.72rem;color:var(--ss-gold);font-weight:600;letter-spacing:1px;text-transform:uppercase;">Venue</div>
+              <div class="value" id="ss-event-venue">—</div>
+            </div>
+          </div>
+          <div class="ss-event-item">
+            <span class="icon">🎤</span>
+            <div>
+              <div style="font-size:0.72rem;color:var(--ss-gold);font-weight:600;letter-spacing:1px;text-transform:uppercase;">Performer Seats</div>
+              <div class="value" id="ss-performer-seats">—</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="text-align:center;">
+          <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
+            <a href="/sursukoon/register" class="ss-btn ss-btn-primary ss-performer-btn">🎤 Register as Performer</a>
+            <a href="/sursukoon/register?tab=audience" class="ss-btn ss-btn-outline-gold">👥 Free Audience Entry</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- OPTION CARDS -->
+  <section class="ss-section">
+    <div class="ss-container">
+      <div class="ss-section-header ss-fade-in">
+        <div class="label">Join The Evening</div>
+        <h2>Choose Your <span>Role</span></h2>
+        <div class="gold-line-ss"></div>
+      </div>
+
+      <div class="ss-options-grid ss-fade-in">
+        <div class="ss-option-card">
+          <span class="option-icon">🎤</span>
+          <h3>Performer</h3>
+          <div class="fee-badge">Fee: ₹<span id="ss-reg-fee">500</span></div>
+          <p>Showcase your vocal talent on a professional stage. Open to all genres — classical, semi-classical, Bollywood, folk, ghazal.</p>
+          <p style="font-size:0.82rem;color:var(--ss-gold);margin-bottom:16px;">Last Date: <span id="ss-reg-deadline">TBA</span></p>
+          <a href="/sursukoon/register" class="ss-btn ss-btn-primary" style="width:100%;justify-content:center;">Register as Performer →</a>
+        </div>
+
+        <div class="ss-option-card">
+          <span class="option-icon">🎭</span>
+          <h3>Audience</h3>
+          <div class="fee-badge" style="background:rgba(0,200,150,0.15);border-color:rgba(0,200,150,0.3);color:#00C896;">FREE Entry</div>
+          <p>Come, enjoy an evening of soul-stirring music in the company of passionate artists and a warm community audience.</p>
+          <p style="font-size:0.82rem;color:rgba(255,255,255,0.5);margin-bottom:16px;">Pre-registration recommended</p>
+          <a href="/sursukoon/register?tab=audience" class="ss-btn ss-btn-outline-gold" style="width:100%;justify-content:center;">Register as Audience →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROMO VIDEO -->
+  <section class="ss-section" style="background:rgba(255,255,255,0.02);">
+    <div class="ss-container">
+      <div class="ss-section-header ss-fade-in">
+        <div class="label">Watch</div>
+        <h2>Promo <span>Video</span></h2>
+        <div class="gold-line-ss"></div>
+      </div>
+      <div class="ss-fade-in" id="ss-promo-video" style="text-align:center;border:1px solid var(--ss-border-gold);border-radius:var(--ss-radius-lg);padding:40px;color:var(--ss-text-dim);">
+        <div style="font-size:4rem;margin-bottom:16px;">🎬</div>
+        <p>Promo video coming soon...</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- UPCOMING SUR-SUKOON EVENTS -->
+  <section class="ss-section">
+    <div class="ss-container">
+      <div class="ss-section-header ss-fade-in">
+        <div class="label">What's Coming</div>
+        <h2>Upcoming <span>Events</span></h2>
+        <div class="gold-line-ss"></div>
+      </div>
+      <div id="ss-upcoming-events">
+        <div style="text-align:center;padding:40px;color:var(--ss-text-dim);">
+          <div style="width:32px;height:32px;border:2px solid rgba(255,255,255,0.1);border-top-color:var(--ss-magenta);border-radius:50%;animation:sspin 0.7s linear infinite;margin:0 auto 12px;"></div>
+          <style>@keyframes sspin{to{transform:rotate(360deg)}}</style>
+          <p>Loading events...</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SING SHARE INSPIRE -->
+  <section class="ss-section" style="background:rgba(255,255,255,0.02);">
+    <div class="ss-container">
+      <div class="ss-section-header ss-fade-in">
+        <div class="label">Sur-Sukoon Spirit</div>
+        <h2>Sing. Share. <span>Inspire.</span></h2>
+        <div class="gold-line-ss"></div>
+      </div>
+      <div class="ss-ssi-grid">
+        <div class="ss-ssi-card ss-fade-in">
+          <span class="icon">🎵</span>
+          <h3>Sing</h3>
+          <p>Every voice deserves a stage. Sur-Sukoon gives you that platform — professional, respectful, and celebratory.</p>
+        </div>
+        <div class="ss-ssi-card ss-fade-in fade-in-delay-1">
+          <span class="icon">💫</span>
+          <h3>Share</h3>
+          <p>Share your music with an audience that truly listens. Create memories that last a lifetime with Sur-Sukoon.</p>
+        </div>
+        <div class="ss-ssi-card ss-fade-in fade-in-delay-2">
+          <span class="icon">🌟</span>
+          <h3>Inspire</h3>
+          <p>Your performance can inspire the next generation of singers. Be the reason someone falls in love with music.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER (Sur-Sukoon) -->
+  <footer style="background:var(--ss-black);border-top:1px solid var(--ss-border-magenta);padding:40px 0 24px;">
+    <div class="ss-container">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;gap:32px;margin-bottom:32px;">
+        <div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+            <span style="font-size:1.5rem;">🎵</span>
+            <span style="font-size:1.2rem;font-weight:700;color:var(--ss-white);">Sur-Sukoon</span>
+          </div>
+          <p style="color:var(--ss-text-dim);font-size:0.85rem;max-width:300px;">A cultural celebration of music and voice, presented by Utkarsh Samajik Seva Sansthan.</p>
+        </div>
+        <div>
+          <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--ss-gold);margin-bottom:12px;">Quick Links</div>
+          <ul style="display:flex;flex-direction:column;gap:8px;list-style:none;">
+            <li><a href="/sursukoon" style="color:var(--ss-text-dim);font-size:0.88rem;">Home</a></li>
+            <li><a href="/sursukoon/register" style="color:var(--ss-text-dim);font-size:0.88rem;">Register</a></li>
+            <li><a href="/sursukoon/gallery" style="color:var(--ss-text-dim);font-size:0.88rem;">Gallery</a></li>
+            <li><a href="/sursukoon/about" style="color:var(--ss-text-dim);font-size:0.88rem;">About Sur-Sukoon</a></li>
+            <li><a href="/" style="color:#6ED8B8;font-size:0.88rem;">← Back to Utkarsh NGO</a></li>
+          </ul>
+        </div>
+        <div>
+          <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--ss-gold);margin-bottom:12px;">Contact</div>
+          <p style="color:var(--ss-text-dim);font-size:0.85rem;">📞 <a href="tel:+919829344949" style="color:inherit;">98293-44949</a></p>
+          <a href="https://wa.me/919829344949" target="_blank" class="ss-btn ss-btn-primary" style="margin-top:12px;padding:8px 16px;font-size:0.82rem;">💬 WhatsApp</a>
+        </div>
+      </div>
+      <div style="border-top:1px solid var(--ss-border-magenta);padding-top:20px;text-align:center;font-size:0.78rem;color:var(--ss-text-dim);">
+        © 2025 Sur-Sukoon by Utkarsh Samajik Seva Sansthan. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  </div><!-- #ss-home-page -->
+
+  <script src="/js/sursukoon.js"></script>
+</body>
+</html>
