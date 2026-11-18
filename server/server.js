@@ -12,15 +12,45 @@ app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-// Ensure DB connection for serverless invocations (e.g., Vercel)
-app.use(async (req, res, next) => {
-  const mongoose = require('mongoose');
-  if (mongoose.connection.readyState !== 1 && process.env.MONGODB_URI) {
-    try {
-      await connectDB();
-    } catch (_) {}
-  }
+// ─── DISABLE CACHING ON ALL /api/* RESPONSES ─────────────────────
+app.use('/api', (req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  res.setHeader('Surrogate-Control', 'no-store');
   next();
+});
+
+// ─── DIAGNOSTIC ENDPOINT: GET /api/db-status ──────────────────────
+app.get('/api/db-status', async (req, res) => {
+  const mongoose = require('mongoose');
+  let error = null;
+  try {
+    await connectDB();
+  } catch (err) {
+    error = err.message;
+  }
+  return res.json({
+    connected: mongoose.connection.readyState === 1,
+    error: error,
+    hasUri: !!process.env.MONGODB_URI
+  });
+});
+
+// ─── AWAIT MONGODB CONNECTION BEFORE EVERY API REQUEST ─────────────
+app.use('/api', async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    console.error(`[DB Middleware] Connection failed on ${req.method} ${req.originalUrl}:`, err.message);
+    return res.status(500).json({
+      success: false,
+      error: 'Database connection failed',
+      message: err.message,
+      hasUri: !!process.env.MONGODB_URI
+    });
+  }
 });
 
 // Serve uploaded files (legacy disk files if present)
@@ -101,8 +131,8 @@ const startServer = async () => {
     console.log('Seed data skipped (DB may be offline):', err.message);
   }
 
-  // Only start listening when not running in Vercel serverless environment
-  if (process.env.VERCEL !== '1' && !process.env.VERCEL_ENV) {
+  // Only start listening when not running in Vercel serverless environment and when run as main script
+  if (process.env.VERCEL !== '1' && !process.env.VERCEL_ENV && require.main === module) {
     app.listen(PORT, () => {
       console.log(`\n🚀 Utkarsh NGO & Sur-Sukoon Server running on http://localhost:${PORT}`);
       console.log(`📋 Admin Panel: http://localhost:${PORT}/admin`);

@@ -33,7 +33,7 @@ async function adminFetch(url, options = {}) {
     delete headers['content-type'];
   }
   try {
-    const res = await fetch(ADMIN_API + url, { ...options, headers });
+    const res = await fetch(ADMIN_API + url, { cache: 'no-store', ...options, headers });
     if (res.status === 401) { logout(); return { ok: false, data: { message: 'Session expired.' } }; }
     const data = await res.json().catch(() => ({}));
     return { ok: res.ok, status: res.status, data };
@@ -46,6 +46,7 @@ async function login(email, password) {
   try {
     const res = await fetch('/api/auth/login', {
       method: 'POST',
+      cache: 'no-store',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password })
     });
@@ -1726,7 +1727,7 @@ function closeModal(id) {
 
 async function fetchAndDownload(endpoint, filename) {
   try {
-    const res = await fetch(ADMIN_API + endpoint, { headers: { 'Authorization': `Bearer ${authToken}` } });
+    const res = await fetch(ADMIN_API + endpoint, { cache: 'no-store', headers: { 'Authorization': `Bearer ${authToken}` } });
     if (!res.ok) { adminToast('Export failed.', 'error'); return; }
     const blob = await res.blob();
     const url = URL.createObjectURL(blob);
@@ -1841,7 +1842,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Verify token if already logged in
   if (authToken) {
     try {
-      const res = await fetch('/api/auth/verify', { headers: { 'Authorization': `Bearer ${authToken}` } });
+      const res = await fetch('/api/auth/verify', { cache: 'no-store', headers: { 'Authorization': `Bearer ${authToken}` } });
       if (res.ok) { showDashboardPage(); return; }
     } catch {}
     logout();

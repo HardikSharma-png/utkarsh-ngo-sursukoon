@@ -28,7 +28,7 @@ async function ssApiCall(endpoint, options = {}) {
   try {
     const isFormData = options.body instanceof FormData;
     const headers = isFormData ? {} : { 'Content-Type': 'application/json' };
-    const res = await fetch(endpoint, { headers, ...options });
+    const res = await fetch(endpoint, { cache: 'no-store', headers, ...options });
     const data = await res.json();
     return { ok: res.ok, data };
   } catch (err) {
@@ -116,7 +116,7 @@ async function initSSHome() {
 
   let hpConfig = null;
   try {
-    const res = await fetch('/api/homepage-config');
+    const res = await fetch('/api/homepage-config', { cache: 'no-store' });
     const json = await res.json();
     if (json.success && json.data) {
       hpConfig = json.data;
@@ -386,7 +386,7 @@ async function loadSSHighlightsVideos(dynamicHighlights) {
     }));
   } else {
     try {
-      const res = await fetch('/api/media?type=video&mediaType=sursukoon');
+      const res = await fetch('/api/media?type=video&mediaType=sursukoon', { cache: 'no-store' });
       const data = await res.json();
       const videos = (data.data || []).filter(v => v && v.url);
       items = videos.map((v, idx) => ({
@@ -510,7 +510,7 @@ async function loadSSHighlightsVideos(dynamicHighlights) {
 
 async function loadSSEventDetails() {
   try {
-    const res = await fetch(`${SS_API}/events`);
+    const res = await fetch(`${SS_API}/events`, { cache: 'no-store' });
     const data = await res.json();
     const events = data.data || [];
     if (!events.length) return;
@@ -561,7 +561,7 @@ async function loadSSUpcomingEvents() {
   if (!container) return;
 
   try {
-    const res = await fetch(`${SS_API}/events`);
+    const res = await fetch(`${SS_API}/events`, { cache: 'no-store' });
     const data = await res.json();
     const events = data.data || [];
 
@@ -724,7 +724,7 @@ function updateAudienceFeeDisplay() {
 
 async function loadSSEventsForForm() {
   try {
-    const res = await fetch(`${SS_API}/events`);
+    const res = await fetch(`${SS_API}/events`, { cache: 'no-store' });
     const data = await res.json();
     _ssFormEvents = data.data || [];
 
@@ -754,7 +754,7 @@ async function loadSSEventsForForm() {
 
 async function loadPaymentSettings() {
   try {
-    const res = await fetch('/api/settings?keys=upiId,upiQrUrl,accountName');
+    const res = await fetch('/api/settings?keys=upiId,upiQrUrl,accountName', { cache: 'no-store' });
     const data = await res.json();
     const s = data.data || {};
 
@@ -944,7 +944,7 @@ async function loadSSPhotos() {
   renderPhotoSkeletons(container);
 
   try {
-    const res = await fetch('/api/gallery/photos');
+    const res = await fetch('/api/gallery/photos', { cache: 'no-store' });
     const json = await res.json();
     _ssPhotos = Array.isArray(json.data) ? json.data : [];
 
@@ -1007,7 +1007,7 @@ async function loadSSVideos() {
   renderVideoSkeletons(container);
 
   try {
-    const res = await fetch('/api/gallery/videos');
+    const res = await fetch('/api/gallery/videos', { cache: 'no-store' });
     const json = await res.json();
     _ssVideos = Array.isArray(json.data) ? json.data : [];
 
@@ -1238,7 +1238,7 @@ async function loadSSTestimonials() {
   if (!container) return;
 
   try {
-    const res = await fetch('/api/settings?keys=ssTestimonials');
+    const res = await fetch('/api/settings?keys=ssTestimonials', { cache: 'no-store' });
     const data = await res.json();
     const testimonials = data.data?.ssTestimonials || [];
 
@@ -1268,7 +1268,7 @@ async function loadSSPastEvents() {
   if (!container) return;
 
   try {
-    const res = await fetch(`${SS_API}/events/all`);
+    const res = await fetch(`${SS_API}/events/all`, { cache: 'no-store' });
     const data = await res.json();
     const events = (data.data || []).filter(e => e.status === 'past');
 

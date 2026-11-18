@@ -1,8 +1,5 @@
-const { store, isDbReady } = require('../utils/memStore');
-
-let Settings, Media;
-try { Settings = require('../models/Settings'); } catch (e) {}
-try { Media = require('../models/Media'); } catch (e) {}
+const Settings = require('../models/Settings');
+const Media = require('../models/Media');
 
 // 12-minute in-memory cache TTL (within requested 10-15 min window)
 const CACHE_TTL_MS = 12 * 60 * 1000;
@@ -31,29 +28,26 @@ function isCacheFresh(bucket, currentUrl) {
 
 async function getSettingValue(key) {
   try {
-    if (isDbReady() && Settings) {
-      const doc = await Settings.findOne({ key }).lean();
-      if (doc && doc.value !== undefined && doc.value !== null) {
-        store.settings[key] = doc.value;
-        return doc.value;
-      }
+    const doc = await Settings.findOne({ key }).lean();
+    if (doc && doc.value !== undefined && doc.value !== null) {
+      return doc.value;
     }
-  } catch (e) {}
-  return store.settings[key] !== undefined ? store.settings[key] : null;
+  } catch (e) {
+    console.error(`[Gallery] Error getting setting "${key}":`, e.message);
+  }
+  return null;
 }
 
 async function saveSettingValue(key, value) {
-  store.settings[key] = value;
-  if (isDbReady() && Settings) {
-    try {
-      await Settings.findOneAndUpdate(
-        { key },
-        { key, value },
-        { upsert: true, new: true }
-      );
-    } catch (e) {
-      console.error(`[Gallery] Failed to save setting "${key}":`, e.message);
-    }
+  try {
+    await Settings.findOneAndUpdate(
+      { key },
+      { key, value },
+      { upsert: true, new: true }
+    );
+  } catch (e) {
+    console.error(`[Gallery] Failed to save setting "${key}":`, e.message);
+    throw e;
   }
 }
 
@@ -716,12 +710,7 @@ async function fetchYouTubePlaylistVideos(playlistUrl) {
 
 async function getLocalFallbackPhotos() {
   try {
-    let items = [];
-    if (isDbReady() && Media) {
-      items = await Media.find({ type: 'photo', mediaType: 'sursukoon' }).sort({ order: 1, createdAt: -1 });
-    } else {
-      items = (store.media || []).filter(m => m.type === 'photo' && m.mediaType === 'sursukoon');
-    }
+    const items = await Media.find({ type: 'photo', mediaType: 'sursukoon' }).sort({ order: 1, createdAt: -1 });
     return items.map((p, i) => ({
       id: p._id || `local-p-${i}`,
       thumbUrl: p.url,
@@ -737,12 +726,7 @@ async function getLocalFallbackPhotos() {
 
 async function getLocalFallbackVideos() {
   try {
-    let items = [];
-    if (isDbReady() && Media) {
-      items = await Media.find({ type: 'video', mediaType: 'sursukoon' }).sort({ order: 1, createdAt: -1 });
-    } else {
-      items = (store.media || []).filter(m => m.type === 'video' && m.mediaType === 'sursukoon');
-    }
+    const items = await Media.find({ type: 'video', mediaType: 'sursukoon' }).sort({ order: 1, createdAt: -1 });
     return items.map((v, i) => {
       const videoId = extractYouTubeVideoId(v.url);
       return {

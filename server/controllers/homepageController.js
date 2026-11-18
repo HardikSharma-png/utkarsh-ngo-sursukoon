@@ -1,8 +1,5 @@
-const { store, isDbReady, uid } = require('../utils/memStore');
-
-let Settings, Sur_Sukoon_Event;
-try { Settings = require('../models/Settings'); } catch (e) {}
-try { Sur_Sukoon_Event = require('../models/Sur_Sukoon_Event'); } catch (e) {}
+const Settings = require('../models/Settings');
+const Sur_Sukoon_Event = require('../models/Sur_Sukoon_Event');
 
 const DEFAULT_BANNERS = [
   {
@@ -92,42 +89,31 @@ const DEFAULT_HERO_VIDEO = {
 
 async function getSetting(key, defaultValue) {
   try {
-    if (isDbReady() && Settings) {
-      const doc = await Settings.findOne({ key });
-      if (doc && doc.value !== undefined && doc.value !== null) {
-        store.settings[key] = doc.value;
-        return doc.value;
-      }
+    const doc = await Settings.findOne({ key }).lean();
+    if (doc && doc.value !== undefined && doc.value !== null) {
+      return doc.value;
     }
-  } catch (e) {}
-
-  if (store.settings[key] !== undefined && store.settings[key] !== null) {
-    return store.settings[key];
+  } catch (e) {
+    console.error(`[Homepage] Error getting setting ${key}:`, e.message);
   }
   return defaultValue;
 }
 
 async function saveSetting(key, value) {
-  store.settings[key] = value;
-  if (isDbReady() && Settings) {
-    await Settings.findOneAndUpdate(
-      { key },
-      { key, value },
-      { upsert: true, new: true }
-    );
-  }
+  await Settings.findOneAndUpdate(
+    { key },
+    { key, value },
+    { upsert: true, new: true }
+  );
 }
 
 async function getActiveEventPromoVideo() {
   try {
-    if (isDbReady() && Sur_Sukoon_Event) {
-      const event = await Sur_Sukoon_Event.findOne({ status: 'upcoming' }).sort({ date: 1 });
-      if (event && event.promoVideoUrl) return event.promoVideoUrl.trim();
-    }
-  } catch (e) {}
-
-  const memEvent = (store.ssEvents || []).find(e => e.status === 'upcoming');
-  if (memEvent && memEvent.promoVideoUrl) return memEvent.promoVideoUrl.trim();
+    const event = await Sur_Sukoon_Event.findOne({ status: 'upcoming' }).sort({ date: 1 });
+    if (event && event.promoVideoUrl) return event.promoVideoUrl.trim();
+  } catch (e) {
+    console.error('[Homepage] Error getting promo video:', e.message);
+  }
   return '';
 }
 

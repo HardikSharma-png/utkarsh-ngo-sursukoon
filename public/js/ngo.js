@@ -35,7 +35,7 @@ async function loadProgrammeCards() {
   if (!container) return;
 
   try {
-    const res = await fetch('/api/ngo/programmes');
+    const res = await fetch('/api/ngo/programmes', { cache: 'no-store' });
     const data = await res.json();
     const programmes = data.data || [];
 
@@ -83,7 +83,7 @@ async function loadSurSukoonBanner() {
   if (!banner) return;
 
   try {
-    const res = await fetch('/api/sursukoon/events');
+    const res = await fetch('/api/sursukoon/events', { cache: 'no-store' });
     const data = await res.json();
     const events = data.data || [];
     if (!events.length) return;
@@ -122,7 +122,7 @@ async function loadProgrammeDetails() {
   if (!container) return;
 
   try {
-    const res = await fetch('/api/ngo/programmes');
+    const res = await fetch('/api/ngo/programmes', { cache: 'no-store' });
     const data = await res.json();
     const programmes = data.data || [];
 
@@ -186,7 +186,7 @@ async function loadPhotos() {
 
   try {
     // Only load NGO photos — Sur-Sukoon has its own gallery at /sursukoon/gallery
-    const res = await fetch('/api/media?type=photo&mediaType=ngo');
+    const res = await fetch('/api/media?type=photo&mediaType=ngo', { cache: 'no-store' });
     const data = await res.json();
     _galleryPhotos = data.data || [];
 
@@ -267,7 +267,7 @@ async function loadVideos() {
 
   try {
     // Only load NGO videos — Sur-Sukoon has its own gallery at /sursukoon/gallery
-    const res = await fetch('/api/media?type=video&mediaType=ngo');
+    const res = await fetch('/api/media?type=video&mediaType=ngo', { cache: 'no-store' });
     const data = await res.json();
     const videos = data.data || [];
 
@@ -301,7 +301,7 @@ async function loadPressCards() {
   if (!container) return;
 
   try {
-    const res = await fetch('/api/media?type=press');
+    const res = await fetch('/api/media?type=press', { cache: 'no-store' });
     const data = await res.json();
     const items = data.data || [];
 

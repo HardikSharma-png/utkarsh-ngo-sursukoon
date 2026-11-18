@@ -1,26 +1,46 @@
 const mongoose = require('mongoose');
 
-let isConnected = false;
-const inMemoryData = {};
+// Cache the Mongoose connection promise globally across serverless invocations (Vercel best practice)
+let cached = global._mongoosePromise;
+if (!cached) {
+  cached = global._mongoosePromise = { conn: null, promise: null };
+}
 
 const connectDB = async () => {
-  if (mongoose.connection && mongoose.connection.readyState >= 1) {
-    isConnected = true;
-    return;
+  if (cached.conn && mongoose.connection.readyState === 1) {
+    return cached.conn;
   }
-  try {
-    const conn = await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/utkarsh_ngo', {
-      serverSelectionTimeoutMS: 5000,
+
+  const uri = process.env.MONGODB_URI;
+  if (!uri) {
+    throw new Error('MONGODB_URI environment variable is not defined.');
+  }
+
+  if (!cached.promise) {
+    const opts = {
+      bufferCommands: false,
+      serverSelectionTimeoutMS: 10000,
+      connectTimeoutMS: 10000,
+    };
+    cached.promise = mongoose.connect(uri, opts).then((mongooseInstance) => {
+      console.log(`✅ MongoDB Connected: ${mongooseInstance.connection.host}`);
+      return mongooseInstance;
+    }).catch((err) => {
+      cached.promise = null; // Reset so subsequent requests can retry
+      console.error('❌ MongoDB Connection Error:', err.message);
+      throw err;
     });
-    isConnected = true;
-    console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
+  }
+
+  try {
+    cached.conn = await cached.promise;
+    return cached.conn;
   } catch (err) {
-    console.log('⚠️  MongoDB connection failed. Running with in-memory fallback.');
-    console.log('   To use MongoDB, ensure it is running or update MONGODB_URI in .env');
-    isConnected = false;
+    cached.promise = null;
+    throw err;
   }
 };
 
-const isDbConnected = () => isConnected;
+const isDbConnected = () => mongoose.connection.readyState === 1;
 
 module.exports = { connectDB, isDbConnected };

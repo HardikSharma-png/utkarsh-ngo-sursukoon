@@ -1,39 +1,28 @@
 const path = require('path');
 const fs = require('fs');
 const mongoose = require('mongoose');
-const { store, isDbReady, uid, ensureSSEvents } = require('../utils/memStore');
 
-let Sur_Sukoon_Event, Performer_Registration, Audience_Registration;
-try { Sur_Sukoon_Event = require('../models/Sur_Sukoon_Event'); } catch(e){}
-try { Performer_Registration = require('../models/Performer_Registration'); } catch(e){}
-try { Audience_Registration = require('../models/Audience_Registration'); } catch(e){}
+const Sur_Sukoon_Event = require('../models/Sur_Sukoon_Event');
+const Performer_Registration = require('../models/Performer_Registration');
+const Audience_Registration = require('../models/Audience_Registration');
 
 // ─── PUBLIC ───────────────────────────────────────────────
 
 const getEvents = async (req, res) => {
   try {
-    if (isDbReady() && Sur_Sukoon_Event) {
-      const events = await Sur_Sukoon_Event.find({ status: 'upcoming' }).sort({ date: 1 });
-      return res.json({ success: true, data: events });
-    }
-    ensureSSEvents();
-    res.json({ success: true, data: store.ssEvents.filter(e => e.status === 'upcoming') });
+    const events = await Sur_Sukoon_Event.find({ status: 'upcoming' }).sort({ date: 1 });
+    return res.json({ success: true, data: events });
   } catch (err) {
-    ensureSSEvents();
-    res.json({ success: true, data: store.ssEvents.filter(e => e.status === 'upcoming') });
+    return res.status(500).json({ success: false, message: err.message });
   }
 };
 
 const getAllEvents = async (req, res) => {
   try {
-    if (isDbReady() && Sur_Sukoon_Event) {
-      const events = await Sur_Sukoon_Event.find().sort({ date: -1 });
-      return res.json({ success: true, data: events });
-    }
-    ensureSSEvents();
-    res.json({ success: true, data: [...store.ssEvents].sort((a,b) => new Date(b.date) - new Date(a.date)) });
+    const events = await Sur_Sukoon_Event.find().sort({ date: -1 });
+    return res.json({ success: true, data: events });
   } catch (err) {
-    res.json({ success: true, data: store.ssEvents });
+    return res.status(500).json({ success: false, message: err.message });
   }
 };
 
@@ -44,33 +33,23 @@ const getEvent = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Valid event ID is required.' });
     }
 
-    if (isDbReady() && Sur_Sukoon_Event) {
-      let event = null;
-      if (mongoose.Types.ObjectId.isValid(rawId)) {
-        event = await Sur_Sukoon_Event.findById(rawId);
-      }
-      if (!event) {
-        event = await Sur_Sukoon_Event.findOne({ $or: [{ _id: rawId }, { id: rawId }] });
-      }
-      if (!event) {
-        const total = await Sur_Sukoon_Event.countDocuments();
-        if (total === 1) {
-          event = await Sur_Sukoon_Event.findOne({});
-        }
-      }
-      if (!event) return res.status(404).json({ success: false, message: 'Event not found' });
-      return res.json({ success: true, data: event });
+    let event = null;
+    if (mongoose.Types.ObjectId.isValid(rawId)) {
+      event = await Sur_Sukoon_Event.findById(rawId);
     }
-
-    ensureSSEvents();
-    let ev = store.ssEvents.find(e => String(e._id) === String(rawId) || String(e.id) === String(rawId));
-    if (!ev && store.ssEvents.length === 1) {
-      ev = store.ssEvents[0];
+    if (!event) {
+      event = await Sur_Sukoon_Event.findOne({ $or: [{ _id: rawId }, { id: rawId }] });
     }
-    if (!ev) return res.status(404).json({ success: false, message: 'Event not found' });
-    res.json({ success: true, data: ev });
+    if (!event) {
+      const total = await Sur_Sukoon_Event.countDocuments();
+      if (total === 1) {
+        event = await Sur_Sukoon_Event.findOne({});
+      }
+    }
+    if (!event) return res.status(404).json({ success: false, message: 'Event not found' });
+    return res.json({ success: true, data: event });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    return res.status(500).json({ success: false, message: err.message });
   }
 };
 
@@ -83,28 +62,30 @@ const registerPerformer = async (req, res) => {
     const paymentScreenshot = req.file
       ? (req.file.buffer ? `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}` : `/uploads/${req.file.filename}`)
       : null;
-    if (isDbReady() && Sur_Sukoon_Event && Performer_Registration) {
-      const event = await Sur_Sukoon_Event.findById(eventId);
-      if (!event) return res.status(404).json({ success: false, message: 'Event not found.' });
-      if (!event.registrationOpen) return res.status(400).json({ success: false, message: 'Registration is closed.' });
-      if (event.availableSeats <= 0) return res.status(400).json({ success: false, message: 'No performer seats available.' });
-      const registration = new Performer_Registration({ eventId, eventName: event.eventName, fullName, phone, email, city, songGenre, duration, specialRequirements, paymentScreenshot });
-      await registration.save();
-      event.availableSeats = Math.max(0, event.availableSeats - 1);
-      await event.save();
-      return res.status(201).json({ success: true, message: 'Registration successful!', data: { id: registration._id, name: fullName } });
-    }
-    ensureSSEvents();
-    const ev = store.ssEvents.find(e => e._id === eventId);
-    if (!ev) return res.status(404).json({ success: false, message: 'Event not found.' });
-    if (!ev.registrationOpen) return res.status(400).json({ success: false, message: 'Registration is closed.' });
-    if (ev.availableSeats <= 0) return res.status(400).json({ success: false, message: 'No performer seats available.' });
-    const newId = uid();
-    store.performerRegs.push({ _id: newId, eventId, eventName: ev.eventName, fullName, phone, email, city: city||'', songGenre: songGenre||'', duration: duration||'5 minutes', specialRequirements: specialRequirements||'', paymentScreenshot, paymentStatus: 'pending', submittedAt: new Date() });
-    ev.availableSeats = Math.max(0, ev.availableSeats - 1);
-    res.status(201).json({ success: true, message: 'Performer registration successful!', data: { id: newId, name: fullName } });
+
+    const event = await Sur_Sukoon_Event.findById(eventId);
+    if (!event) return res.status(404).json({ success: false, message: 'Event not found.' });
+    if (!event.registrationOpen) return res.status(400).json({ success: false, message: 'Registration is closed.' });
+    if (event.availableSeats <= 0) return res.status(400).json({ success: false, message: 'No performer seats available.' });
+
+    const registration = new Performer_Registration({
+      eventId,
+      eventName: event.eventName,
+      fullName,
+      phone,
+      email,
+      city,
+      songGenre,
+      duration,
+      specialRequirements,
+      paymentScreenshot
+    });
+    await registration.save();
+    event.availableSeats = Math.max(0, event.availableSeats - 1);
+    await event.save();
+    return res.status(201).json({ success: true, message: 'Registration successful!', data: { id: registration._id, name: fullName } });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    return res.status(500).json({ success: false, message: err.message });
   }
 };
 
@@ -117,44 +98,11 @@ const registerAudience = async (req, res) => {
       : null;
     const numPeople = parseInt(numberOfPeople) || 1;
 
-    if (isDbReady() && Sur_Sukoon_Event && Audience_Registration) {
-      const event = await Sur_Sukoon_Event.findById(eventId);
-      if (!event) return res.status(404).json({ success: false, message: 'Event not found.' });
+    const event = await Sur_Sukoon_Event.findById(eventId);
+    if (!event) return res.status(404).json({ success: false, message: 'Event not found.' });
 
-      const isPaid = event.audienceEntryType === 'paid' || event.isAudiencePaid === true;
-      const audienceFee = isPaid ? (event.audienceFee || 0) : 0;
-      const totalAmount = isPaid ? (audienceFee * numPeople) : 0;
-      const paymentStatus = isPaid ? 'pending' : 'free';
-
-      if (isPaid && !paymentScreenshot) {
-        return res.status(400).json({ success: false, message: 'Payment screenshot is required for paid audience entry.' });
-      }
-
-      const registration = new Audience_Registration({
-        eventId,
-        eventName: event.eventName,
-        fullName,
-        phone,
-        email,
-        numberOfPeople: numPeople,
-        heardFrom,
-        isPaid,
-        audienceFee,
-        totalAmount,
-        paymentScreenshot,
-        paymentStatus
-      });
-      await registration.save();
-      const msg = isPaid
-        ? 'Audience registration submitted! Payment is under verification.'
-        : 'Audience registration successful! Entry is FREE.';
-      return res.status(201).json({ success: true, message: msg, data: { id: registration._id, name: fullName } });
-    }
-    ensureSSEvents();
-    const ev = store.ssEvents.find(e => e._id === eventId);
-    if (!ev) return res.status(404).json({ success: false, message: 'Event not found.' });
-    const isPaid = ev.audienceEntryType === 'paid' || ev.isAudiencePaid === true;
-    const audienceFee = isPaid ? (ev.audienceFee || 0) : 0;
+    const isPaid = event.audienceEntryType === 'paid' || event.isAudiencePaid === true;
+    const audienceFee = isPaid ? (event.audienceFee || 0) : 0;
     const totalAmount = isPaid ? (audienceFee * numPeople) : 0;
     const paymentStatus = isPaid ? 'pending' : 'free';
 
@@ -162,29 +110,24 @@ const registerAudience = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Payment screenshot is required for paid audience entry.' });
     }
 
-    const newId = uid();
-    store.audienceRegs.push({
-      _id: newId,
+    const registration = new Audience_Registration({
       eventId,
-      eventName: ev.eventName,
+      eventName: event.eventName,
       fullName,
       phone,
-      email: email || '',
+      email,
       numberOfPeople: numPeople,
-      heardFrom: heardFrom || '',
+      heardFrom,
       isPaid,
       audienceFee,
       totalAmount,
       paymentScreenshot,
-      paymentStatus,
-      submittedAt: new Date()
+      paymentStatus
     });
-    const msg = isPaid
-      ? 'Audience registration submitted! Payment is under verification.'
-      : 'Audience registration successful! Entry is FREE.';
-    res.status(201).json({ success: true, message: msg, data: { id: newId, name: fullName } });
+    await registration.save();
+    return res.status(201).json({ success: true, message: 'Audience registration successful!', data: { id: registration._id, name: fullName } });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    return res.status(500).json({ success: false, message: err.message });
   }
 };
 
@@ -192,14 +135,10 @@ const registerAudience = async (req, res) => {
 
 const getAllEventsAdmin = async (req, res) => {
   try {
-    if (isDbReady() && Sur_Sukoon_Event) {
-      const events = await Sur_Sukoon_Event.find().sort({ date: -1 });
-      return res.json({ success: true, data: events });
-    }
-    ensureSSEvents();
-    res.json({ success: true, data: [...store.ssEvents].sort((a,b) => new Date(b.date) - new Date(a.date)) });
+    const events = await Sur_Sukoon_Event.find().sort({ date: -1 });
+    return res.json({ success: true, data: events });
   } catch (err) {
-    res.json({ success: true, data: store.ssEvents });
+    return res.status(500).json({ success: false, message: err.message });
   }
 };
 
@@ -217,17 +156,11 @@ const createEvent = async (req, res) => {
       eventData.audienceFee = 0;
     }
 
-    if (isDbReady() && Sur_Sukoon_Event) {
-      const event = new Sur_Sukoon_Event(eventData);
-      await event.save();
-      return res.status(201).json({ success: true, data: event, message: 'Event created.' });
-    }
-    ensureSSEvents();
-    const newEvent = { _id: uid(), ...eventData, createdAt: new Date() };
-    store.ssEvents.push(newEvent);
-    res.status(201).json({ success: true, data: newEvent, message: 'Event created.' });
+    const event = new Sur_Sukoon_Event(eventData);
+    await event.save();
+    return res.status(201).json({ success: true, data: event, message: 'Event created.' });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    return res.status(500).json({ success: false, message: err.message });
   }
 };
 
@@ -254,41 +187,27 @@ const updateEvent = async (req, res) => {
       }
     }
 
-    if (isDbReady() && Sur_Sukoon_Event) {
-      let event = null;
-      if (mongoose.Types.ObjectId.isValid(rawId)) {
-        event = await Sur_Sukoon_Event.findByIdAndUpdate(rawId, updateData, { new: true, runValidators: true });
-      }
-      if (!event) {
-        event = await Sur_Sukoon_Event.findOneAndUpdate(
-          { $or: [{ _id: rawId }, { id: rawId }, { eventName: updateData.eventName }] },
-          updateData,
-          { new: true, runValidators: true }
-        );
-      }
-      if (!event) {
-        const total = await Sur_Sukoon_Event.countDocuments();
-        if (total === 1) {
-          event = await Sur_Sukoon_Event.findOneAndUpdate({}, updateData, { new: true, runValidators: true });
-        }
-      }
-      if (!event) return res.status(404).json({ success: false, message: 'Event not found' });
-      return res.json({ success: true, data: event, message: 'Event updated.' });
+    let event = null;
+    if (mongoose.Types.ObjectId.isValid(rawId)) {
+      event = await Sur_Sukoon_Event.findByIdAndUpdate(rawId, updateData, { new: true, runValidators: true });
     }
-
-    ensureSSEvents();
-    const idx = store.ssEvents.findIndex(e => String(e._id) === String(rawId) || String(e.id) === String(rawId));
-    if (idx === -1) {
-      if (store.ssEvents.length === 1) {
-        store.ssEvents[0] = { ...store.ssEvents[0], ...updateData };
-        return res.json({ success: true, data: store.ssEvents[0], message: 'Event updated.' });
-      }
-      return res.status(404).json({ success: false, message: 'Event not found' });
+    if (!event) {
+      event = await Sur_Sukoon_Event.findOneAndUpdate(
+        { $or: [{ _id: rawId }, { id: rawId }, { eventName: updateData.eventName }] },
+        updateData,
+        { new: true, runValidators: true }
+      );
     }
-    store.ssEvents[idx] = { ...store.ssEvents[idx], ...updateData };
-    res.json({ success: true, data: store.ssEvents[idx], message: 'Event updated.' });
+    if (!event) {
+      const total = await Sur_Sukoon_Event.countDocuments();
+      if (total === 1) {
+        event = await Sur_Sukoon_Event.findOneAndUpdate({}, updateData, { new: true, runValidators: true });
+      }
+    }
+    if (!event) return res.status(404).json({ success: false, message: 'Event not found' });
+    return res.json({ success: true, data: event, message: 'Event updated.' });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    return res.status(500).json({ success: false, message: err.message });
   }
 };
 
@@ -299,166 +218,116 @@ const deleteEvent = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Valid event ID is required.' });
     }
 
-    if (isDbReady() && Sur_Sukoon_Event) {
-      let event = null;
-      if (mongoose.Types.ObjectId.isValid(rawId)) {
-        event = await Sur_Sukoon_Event.findByIdAndDelete(rawId);
-      }
-      if (!event) {
-        event = await Sur_Sukoon_Event.findOneAndDelete({ $or: [{ _id: rawId }, { id: rawId }] });
-      }
-      if (!event) return res.status(404).json({ success: false, message: 'Event not found' });
-      return res.json({ success: true, message: 'Event deleted.' });
+    let event = null;
+    if (mongoose.Types.ObjectId.isValid(rawId)) {
+      event = await Sur_Sukoon_Event.findByIdAndDelete(rawId);
     }
-
-    ensureSSEvents();
-    const idx = store.ssEvents.findIndex(e => String(e._id) === String(rawId) || String(e.id) === String(rawId));
-    if (idx === -1) return res.status(404).json({ success: false, message: 'Event not found' });
-    store.ssEvents.splice(idx, 1);
-    res.json({ success: true, message: 'Event deleted.' });
+    if (!event) {
+      event = await Sur_Sukoon_Event.findOneAndDelete({ $or: [{ _id: rawId }, { id: rawId }] });
+    }
+    if (!event) return res.status(404).json({ success: false, message: 'Event not found' });
+    return res.json({ success: true, message: 'Event deleted.' });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    return res.status(500).json({ success: false, message: err.message });
   }
 };
 
 const getPerformerRegistrations = async (req, res) => {
   try {
-    if (isDbReady() && Performer_Registration) {
-      const filter = req.query.eventId ? { eventId: req.query.eventId } : {};
-      const registrations = await Performer_Registration.find(filter).sort({ submittedAt: -1 });
-      return res.json({ success: true, data: registrations });
-    }
-    let data = [...store.performerRegs];
-    if (req.query.eventId) data = data.filter(r => r.eventId === req.query.eventId);
-    res.json({ success: true, data: data.sort((a,b) => new Date(b.submittedAt) - new Date(a.submittedAt)) });
+    const filter = req.query.eventId ? { eventId: req.query.eventId } : {};
+    const registrations = await Performer_Registration.find(filter).sort({ submittedAt: -1 });
+    return res.json({ success: true, data: registrations });
   } catch (err) {
-    res.json({ success: true, data: store.performerRegs });
+    return res.status(500).json({ success: false, message: err.message });
   }
 };
 
 const getAudienceRegistrations = async (req, res) => {
   try {
-    if (isDbReady() && Audience_Registration) {
-      const filter = req.query.eventId ? { eventId: req.query.eventId } : {};
-      const registrations = await Audience_Registration.find(filter).sort({ submittedAt: -1 });
-      return res.json({ success: true, data: registrations });
-    }
-    let data = [...store.audienceRegs];
-    if (req.query.eventId) data = data.filter(r => r.eventId === req.query.eventId);
-    res.json({ success: true, data: data.sort((a,b) => new Date(b.submittedAt) - new Date(a.submittedAt)) });
+    const filter = req.query.eventId ? { eventId: req.query.eventId } : {};
+    const registrations = await Audience_Registration.find(filter).sort({ submittedAt: -1 });
+    return res.json({ success: true, data: registrations });
   } catch (err) {
-    res.json({ success: true, data: store.audienceRegs });
+    return res.status(500).json({ success: false, message: err.message });
   }
 };
 
 const updatePaymentStatus = async (req, res) => {
   try {
     const { status } = req.body;
-    if (isDbReady() && Performer_Registration && Sur_Sukoon_Event) {
-      const registration = await Performer_Registration.findById(req.params.id);
-      if (!registration) return res.status(404).json({ success: false, message: 'Registration not found' });
-      const prevStatus = registration.paymentStatus;
-      registration.paymentStatus = status;
-      await registration.save();
-      // Revert seat if changing TO rejected FROM non-rejected
-      if (status === 'rejected' && prevStatus !== 'rejected') {
-        await Sur_Sukoon_Event.findByIdAndUpdate(registration.eventId, { $inc: { availableSeats: 1 } });
-      }
-      // Re-consume seat if changing FROM rejected TO verified/pending
-      if (prevStatus === 'rejected' && status !== 'rejected') {
-        await Sur_Sukoon_Event.findByIdAndUpdate(registration.eventId, { $inc: { availableSeats: -1 } });
-      }
-      return res.json({ success: true, data: registration, message: `Payment status updated to ${status}.` });
-    }
-    // In-memory fallback
-    const reg = store.performerRegs.find(r => r._id === req.params.id);
-    if (!reg) return res.status(404).json({ success: false, message: 'Registration not found' });
-    const prevStatus = reg.paymentStatus;
-    reg.paymentStatus = status;
+    const registration = await Performer_Registration.findById(req.params.id);
+    if (!registration) return res.status(404).json({ success: false, message: 'Registration not found' });
+    const prevStatus = registration.paymentStatus;
+    registration.paymentStatus = status;
+    await registration.save();
+    // Revert seat if changing TO rejected FROM non-rejected
     if (status === 'rejected' && prevStatus !== 'rejected') {
-      const ev = store.ssEvents.find(e => e._id === reg.eventId);
-      if (ev) ev.availableSeats = (ev.availableSeats || 0) + 1;
+      await Sur_Sukoon_Event.findByIdAndUpdate(registration.eventId, { $inc: { availableSeats: 1 } });
     }
+    // Re-consume seat if changing FROM rejected TO verified/pending
     if (prevStatus === 'rejected' && status !== 'rejected') {
-      const ev = store.ssEvents.find(e => e._id === reg.eventId);
-      if (ev) ev.availableSeats = Math.max(0, (ev.availableSeats || 0) - 1);
+      await Sur_Sukoon_Event.findByIdAndUpdate(registration.eventId, { $inc: { availableSeats: -1 } });
     }
-    res.json({ success: true, data: reg, message: `Payment status updated to ${status}.` });
+    return res.json({ success: true, data: registration, message: `Payment status updated to ${status}.` });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    return res.status(500).json({ success: false, message: err.message });
   }
 };
 
 const deletePerformer = async (req, res) => {
   try {
-    if (isDbReady() && Performer_Registration) {
-      await Performer_Registration.findByIdAndDelete(req.params.id);
-      return res.json({ success: true, message: 'Registration deleted.' });
-    }
-    const idx = store.performerRegs.findIndex(r => r._id === req.params.id);
-    if (idx !== -1) store.performerRegs.splice(idx, 1);
-    res.json({ success: true, message: 'Registration deleted.' });
+    await Performer_Registration.findByIdAndDelete(req.params.id);
+    return res.json({ success: true, message: 'Registration deleted.' });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    return res.status(500).json({ success: false, message: err.message });
   }
 };
 
 const updateAudiencePaymentStatus = async (req, res) => {
   try {
     const { status } = req.body;
-    if (isDbReady() && Audience_Registration) {
-      const reg = await Audience_Registration.findById(req.params.id);
-      if (!reg) return res.status(404).json({ success: false, message: 'Registration not found' });
-      reg.paymentStatus = status;
-      await reg.save();
-      return res.json({ success: true, data: reg, message: `Payment status updated to ${status}.` });
-    }
-    const reg = store.audienceRegs.find(r => r._id === req.params.id);
+    const reg = await Audience_Registration.findById(req.params.id);
     if (!reg) return res.status(404).json({ success: false, message: 'Registration not found' });
     reg.paymentStatus = status;
-    res.json({ success: true, data: reg, message: `Payment status updated to ${status}.` });
+    await reg.save();
+    return res.json({ success: true, data: reg, message: `Payment status updated to ${status}.` });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    return res.status(500).json({ success: false, message: err.message });
   }
 };
 
 const deleteAudience = async (req, res) => {
   try {
-    if (isDbReady() && Audience_Registration) {
-      await Audience_Registration.findByIdAndDelete(req.params.id);
-      return res.json({ success: true, message: 'Registration deleted.' });
-    }
-    const idx = store.audienceRegs.findIndex(r => r._id === req.params.id);
-    if (idx !== -1) store.audienceRegs.splice(idx, 1);
-    res.json({ success: true, message: 'Registration deleted.' });
+    await Audience_Registration.findByIdAndDelete(req.params.id);
+    return res.json({ success: true, message: 'Registration deleted.' });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    return res.status(500).json({ success: false, message: err.message });
   }
 };
 
 const exportPerformersCSV = async (req, res) => {
   try {
-    const registrations = isDbReady() && Performer_Registration ? await Performer_Registration.find().sort({ submittedAt: -1 }) : store.performerRegs;
+    const registrations = await Performer_Registration.find().sort({ submittedAt: -1 });
     const headers = 'Full Name,Phone,Email,City,Event,Song/Genre,Duration,Special Requirements,Payment Status,Submitted At\n';
     const rows = registrations.map(r => `"${r.fullName}","${r.phone}","${r.email}","${r.city||''}","${r.eventName||''}","${r.songGenre||''}","${r.duration||''}","${(r.specialRequirements||'').replace(/"/g,"''")}","${r.paymentStatus}","${new Date(r.submittedAt).toLocaleString('en-IN')}"`).join('\n');
     res.setHeader('Content-Type', 'text/csv');
     res.setHeader('Content-Disposition', 'attachment; filename="performer_registrations.csv"');
     res.send(headers + rows);
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    return res.status(500).json({ success: false, message: err.message });
   }
 };
 
 const exportAudienceCSV = async (req, res) => {
   try {
-    const registrations = isDbReady() && Audience_Registration ? await Audience_Registration.find().sort({ submittedAt: -1 }) : store.audienceRegs;
+    const registrations = await Audience_Registration.find().sort({ submittedAt: -1 });
     const headers = 'Full Name,Phone,Email,Event,Number of People,Entry Type,Fee Per Person,Total Amount,Payment Status,Heard From,Submitted At\n';
     const rows = registrations.map(r => `"${r.fullName}","${r.phone}","${r.email||''}","${r.eventName||''}","${r.numberOfPeople}","${r.isPaid ? 'PAID' : 'FREE'}","${r.audienceFee||0}","${r.totalAmount||0}","${r.paymentStatus||(r.isPaid?'pending':'free')}","${r.heardFrom||''}","${new Date(r.submittedAt).toLocaleString('en-IN')}"`).join('\n');
     res.setHeader('Content-Type', 'text/csv');
     res.setHeader('Content-Disposition', 'attachment; filename="audience_registrations.csv"');
     res.send(headers + rows);
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    return res.status(500).json({ success: false, message: err.message });
   }
 };
 

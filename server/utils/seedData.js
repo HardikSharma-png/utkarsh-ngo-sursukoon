@@ -36,10 +36,14 @@ const seedData = async () => {
       { key: 'socialLinks', value: { facebook: '#', instagram: 'https://www.instagram.com/sursukoon_music/', youtube: 'https://www.youtube.com/@utkarshsursukoon', twitter: '#' } }
     ];
 
-    for (const setting of defaultSettings) {
-      await Settings.findOneAndUpdate({ key: setting.key }, setting, { upsert: true });
+    // Seed default settings ONLY if Settings collection is completely empty
+    const existingSettingsCount = await Settings.countDocuments();
+    if (existingSettingsCount === 0) {
+      for (const setting of defaultSettings) {
+        await Settings.create(setting);
+      }
+      console.log('✅ Default settings seeded (collection was empty)');
     }
-    console.log('✅ Default settings seeded');
 
     // Seed NGO Programmes
     const existingProgrammes = await NGO_Programme.countDocuments();

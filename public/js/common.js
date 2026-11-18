@@ -34,6 +34,7 @@ function createToastContainer() {
 async function apiCall(url, options = {}) {
   try {
     const res = await fetch(API_BASE + url, {
+      cache: 'no-store',
       headers: { 'Content-Type': 'application/json', ...options.headers },
       ...options
     });
@@ -304,7 +305,7 @@ function initLightbox() {
 async function loadSettings(keys = []) {
   try {
     const query = keys.length ? `?keys=${keys.join(',')}` : '';
-    const res = await fetch(`/api/settings${query}`);
+    const res = await fetch(`/api/settings${query}`, { cache: 'no-store' });
     const data = await res.json();
     return data.data || {};
   } catch { return {}; }
@@ -316,7 +317,7 @@ async function loadUpcomingProgrammes(containerId) {
   if (!container) return;
 
   try {
-    const res = await fetch('/api/ngo/programmes/upcoming');
+    const res = await fetch('/api/ngo/programmes/upcoming', { cache: 'no-store' });
     const data = await res.json();
     const programmes = data.data || [];
 
@@ -359,7 +360,7 @@ async function loadPressItems(containerId) {
   if (!container) return;
 
   try {
-    const res = await fetch('/api/media?type=press');
+    const res = await fetch('/api/media?type=press', { cache: 'no-store' });
     const data = await res.json();
     const items = data.data || [];
 
