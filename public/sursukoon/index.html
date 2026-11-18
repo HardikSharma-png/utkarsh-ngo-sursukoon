@@ -14,132 +14,235 @@
   <div class="ss-bg-stars"></div>
 
   <!-- NAVBAR -->
-  <nav class="ss-navbar" id="ss-navbar">
+  <nav class="ss-navbar ss-navbar-home" id="ss-navbar">
     <div class="ss-navbar-inner">
-      <div class="ss-logo">
-        <div class="logo-icon">🎵</div>
-        <div>
-          <div class="logo-name">Sur-Sukoon</div>
-          <div class="logo-sub">by Utkarsh</div>
-        </div>
-      </div>
+      <a href="/" class="ss-logo ss-logo-img-wrap" aria-label="Sur-Sukoon Home">
+        <img src="/images/sur-sukoon-logo.png" alt="Sur-Sukoon" class="ss-nav-logo-img">
+      </a>
 
       <ul class="ss-nav-links" id="ss-nav-links">
-        <button class="nav-close" id="ss-nav-close" style="position:absolute;top:24px;right:24px;background:none;border:none;color:white;font-size:2rem;cursor:pointer;">✕</button>
-        <li><a href="/sursukoon" class="ss-nav-link active">Home</a></li>
-        <li><a href="/sursukoon/about" class="ss-nav-link">About</a></li>
-        <li><a href="/sursukoon/gallery" class="ss-nav-link">Gallery</a></li>
-        <li><a href="/" class="ss-back-btn">← Back to Utkarsh</a></li>
+        <button class="nav-close" id="ss-nav-close" aria-label="Close navigation">✕</button>
+        <li><a href="/" class="ss-nav-link active">Home</a></li>
+        <li><a href="/about" class="ss-nav-link">About</a></li>
+        <li><a href="/gallery" class="ss-nav-link">Gallery</a></li>
+        <li class="ss-nav-drawer-cta"><a href="/register" class="ss-btn ss-btn-primary ss-drawer-reg-btn">Register Now 🎤</a></li>
       </ul>
 
-      <div style="display:flex;align-items:center;gap:12px;">
-        <a href="/sursukoon/register" class="ss-register-btn" id="ss-reg-nav-btn">Register Now 🎤</a>
-        <button class="ss-hamburger" id="ss-hamburger">
+      <div class="ss-nav-right">
+        <a href="/register" class="ss-register-btn" id="ss-reg-nav-btn">Register Now ↗</a>
+        <button class="ss-hamburger" id="ss-hamburger" aria-label="Toggle navigation">
           <span></span><span></span><span></span>
         </button>
       </div>
     </div>
   </nav>
 
-  <!-- HERO -->
-  <section class="ss-hero">
-    <div class="ss-container">
-      <div class="ss-hero-content">
-        <div class="ss-hero-label">✨ Utkarsh Presents</div>
+  <!-- SECTION 1: SPLIT HERO -->
+  <section class="hero-split">
+    <div class="hero-split-container">
+      <div class="hero-split-grid">
+        <!-- Left Column -->
+        <div class="hero-split-left">
+          <div class="hero-logo-block">
+            <div class="hero-presents-badge">✦ UTKARSH PRESENTS ✦</div>
+            <img src="/images/sur-sukoon-logo.png" alt="Sur-Sukoon" class="hero-logo-img">
+            <p class="hero-tagline-hi">"एक मंच... आपकी आवाज़ के नाम"</p>
+          </div>
 
-        <div class="ss-mic-visual">
-          <span class="ss-mic">🎤</span>
+          <!-- 2x2 Event Details Grid -->
+          <div class="hero-event-grid ss-fade-in">
+            <div class="hero-event-cell">
+              <span class="hero-event-icon" aria-hidden="true">📅</span>
+              <div class="hero-event-meta">
+                <div class="hero-event-label">DATE</div>
+                <div class="hero-event-val" id="ss-event-date">Loading...</div>
+              </div>
+            </div>
+            <div class="hero-event-cell">
+              <span class="hero-event-icon" aria-hidden="true">🕐</span>
+              <div class="hero-event-meta">
+                <div class="hero-event-label">TIME</div>
+                <div class="hero-event-val" id="ss-event-time">—</div>
+              </div>
+            </div>
+            <div class="hero-event-cell">
+              <span class="hero-event-icon" aria-hidden="true">📍</span>
+              <div class="hero-event-meta">
+                <div class="hero-event-label">VENUE</div>
+                <div class="hero-event-val" id="ss-event-venue">—</div>
+              </div>
+            </div>
+            <div class="hero-event-cell">
+              <span class="hero-event-icon" aria-hidden="true">🎤</span>
+              <div class="hero-event-meta">
+                <div class="hero-event-label">PERFORMER SEATS</div>
+                <div class="hero-event-val" id="ss-performer-seats">—</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dual CTA Pills -->
+          <div class="hero-cta-row">
+            <a href="/register" class="ss-btn ss-btn-primary ss-performer-btn hero-cta-btn">↗ Register as Performer</a>
+            <a href="/register?tab=audience" class="ss-btn ss-btn-outline-gold hero-cta-btn">🎟 Free Audience Entry</a>
+          </div>
         </div>
 
-        <h1 class="ss-hero-title">
-          Sur-<span class="gold">Sukoon</span>
-        </h1>
-        <p class="ss-hero-tagline">"Ek Manch... <span>Aapki Awaaz ke Naam</span>"</p>
-
-        <!-- EVENT DETAILS STRIP -->
-        <div class="ss-event-strip ss-fade-in">
-          <div class="ss-event-item">
-            <span class="icon">📅</span>
-            <div>
-              <div style="font-size:0.72rem;color:var(--ss-gold);font-weight:600;letter-spacing:1px;text-transform:uppercase;">Date</div>
-              <div class="value" id="ss-event-date">Loading...</div>
+        <!-- Right Column: Featured Promo Video -->
+        <div class="hero-split-right ss-fade-in">
+          <div class="hero-video-frame" id="ss-hero-video-frame">
+            <div class="hero-video-poster" id="ss-hero-video-poster" role="button" tabindex="0" aria-label="Play Featured Promo Video">
+              <img src="/images/hero-stage-thumb.jpg" alt="Sur-Sukoon Live Stage Performance" class="hero-video-thumb" id="ss-hero-video-thumb">
+              <div class="hero-video-overlay"></div>
+              <button type="button" class="hero-play-btn" id="ss-hero-play-btn" aria-label="Play Promo Video">
+                <svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor" aria-hidden="true">
+                  <path d="M8 5.14v13.72a1 1 0 0 0 1.52.85l11.02-6.86a1 1 0 0 0 0-1.7L9.52 4.29A1 1 0 0 0 8 5.14z"/>
+                </svg>
+              </button>
             </div>
-          </div>
-          <div class="ss-event-item">
-            <span class="icon">🕐</span>
-            <div>
-              <div style="font-size:0.72rem;color:var(--ss-gold);font-weight:600;letter-spacing:1px;text-transform:uppercase;">Time</div>
-              <div class="value" id="ss-event-time">—</div>
-            </div>
-          </div>
-          <div class="ss-event-item">
-            <span class="icon">📍</span>
-            <div>
-              <div style="font-size:0.72rem;color:var(--ss-gold);font-weight:600;letter-spacing:1px;text-transform:uppercase;">Venue</div>
-              <div class="value" id="ss-event-venue">—</div>
-            </div>
-          </div>
-          <div class="ss-event-item">
-            <span class="icon">🎤</span>
-            <div>
-              <div style="font-size:0.72rem;color:var(--ss-gold);font-weight:600;letter-spacing:1px;text-transform:uppercase;">Performer Seats</div>
-              <div class="value" id="ss-performer-seats">—</div>
-            </div>
-          </div>
-        </div>
-
-        <div style="text-align:center;">
-          <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
-            <a href="/sursukoon/register" class="ss-btn ss-btn-primary ss-performer-btn">🎤 Register as Performer</a>
-            <a href="/sursukoon/register?tab=audience" class="ss-btn ss-btn-outline-gold">👥 Free Audience Entry</a>
           </div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- OPTION CARDS -->
-  <section class="ss-section">
-    <div class="ss-container">
-      <div class="ss-section-header ss-fade-in">
-        <div class="label">Join The Evening</div>
-        <h2>Choose Your <span>Role</span></h2>
-        <div class="gold-line-ss"></div>
+  <!-- SECTION 2: FULL-WIDTH PROMOTIONAL BANNER CAROUSEL -->
+  <section class="banner-carousel" id="ss-banner-carousel" aria-label="Featured Highlights Banner">
+    <div class="banner-carousel-viewport">
+      <div class="banner-carousel-track" id="ss-banner-track">
+        <!-- Slide 1 -->
+        <div class="banner-slide">
+          <img src="/images/banner-concert-1.jpg" alt="Live concert stage" class="banner-slide-bg" loading="eager">
+          <div class="banner-slide-overlay"></div>
+          <svg class="banner-decor-svg" viewBox="0 0 1400 540" preserveAspectRatio="none" aria-hidden="true">
+            <defs>
+              <linearGradient id="ssStaffGrad1" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stop-color="#FF3399" stop-opacity="0.38"/>
+                <stop offset="50%" stop-color="#FFD700" stop-opacity="0.45"/>
+                <stop offset="100%" stop-color="#FFD700" stop-opacity="0.05"/>
+              </linearGradient>
+            </defs>
+            <!-- Flowing bottom-left musical staff -->
+            <path d="M-20,420 C180,500 390,480 610,425" fill="none" stroke="url(#ssStaffGrad1)" stroke-width="1.4"/>
+            <path d="M-20,435 C180,515 390,495 610,440" fill="none" stroke="url(#ssStaffGrad1)" stroke-width="1.2"/>
+            <path d="M-20,450 C180,530 390,510 610,455" fill="none" stroke="url(#ssStaffGrad1)" stroke-width="1.2"/>
+            <path d="M-20,465 C180,545 390,525 610,470" fill="none" stroke="url(#ssStaffGrad1)" stroke-width="1.4"/>
+            <!-- Subtle upper-right staff -->
+            <path d="M960,18 C1110,12 1260,55 1410,150" fill="none" stroke="url(#ssStaffGrad1)" stroke-width="1.2"/>
+            <path d="M960,32 C1110,26 1260,69 1410,164" fill="none" stroke="url(#ssStaffGrad1)" stroke-width="1.1"/>
+            <path d="M960,46 C1110,40 1260,83 1410,178" fill="none" stroke="url(#ssStaffGrad1)" stroke-width="1.2"/>
+            <!-- Golden 4-point sparkles -->
+            <path d="M110,75 L114,91 L130,95 L114,99 L110,115 L106,99 L90,95 L106,91 Z" fill="#FFD966" opacity="0.85"/>
+            <path d="M195,95 L198,105 L208,108 L198,111 L195,121 L192,111 L182,108 L192,105 Z" fill="#FFD966" opacity="0.65"/>
+            <path d="M680,75 L684,91 L700,95 L684,99 L680,115 L676,99 L660,95 L676,91 Z" fill="#FFD966" opacity="0.85"/>
+            <path d="M810,105 L814,120 L829,124 L814,128 L810,143 L806,128 L791,124 L806,120 Z" fill="#FFD966" opacity="0.78"/>
+            <path d="M665,245 L669,261 L685,265 L669,269 L665,285 L661,269 L645,265 L661,261 Z" fill="#FFD966" opacity="0.8"/>
+            <path d="M775,260 L778,271 L789,274 L778,277 L775,288 L772,277 L761,274 L772,271 Z" fill="#FFD966" opacity="0.72"/>
+            <path d="M112,218 L115,230 L127,233 L115,236 L112,248 L109,236 L97,233 L109,230 Z" fill="#FFD966" opacity="0.75"/>
+            <!-- Subtle musical notes -->
+            <text x="720" y="128" fill="#F6C945" font-size="34" opacity="0.65">♫</text>
+            <text x="765" y="185" fill="#F6C945" font-size="26" opacity="0.55">♪</text>
+            <text x="712" y="305" fill="#F6C945" font-size="28" opacity="0.6">♪</text>
+            <text x="48" y="476" fill="#F6C945" font-size="44" opacity="0.48">𝄞</text>
+            <text x="210" y="492" fill="#F6C945" font-size="26" opacity="0.45">♫</text>
+            <text x="415" y="478" fill="#F6C945" font-size="24" opacity="0.42">♪</text>
+          </svg>
+          <div class="banner-slide-content">
+            <h2 class="banner-heading">
+              <span class="banner-heading-gold">Unleash Your Voice,</span>
+              <span class="banner-heading-white">Feel the Vibe!</span>
+            </h2>
+            <p class="banner-subheading">India's Ultimate Soulful Music Festival</p>
+            <p class="banner-desc">Catch live performances, raw talent, and unforgettable musical evenings.</p>
+            <div class="banner-cta-row">
+              <a href="/register" class="ss-btn ss-btn-primary ss-performer-btn">➤ Register as Performer</a>
+              <a href="/register?tab=audience" class="ss-btn ss-btn-outline-gold">🎟 Free Audience Entry</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slide 2 -->
+        <div class="banner-slide">
+          <img src="/images/banner-concert-2.jpg" alt="Soulful Indian vocalist on stage" class="banner-slide-bg" loading="lazy">
+          <div class="banner-slide-overlay"></div>
+          <svg class="banner-decor-svg" viewBox="0 0 1400 540" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M-20,420 C180,500 390,480 610,425" fill="none" stroke="url(#ssStaffGrad1)" stroke-width="1.4"/>
+            <path d="M-20,440 C180,520 390,500 610,445" fill="none" stroke="url(#ssStaffGrad1)" stroke-width="1.2"/>
+            <path d="M-20,460 C180,540 390,520 610,465" fill="none" stroke="url(#ssStaffGrad1)" stroke-width="1.4"/>
+            <path d="M120,82 L124,98 L140,102 L124,106 L120,122 L116,106 L100,102 L116,98 Z" fill="#FFD966" opacity="0.8"/>
+            <path d="M700,90 L704,106 L720,110 L704,114 L700,130 L696,114 L680,110 L696,106 Z" fill="#FFD966" opacity="0.75"/>
+            <text x="740" y="150" fill="#F6C945" font-size="32" opacity="0.58">♫</text>
+            <text x="64" y="472" fill="#F6C945" font-size="40" opacity="0.45">𝄞</text>
+          </svg>
+          <div class="banner-slide-content">
+            <h2 class="banner-heading">
+              <span class="banner-heading-gold">Your Stage Awaits,</span>
+              <span class="banner-heading-white">Sing From The Heart!</span>
+            </h2>
+            <p class="banner-subheading">Where Every Voice Finds Its Spotlight</p>
+            <p class="banner-desc">Open to classical, semi-classical, Bollywood, folk &amp; ghazal singers across Rajasthan.</p>
+            <div class="banner-cta-row">
+              <a href="/register" class="ss-btn ss-btn-primary ss-performer-btn">➤ Register as Performer</a>
+              <a href="/register?tab=audience" class="ss-btn ss-btn-outline-gold">🎟 Free Audience Entry</a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slide 3 -->
+        <div class="banner-slide">
+          <img src="/images/banner-concert-3.jpg" alt="Cultural music performance" class="banner-slide-bg" loading="lazy">
+          <div class="banner-slide-overlay"></div>
+          <svg class="banner-decor-svg" viewBox="0 0 1400 540" preserveAspectRatio="none" aria-hidden="true">
+            <path d="M-20,420 C180,500 390,480 610,425" fill="none" stroke="url(#ssStaffGrad1)" stroke-width="1.4"/>
+            <path d="M-20,445 C180,525 390,505 610,450" fill="none" stroke="url(#ssStaffGrad1)" stroke-width="1.3"/>
+            <path d="M675,85 L679,101 L695,105 L679,109 L675,125 L671,109 L655,105 L671,101 Z" fill="#FFD966" opacity="0.8"/>
+            <path d="M145,215 L148,227 L160,230 L148,233 L145,245 L142,233 L130,230 L142,227 Z" fill="#FFD966" opacity="0.7"/>
+            <text x="710" y="210" fill="#F6C945" font-size="30" opacity="0.55">♪</text>
+            <text x="230" y="488" fill="#F6C945" font-size="28" opacity="0.45">♫</text>
+          </svg>
+          <div class="banner-slide-content">
+            <h2 class="banner-heading">
+              <span class="banner-heading-gold">An Evening of Melody,</span>
+              <span class="banner-heading-white">Pure Soulful Magic!</span>
+            </h2>
+            <p class="banner-subheading">Presented by Utkarsh Samajik Seva Sansthan</p>
+            <p class="banner-desc">Join passionate artists and a warm community audience for a memorable cultural night.</p>
+            <div class="banner-cta-row">
+              <a href="/register" class="ss-btn ss-btn-primary ss-performer-btn">➤ Register as Performer</a>
+              <a href="/register?tab=audience" class="ss-btn ss-btn-outline-gold">🎟 Free Audience Entry</a>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div class="ss-options-grid ss-fade-in">
-        <div class="ss-option-card">
-          <span class="option-icon">🎤</span>
-          <h3>Performer</h3>
-          <div class="fee-badge">Fee: ₹<span id="ss-reg-fee">500</span></div>
-          <p>Showcase your vocal talent on a professional stage. Open to all genres — classical, semi-classical, Bollywood, folk, ghazal.</p>
-          <p style="font-size:0.82rem;color:var(--ss-gold);margin-bottom:16px;">Last Date: <span id="ss-reg-deadline">TBA</span></p>
-          <a href="/sursukoon/register" class="ss-btn ss-btn-primary" style="width:100%;justify-content:center;">Register as Performer →</a>
-        </div>
+      <!-- Carousel Navigation Buttons -->
+      <button type="button" class="banner-nav-btn banner-nav-prev" id="ss-banner-prev" aria-label="Previous slide">‹</button>
+      <button type="button" class="banner-nav-btn banner-nav-next" id="ss-banner-next" aria-label="Next slide">›</button>
 
-        <div class="ss-option-card">
-          <span class="option-icon">🎭</span>
-          <h3>Audience</h3>
-          <div class="fee-badge" style="background:rgba(0,200,150,0.15);border-color:rgba(0,200,150,0.3);color:#00C896;">FREE Entry</div>
-          <p>Come, enjoy an evening of soul-stirring music in the company of passionate artists and a warm community audience.</p>
-          <p style="font-size:0.82rem;color:rgba(255,255,255,0.5);margin-bottom:16px;">Pre-registration recommended</p>
-          <a href="/sursukoon/register?tab=audience" class="ss-btn ss-btn-outline-gold" style="width:100%;justify-content:center;">Register as Audience →</a>
-        </div>
+      <!-- Pagination Dots Pill -->
+      <div class="banner-dots-pill" id="ss-banner-dots" role="tablist" aria-label="Banner slide pagination">
+        <button type="button" class="banner-dot active" data-slide="0" aria-label="Go to slide 1"></button>
+        <button type="button" class="banner-dot" data-slide="1" aria-label="Go to slide 2"></button>
+        <button type="button" class="banner-dot" data-slide="2" aria-label="Go to slide 3"></button>
       </div>
     </div>
   </section>
 
-  <!-- PROMO VIDEO -->
-  <section class="ss-section" style="background:rgba(255,255,255,0.02);">
-    <div class="ss-container">
-      <div class="ss-section-header ss-fade-in">
-        <div class="label">Watch</div>
-        <h2>Promo <span>Video</span></h2>
-        <div class="gold-line-ss"></div>
+  <!-- SECTION 3: HIGHLIGHTS VIDEO CAROUSEL -->
+  <section class="highlights-section" id="ss-highlights-section">
+    <div class="highlights-container">
+      <div class="highlights-header ss-fade-in">
+        <div class="highlights-badge">WATCH</div>
+        <h2 class="highlights-title">Highlights</h2>
+        <div class="highlights-underline"></div>
       </div>
-      <div class="ss-fade-in" id="ss-promo-video" style="text-align:center;border:1px solid var(--ss-border-gold);border-radius:var(--ss-radius-lg);padding:40px;color:var(--ss-text-dim);">
-        <div style="font-size:4rem;margin-bottom:16px;">🎬</div>
-        <p>Promo video coming soon...</p>
+
+      <div class="highlights-shelf ss-fade-in">
+        <button type="button" class="highlights-arrow highlights-arrow-prev" id="ss-highlights-prev" aria-label="Scroll highlights left">‹</button>
+        <div class="highlights-track" id="ss-highlights-track">
+          <!-- Populated dynamically from backend /api/media?type=video&mediaType=sursukoon with graceful fallback -->
+        </div>
+        <button type="button" class="highlights-arrow highlights-arrow-next" id="ss-highlights-next" aria-label="Scroll highlights right">›</button>
       </div>
     </div>
   </section>
@@ -204,11 +307,11 @@
         <div>
           <div style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:2px;color:var(--ss-gold);margin-bottom:12px;">Quick Links</div>
           <ul style="display:flex;flex-direction:column;gap:8px;list-style:none;">
-            <li><a href="/sursukoon" style="color:var(--ss-text-dim);font-size:0.88rem;">Home</a></li>
-            <li><a href="/sursukoon/register" style="color:var(--ss-text-dim);font-size:0.88rem;">Register</a></li>
-            <li><a href="/sursukoon/gallery" style="color:var(--ss-text-dim);font-size:0.88rem;">Gallery</a></li>
-            <li><a href="/sursukoon/about" style="color:var(--ss-text-dim);font-size:0.88rem;">About Sur-Sukoon</a></li>
-            <li><a href="/" style="color:#6ED8B8;font-size:0.88rem;">← Back to Utkarsh NGO</a></li>
+            <li><a href="/" style="color:var(--ss-text-dim);font-size:0.88rem;">Home</a></li>
+            <li><a href="/register" style="color:var(--ss-text-dim);font-size:0.88rem;">Register</a></li>
+            <li><a href="/gallery" style="color:var(--ss-text-dim);font-size:0.88rem;">Gallery</a></li>
+            <li><a href="/about" style="color:var(--ss-text-dim);font-size:0.88rem;">About Sur-Sukoon</a></li>
+            <li><a href="/utkarsh" class="ss-footer-portal-link">Utkarsh NGO Portal</a></li>
           </ul>
         </div>
         <div>

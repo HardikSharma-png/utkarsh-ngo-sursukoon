@@ -79,6 +79,24 @@ const upsertSetting = async (req, res) => {
   }
 };
 
+const uploadQrCode = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, message: 'Please upload an image file.' });
+    }
+    const upiQrUrl = req.file.buffer
+      ? `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`
+      : `/uploads/${req.file.filename}`;
+    if (isDbReady() && Settings) {
+      await Settings.findOneAndUpdate({ key: 'upiQrUrl' }, { key: 'upiQrUrl', value: upiQrUrl }, { upsert: true, new: true });
+    }
+    store.settings.upiQrUrl = upiQrUrl;
+    return res.json({ success: true, upiQrUrl, message: 'UPI QR code uploaded successfully.' });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
 const updateSettings = async (req, res) => {
   try {
     const updates = req.body;
@@ -164,7 +182,7 @@ const deleteTestimonial = async (req, res) => {
 };
 
 module.exports = {
-  getSetting, getSettings, upsertSetting, updateSettings,
+  getSetting, getSettings, upsertSetting, updateSettings, uploadQrCode,
   getPageContent, updatePageContent, getAllPageContent, deletePageContent,
   getTestimonials, addTestimonial, deleteTestimonial
 };

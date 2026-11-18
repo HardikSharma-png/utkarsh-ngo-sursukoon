@@ -64,7 +64,7 @@ async function loadProgrammeCards() {
                   data-join-name="${prog.title}">
                   Join Us
                 </button>` : ''}
-              <a href="${isSS ? '/sursukoon' : '/programmes'}" class="btn btn-outline btn-sm">
+              <a href="${isSS ? '/' : '/utkarsh/programmes'}" class="btn btn-outline btn-sm">
                 Learn More
               </a>
             </div>
@@ -156,7 +156,7 @@ async function loadProgrammeDetails() {
                   data-join-name="${prog.title}">
                   Join This Programme
                 </button>` : ''}
-              ${isSS ? `<a href="/sursukoon" class="btn btn-outline btn-sm" style="border-color:#8B005D;color:#8B005D;">Visit Sur-Sukoon →</a>` : ''}
+              ${isSS ? `<a href="/" class="btn btn-outline btn-sm" style="border-color:#8B005D;color:#8B005D;">Visit Sur-Sukoon →</a>` : ''}
             </div>
           </div>
         </div>`;

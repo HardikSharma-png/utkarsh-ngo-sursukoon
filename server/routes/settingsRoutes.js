@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const authMiddleware = require('../middleware/authMiddleware');
+const upload = require('../middleware/uploadMiddleware');
 const {
-  getSetting, getSettings, upsertSetting, updateSettings,
+  getSetting, getSettings, upsertSetting, updateSettings, uploadQrCode,
   getPageContent, updatePageContent, getAllPageContent, deletePageContent,
   getTestimonials, addTestimonial, deleteTestimonial
 } = require('../controllers/settingsController');
@@ -16,6 +17,9 @@ router.get('/testimonials', getTestimonials);
 // Admin routes
 router.post('/admin/setting', authMiddleware, upsertSetting);
 router.put('/admin/settings', authMiddleware, updateSettings);
+router.post('/admin/upload-qr', authMiddleware, upload.single('qrImage'), uploadQrCode);
+router.post('/settings/upload-qr', authMiddleware, upload.single('qrImage'), uploadQrCode);
+router.post('/settings/admin/upload-qr', authMiddleware, upload.single('qrImage'), uploadQrCode);
 router.get('/admin/page-content', authMiddleware, getAllPageContent);
 router.post('/admin/page-content', authMiddleware, updatePageContent);
 router.delete('/admin/page-content/:id', authMiddleware, deletePageContent);

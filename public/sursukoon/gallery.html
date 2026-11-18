@@ -3,83 +3,142 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Sur-Sukoon Photo & Video Gallery — Relive the magical moments from past Sur-Sukoon events.">
   <title>Gallery | Sur-Sukoon by Utkarsh</title>
   <link rel="stylesheet" href="/css/sursukoon.css">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎵</text></svg>">
 </head>
 <body class="sursukoon-body">
   <div id="ss-gallery-page">
   <div class="ss-bg-stars"></div>
 
-  <nav class="ss-navbar scrolled" id="ss-navbar">
+  <!-- NAVBAR (Matches Homepage Visual Continuity) -->
+  <nav class="ss-navbar ss-navbar-home scrolled" id="ss-navbar">
     <div class="ss-navbar-inner">
-      <a href="/sursukoon" class="ss-logo" style="text-decoration:none;">
-        <div class="logo-icon">🎵</div>
-        <div><div class="logo-name">Sur-Sukoon</div><div class="logo-sub">by Utkarsh</div></div>
+      <a href="/" class="ss-logo ss-logo-img-wrap" aria-label="Sur-Sukoon Home">
+        <img src="/images/sur-sukoon-logo.png" alt="Sur-Sukoon" class="ss-nav-logo-img">
       </a>
+
       <ul class="ss-nav-links" id="ss-nav-links">
-        <button class="nav-close" id="ss-nav-close" style="position:absolute;top:24px;right:24px;background:none;border:none;color:white;font-size:2rem;cursor:pointer;">✕</button>
-        <li><a href="/sursukoon" class="ss-nav-link">Home</a></li>
-        <li><a href="/sursukoon/about" class="ss-nav-link">About</a></li>
-        <li><a href="/sursukoon/gallery" class="ss-nav-link active">Gallery</a></li>
-        <li><a href="/" class="ss-back-btn">← Back to Utkarsh</a></li>
+        <button class="nav-close" id="ss-nav-close" aria-label="Close navigation">✕</button>
+        <li><a href="/" class="ss-nav-link">Home</a></li>
+        <li><a href="/about" class="ss-nav-link">About</a></li>
+        <li><a href="/gallery" class="ss-nav-link active">Gallery</a></li>
+        <li class="ss-nav-drawer-cta"><a href="/register" class="ss-btn ss-btn-primary ss-drawer-reg-btn">Register Now 🎤</a></li>
       </ul>
-      <div style="display:flex;gap:12px;align-items:center;">
-        <a href="/sursukoon/register" class="ss-register-btn">Register 🎤</a>
-        <button class="ss-hamburger" id="ss-hamburger"><span></span><span></span><span></span></button>
+
+      <div class="ss-nav-right">
+        <a href="/register" class="ss-register-btn" id="ss-reg-nav-btn">Register ↗</a>
+        <button class="ss-hamburger" id="ss-hamburger" aria-label="Toggle navigation">
+          <span></span><span></span><span></span>
+        </button>
       </div>
     </div>
   </nav>
 
-  <section style="background:radial-gradient(ellipse at center,var(--ss-purple),var(--ss-dark));padding:120px 0 60px;">
-    <div class="ss-container" style="text-align:center;">
-      <div class="ss-hero-label" style="display:inline-flex;margin-bottom:16px;">📸 Gallery</div>
-      <h1 style="font-family:var(--ss-font-display);color:var(--ss-white);font-size:clamp(2rem,5vw,3.5rem);">Memories <span style="color:var(--ss-gold);">Captured</span></h1>
-      <p style="color:var(--ss-text-dim);margin-top:12px;">Relive the magical moments from past Sur-Sukoon events.</p>
-    </div>
-  </section>
+  <!-- GALLERY HEADER & TAB SWITCHER -->
+  <header class="gallery-hero-header">
+    <div class="gallery-stage">
+      <p class="gallery-subtitle">Relive the magical moments from past Sur-Sukoon events.</p>
 
-  <!-- PHOTO GALLERY -->
-  <section class="ss-section">
-    <div class="ss-container">
-      <div class="ss-section-header ss-fade-in">
-        <div class="label">Photos</div>
-        <h2>Photo <span>Gallery</span></h2>
-        <div class="gold-line-ss"></div>
+      <!-- Tab Capsules (PHOTOS vs VIDEOS) -->
+      <div class="gallery-tabs-row" role="tablist" aria-label="Gallery media type">
+        <button type="button" class="gallery-tab-pill active" id="gallery-tab-photos" data-gallery-tab="photos" role="tab" aria-selected="true" aria-controls="gallery-photos-panel">
+          PHOTOS
+        </button>
+        <button type="button" class="gallery-tab-pill" id="gallery-tab-videos" data-gallery-tab="videos" role="tab" aria-selected="false" aria-controls="gallery-videos-panel">
+          VIDEOS
+        </button>
       </div>
-      <div class="ss-gallery-grid" id="ss-photo-gallery">
-        <div style="text-align:center;padding:60px;column-span:all;color:var(--ss-text-dim);">
-          <div style="width:40px;height:40px;border:2px solid rgba(255,255,255,0.1);border-top-color:var(--ss-magenta);border-radius:50%;animation:sspin 0.7s linear infinite;margin:0 auto 16px;"></div>
-          <style>@keyframes sspin{to{transform:rotate(360deg)}}</style>
-          <p>Loading gallery...</p>
+
+      <!-- Dynamic Primary Heading -->
+      <h1 class="gallery-main-heading" id="gallery-dynamic-heading">
+        Photo <span>Gallery</span>
+      </h1>
+      <div class="gallery-heading-underline"></div>
+    </div>
+  </header>
+
+  <!-- DYNAMIC GALLERY STAGE -->
+  <main class="gallery-content-section">
+    <div class="gallery-stage">
+      <!-- PHOTOS TAB PANEL -->
+      <section id="gallery-photos-panel" role="tabpanel" aria-labelledby="gallery-tab-photos">
+        <div class="gallery-masonry" id="ss-photo-gallery">
+          <!-- Dark skeleton loaders rendered initially & during fetch -->
+          <div class="gallery-skeleton-card sk-tall"></div>
+          <div class="gallery-skeleton-card sk-med"></div>
+          <div class="gallery-skeleton-card sk-tall"></div>
+          <div class="gallery-skeleton-card sk-short"></div>
+          <div class="gallery-skeleton-card sk-med"></div>
+          <div class="gallery-skeleton-card sk-short"></div>
+          <div class="gallery-skeleton-card sk-tall"></div>
+          <div class="gallery-skeleton-card sk-med"></div>
+          <div class="gallery-skeleton-card sk-tall"></div>
+          <div class="gallery-skeleton-card sk-med"></div>
         </div>
-      </div>
-    </div>
-  </section>
+      </section>
 
-  <!-- VIDEO GALLERY -->
-  <section class="ss-section" style="background:rgba(255,255,255,0.02);">
-    <div class="ss-container">
-      <div class="ss-section-header ss-fade-in">
-        <div class="label">Videos</div>
-        <h2>Event <span>Videos</span></h2>
-        <div class="gold-line-ss"></div>
-      </div>
-      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:20px;" id="ss-video-gallery">
-        <div style="text-align:center;padding:40px;grid-column:1/-1;color:var(--ss-text-dim);">
-          <p>Loading videos...</p>
+      <!-- VIDEOS TAB PANEL -->
+      <section id="gallery-videos-panel" class="hidden" role="tabpanel" aria-labelledby="gallery-tab-videos">
+        <div class="gallery-video-grid" id="ss-video-gallery">
+          <!-- Dark 16:9 skeleton loaders rendered during fetch -->
+          <div class="gallery-skeleton-video"></div>
+          <div class="gallery-skeleton-video"></div>
+          <div class="gallery-skeleton-video"></div>
+          <div class="gallery-skeleton-video"></div>
+          <div class="gallery-skeleton-video"></div>
+          <div class="gallery-skeleton-video"></div>
+          <div class="gallery-skeleton-video"></div>
+          <div class="gallery-skeleton-video"></div>
+          <div class="gallery-skeleton-video"></div>
+          <div class="gallery-skeleton-video"></div>
         </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- PHOTO LIGHTBOX OVERLAY -->
+  <div class="ss-gallery-lightbox" id="ss-photo-lightbox" role="dialog" aria-modal="true" aria-label="Full resolution photo viewer" aria-hidden="true">
+    <button type="button" class="ss-lb-close" id="ss-lb-close" aria-label="Close lightbox">✕</button>
+    <button type="button" class="ss-lb-nav ss-lb-prev" id="ss-lb-prev" aria-label="Previous photo">‹</button>
+    <div class="ss-lb-stage">
+      <div class="ss-lb-spinner" id="ss-lb-spinner"></div>
+      <img src="" alt="" class="ss-lb-img" id="ss-lb-img">
+      <div class="ss-lb-footer">
+        <span class="ss-lb-caption" id="ss-lb-caption"></span>
+        <span class="ss-lb-counter" id="ss-lb-counter"></span>
       </div>
     </div>
-  </section>
+    <button type="button" class="ss-lb-nav ss-lb-next" id="ss-lb-next" aria-label="Next photo">›</button>
+  </div>
 
+  <!-- VIDEO PLAYBACK MODAL OVERLAY -->
+  <div class="ss-video-modal" id="ss-video-modal" role="dialog" aria-modal="true" aria-label="Video player" aria-hidden="true">
+    <button type="button" class="ss-lb-close" id="ss-vm-close" aria-label="Close video player">✕</button>
+    <button type="button" class="ss-lb-nav ss-lb-prev" id="ss-vm-prev" aria-label="Previous video">‹</button>
+    <div class="ss-vm-dialog">
+      <div class="ss-vm-frame" id="ss-vm-player"></div>
+      <div class="ss-vm-meta">
+        <div class="ss-vm-title" id="ss-vm-title"></div>
+        <div class="ss-vm-counter" id="ss-vm-counter"></div>
+      </div>
+    </div>
+    <button type="button" class="ss-lb-nav ss-lb-next" id="ss-vm-next" aria-label="Next video">›</button>
+  </div>
+
+  <!-- FOOTER (Preserved Intact) -->
   <footer style="background:var(--ss-black);border-top:1px solid var(--ss-border-magenta);padding:32px 0 24px;">
     <div class="ss-container" style="text-align:center;">
       <p style="color:var(--ss-text-dim);font-size:0.85rem;">© 2025 Sur-Sukoon by Utkarsh Samajik Seva Sansthan</p>
-      <a href="/sursukoon" style="color:var(--ss-gold);font-size:0.85rem;display:inline-block;margin-top:8px;">← Back to Sur-Sukoon Home</a>
+      <div style="margin-top:12px;display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
+        <a href="/" style="color:var(--ss-gold);font-size:0.85rem;">← Back to Home</a>
+        <a href="/utkarsh" class="ss-footer-portal-link" style="font-size:0.85rem;">Utkarsh NGO Portal</a>
+      </div>
     </div>
   </footer>
 
-  </div>
+  </div><!-- #ss-gallery-page -->
   <script src="/js/sursukoon.js"></script>
 </body>
 </html>

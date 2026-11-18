@@ -1384,3 +1384,21 @@ p { color: var(--text-medium); line-height: 1.8; }
 .navbar-logo { display: flex; align-items: center; gap: 10px; }
 .footer-brand { display: flex; align-items: center; gap: 10px; }
 .footer-brand img { height: 44px; width: 44px; object-fit: contain; }
+
+/* === MOBILE FRIENDLINESS === */
+html, body {
+  overflow-x: hidden;
+  max-width: 100%;
+}
+@media (max-width: 768px) {
+  .form-input, .form-textarea, .form-select {
+    font-size: 16px !important; /* iOS zoom prevention */
+    min-height: 48px;
+  }
+  .navbar-inner {
+    padding: 0 16px;
+  }
+  .container {
+    padding: 0 16px;
+  }
+}

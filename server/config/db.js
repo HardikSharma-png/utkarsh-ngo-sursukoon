@@ -4,6 +4,10 @@ let isConnected = false;
 const inMemoryData = {};
 
 const connectDB = async () => {
+  if (mongoose.connection && mongoose.connection.readyState >= 1) {
+    isConnected = true;
+    return;
+  }
   try {
     const conn = await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/utkarsh_ngo', {
       serverSelectionTimeoutMS: 5000,

@@ -8,6 +8,11 @@ const Audience_RegistrationSchema = new mongoose.Schema({
   email: { type: String },
   numberOfPeople: { type: Number, default: 1 },
   heardFrom: { type: String },
+  isPaid: { type: Boolean, default: false },
+  audienceFee: { type: Number, default: 0 },
+  totalAmount: { type: Number, default: 0 },
+  paymentScreenshot: { type: String },
+  paymentStatus: { type: String, enum: ['pending', 'verified', 'rejected', 'free'], default: 'free' },
   submittedAt: { type: Date, default: Date.now }
 }, { timestamps: true });
 

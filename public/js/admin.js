@@ -1,25 +1,44 @@
 // admin.js — Full Admin Panel Logic
 const ADMIN_API = '/api';
-let authToken = localStorage.getItem('admin_token');
+let authToken = localStorage.getItem('admin_token') || localStorage.getItem('adminToken') || null;
 let currentSection = 'dashboard';
 
 // ====== AUTH ======
-function isLoggedIn() { return !!authToken; }
+function getAuthToken() {
+  if (!authToken) {
+    authToken = localStorage.getItem('admin_token') || localStorage.getItem('adminToken') || null;
+  }
+  return authToken || localStorage.getItem('admin_token') || localStorage.getItem('adminToken') || '';
+}
+
+function isLoggedIn() { return !!getAuthToken(); }
 
 function getHeaders() {
-  return { 'Content-Type': 'application/json', 'Authorization': `Bearer ${authToken}` };
+  const token = getAuthToken();
+  const headers = { 'Content-Type': 'application/json' };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+  return headers;
 }
 
 async function adminFetch(url, options = {}) {
   const isFormData = options.body instanceof FormData;
-  const headers = isFormData ? { 'Authorization': `Bearer ${authToken}` } : getHeaders();
+  const token = getAuthToken();
+  const baseHeaders = isFormData
+    ? (token ? { 'Authorization': `Bearer ${token}` } : {})
+    : getHeaders();
+  const headers = { ...baseHeaders, ...(options.headers || {}) };
+  // Ensure Content-Type is NEVER manually set when sending FormData so browser sets multipart boundary
+  if (isFormData) {
+    delete headers['Content-Type'];
+    delete headers['content-type'];
+  }
   try {
-    const res = await fetch(ADMIN_API + url, { headers, ...options });
+    const res = await fetch(ADMIN_API + url, { ...options, headers });
     if (res.status === 401) { logout(); return { ok: false, data: { message: 'Session expired.' } }; }
-    const data = await res.json();
-    return { ok: res.ok, data };
+    const data = await res.json().catch(() => ({}));
+    return { ok: res.ok, status: res.status, data };
   } catch (err) {
-    return { ok: false, data: { message: 'Network error.' } };
+    return { ok: false, data: { message: err.message || 'Network error.' } };
   }
 }
 
@@ -39,6 +58,7 @@ async function login(email, password) {
 
 function logout() {
   localStorage.removeItem('admin_token');
+  localStorage.removeItem('adminToken');
   authToken = null;
   showLoginPage();
 }
@@ -89,9 +109,11 @@ function loadSection(sectionId) {
     'ss-events': loadSSEvents,
     'ss-performers': loadSSPerformers,
     'ss-audience': loadSSAudience,
+    'homepage-manager': loadHomepageManager,
     'media-photos': loadMediaPhotos,
     'media-videos': loadMediaVideos,
     'media-press': loadMediaPress,
+    'gallery-config': loadGalleryConfig,
     'settings': loadSettingsPage,
     'page-content': loadPageContent,
   };
@@ -108,9 +130,11 @@ function getSectionTitle(id) {
     'ss-events': 'Sur-Sukoon Events',
     'ss-performers': 'Performer Registrations',
     'ss-audience': 'Audience Registrations',
+    'homepage-manager': 'Homepage Manager',
     'media-photos': 'Photo Gallery',
     'media-videos': 'Video Gallery',
     'media-press': 'Press Coverage',
+    'gallery-config': 'Gallery Configuration',
     'settings': 'Site Settings',
     'page-content': 'Page Content Editor',
     'password': 'Change Password',
@@ -362,6 +386,13 @@ async function editSSEvent(id) {
   document.getElementById('ss-event-venue').value = e.venue || '';
   document.getElementById('ss-event-seats').value = e.performerSeats || 20;
   document.getElementById('ss-event-fee').value = e.registrationFee || 500;
+
+  const audType = e.audienceEntryType || (e.isAudiencePaid ? 'paid' : 'free');
+  document.getElementById('ss-event-audience-type').value = audType;
+  const feeGroup = document.getElementById('ss-event-audience-fee-group');
+  if (feeGroup) feeGroup.style.display = audType === 'paid' ? 'block' : 'none';
+  document.getElementById('ss-event-audience-fee').value = e.audienceFee || 0;
+
   document.getElementById('ss-event-deadline').value = e.lastRegistrationDate ? e.lastRegistrationDate.split('T')[0] : '';
   document.getElementById('ss-event-status').value = e.status || 'upcoming';
   document.getElementById('ss-event-reg-open').checked = e.registrationOpen;
@@ -377,13 +408,23 @@ function openAddSSEvent() {
   document.getElementById('ss-event-id').value = '';
   document.getElementById('modal-ss-event-title').textContent = 'Add Sur-Sukoon Event';
   document.getElementById('ss-event-reg-open').checked = true;
+  document.getElementById('ss-event-audience-type').value = 'free';
+  const feeGroup = document.getElementById('ss-event-audience-fee-group');
+  if (feeGroup) feeGroup.style.display = 'none';
+  document.getElementById('ss-event-audience-fee').value = 0;
   openModal('ss-event-modal');
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('ss-event-audience-type')?.addEventListener('change', (e) => {
+    const feeGroup = document.getElementById('ss-event-audience-fee-group');
+    if (feeGroup) feeGroup.style.display = e.target.value === 'paid' ? 'block' : 'none';
+  });
+
   document.getElementById('ss-event-form')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const id = document.getElementById('ss-event-id').value;
+    const isAudPaid = document.getElementById('ss-event-audience-type').value === 'paid';
     const body = {
       eventName: document.getElementById('ss-event-name').value,
       date: document.getElementById('ss-event-date').value,
@@ -391,6 +432,9 @@ document.addEventListener('DOMContentLoaded', () => {
       venue: document.getElementById('ss-event-venue').value,
       performerSeats: parseInt(document.getElementById('ss-event-seats').value),
       registrationFee: parseFloat(document.getElementById('ss-event-fee').value),
+      audienceEntryType: document.getElementById('ss-event-audience-type').value,
+      isAudiencePaid: isAudPaid,
+      audienceFee: isAudPaid ? (parseFloat(document.getElementById('ss-event-audience-fee').value) || 0) : 0,
       lastRegistrationDate: document.getElementById('ss-event-deadline').value || null,
       status: document.getElementById('ss-event-status').value,
       registrationOpen: document.getElementById('ss-event-reg-open').checked,
@@ -491,26 +535,59 @@ async function deleteAudienceReg(id, name) {
 async function loadSSAudience() {
   const tbody = document.getElementById('audience-tbody');
   if (!tbody) return;
-  tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;">Loading...</td></tr>';
+  tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:20px;">Loading...</td></tr>';
 
   const result = await adminFetch('/sursukoon/admin/registrations/audience');
-  if (!result.ok) { tbody.innerHTML = `<tr><td colspan="6">Error.</td></tr>`; return; }
+  if (!result.ok) { tbody.innerHTML = `<tr><td colspan="8">Error.</td></tr>`; return; }
 
   const regs = result.data.data || [];
-  if (!regs.length) { tbody.innerHTML = `<tr class="empty-row"><td colspan="6">No audience registrations yet.</td></tr>`; return; }
+  if (!regs.length) { tbody.innerHTML = `<tr class="empty-row"><td colspan="8">No audience registrations yet.</td></tr>`; return; }
 
-  tbody.innerHTML = regs.map(r => `
+  tbody.innerHTML = regs.map(r => {
+    const isPaid = r.isPaid || (r.paymentStatus && r.paymentStatus !== 'free');
+    const paymentBadge = isPaid
+      ? `<div style="display:flex;flex-direction:column;gap:5px;">
+           <span class="badge ${r.paymentStatus === 'verified' ? 'badge-green' : r.paymentStatus === 'rejected' ? 'badge-red' : 'badge-yellow'}">PAID: ${(r.paymentStatus || 'pending').toUpperCase()} (₹${r.totalAmount || (r.audienceFee ? r.audienceFee * (r.numberOfPeople || 1) : 0)})</span>
+           ${r.paymentScreenshot ? `<a href="${r.paymentScreenshot}" target="_blank" class="admin-btn admin-btn-gold admin-btn-sm" style="padding:2px 8px;font-size:0.75rem;width:fit-content;">🧾 Proof</a>` : '<span style="color:var(--admin-text-dim);font-size:0.75rem;">No proof</span>'}
+           <select class="admin-form-control" style="padding:3px 6px;width:auto;font-size:0.75rem;" onchange="updateAudiencePayment('${r._id}', this.value)">
+             <option value="pending" ${r.paymentStatus === 'pending' ? 'selected' : ''}>Pending</option>
+             <option value="verified" ${r.paymentStatus === 'verified' ? 'selected' : ''}>Verified</option>
+             <option value="rejected" ${r.paymentStatus === 'rejected' ? 'selected' : ''}>Rejected</option>
+           </select>
+         </div>`
+      : `<span class="badge badge-green">FREE</span>`;
+
+    const waPhone = r.phone ? '91' + r.phone.replace(/^0+/, '').replace(/[^0-9]/g,'') : '';
+    const waMsg = encodeURIComponent(
+      isPaid
+        ? `Hello ${r.fullName}, your Sur-Sukoon audience registration (Payment: ${r.paymentStatus || 'pending'}) has been noted. - Utkarsh Samajik Seva Sansthan`
+        : `Hello ${r.fullName}, thank you for registering for Sur-Sukoon! Entry is free. We look forward to seeing you. - Utkarsh Samajik Seva Sansthan`
+    );
+
+    return `
     <tr>
       <td><strong>${r.fullName}</strong></td>
       <td><a href="tel:${r.phone}">${r.phone}</a></td>
       <td>${r.email || '—'}</td>
+      <td>${r.eventName || '—'}</td>
       <td>${r.numberOfPeople || 1}</td>
+      <td>${paymentBadge}</td>
       <td>${r.heardFrom || '—'}</td>
       <td class="actions-cell">
-        <a href="https://wa.me/${r.phone}?text=${encodeURIComponent(`Hello ${r.fullName}, thank you for registering for Sur-Sukoon! Entry is free. We look forward to seeing you.`)}" target="_blank" class="wa-link-btn">💬 WA</a>
+        ${waPhone ? `<a href="https://wa.me/${waPhone}?text=${waMsg}" target="_blank" class="wa-link-btn" title="Send WhatsApp">💬 WA</a>` : ''}
         <button class="admin-btn admin-btn-red admin-btn-sm" onclick="deleteAudienceReg('${r._id}', '${r.fullName}')">🗑️</button>
       </td>
-    </tr>`).join('');
+    </tr>`;
+  }).join('');
+}
+
+async function updateAudiencePayment(id, status) {
+  const result = await adminFetch(`/sursukoon/admin/registrations/audience/${id}/payment`, {
+    method: 'PUT',
+    body: JSON.stringify({ status })
+  });
+  if (result.ok) adminToast(`Audience payment marked as ${status}.`);
+  else adminToast('Update failed.', 'error');
 }
 
 function exportAudienceCSV() { fetchAndDownload('/sursukoon/admin/export/audience', 'audience.csv'); }
@@ -790,6 +867,654 @@ async function deleteMedia(id, type) {
   } else adminToast('Delete failed.', 'error');
 }
 
+// ====== GALLERY CONFIGURATION ======
+function renderGalleryCacheStatus(c) {
+  const statusEl = document.getElementById('gallery-sync-status');
+  if (!statusEl) return;
+  if (!c) {
+    statusEl.innerHTML = 'No cache data available yet.';
+    return;
+  }
+  const fmtTime = (iso) => iso ? new Date(iso).toLocaleString('en-IN') : 'Not synced yet';
+  statusEl.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;">
+      <div style="padding:12px 14px;border-radius:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);">
+        <div style="font-size:0.74rem;text-transform:uppercase;letter-spacing:1px;color:var(--admin-gold);margin-bottom:4px;">📷 Google Photos Cache</div>
+        <div>Cached Photos: <strong>${c.photosCount !== null && c.photosCount !== undefined ? c.photosCount : '—'}</strong></div>
+        <div style="font-size:0.78rem;opacity:0.75;">Last Synced: ${fmtTime(c.photosCachedAt)}</div>
+        ${c.photosError ? `<div style="font-size:0.78rem;color:var(--admin-red);margin-top:4px;">⚠️ ${c.photosError}</div>` : ''}
+      </div>
+      <div style="padding:12px 14px;border-radius:10px;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.08);">
+        <div style="font-size:0.74rem;text-transform:uppercase;letter-spacing:1px;color:var(--admin-blue);margin-bottom:4px;">🎬 YouTube Playlist Cache</div>
+        <div>Cached Videos: <strong>${c.videosCount !== null && c.videosCount !== undefined ? c.videosCount : '—'}</strong></div>
+        <div style="font-size:0.78rem;opacity:0.75;">Last Synced: ${fmtTime(c.videosCachedAt)}</div>
+        ${c.videosError ? `<div style="font-size:0.78rem;color:var(--admin-red);margin-top:4px;">⚠️ ${c.videosError}</div>` : ''}
+      </div>
+    </div>
+    <div style="margin-top:10px;font-size:0.78rem;opacity:0.7;">
+      Server cache TTL: <strong>${c.ttlMinutes || 12} minutes</strong> (click "Sync Media / Clear Cache" anytime for immediate refresh).
+    </div>
+  `;
+}
+
+async function loadGalleryConfig() {
+  const result = await adminFetch('/gallery/config');
+  if (!result.ok) return;
+  const d = result.data.data || {};
+  const photosInput = document.getElementById('gallery-google-photos-url');
+  const videosInput = document.getElementById('gallery-youtube-playlist-url');
+  if (photosInput) photosInput.value = d.googlePhotosAlbumUrl || '';
+  if (videosInput) videosInput.value = d.youtubePlaylistUrl || '';
+  renderGalleryCacheStatus(d.cache);
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('gallery-config-form')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const saveBtn = document.getElementById('gallery-save-btn');
+    const googlePhotosAlbumUrl = document.getElementById('gallery-google-photos-url')?.value.trim() || '';
+    const youtubePlaylistUrl = document.getElementById('gallery-youtube-playlist-url')?.value.trim() || '';
+
+    if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = '⏳ Saving...'; }
+    const result = await adminFetch('/gallery/config', {
+      method: 'PUT',
+      body: JSON.stringify({ googlePhotosAlbumUrl, youtubePlaylistUrl })
+    });
+    if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = '💾 Save Changes'; }
+
+    if (result.ok) {
+      adminToast(result.data.message || 'Gallery configuration saved! ✅');
+      await loadGalleryConfig();
+    } else {
+      adminToast(result.data.message || 'Failed to save gallery configuration.', 'error');
+    }
+  });
+
+  document.getElementById('gallery-sync-btn')?.addEventListener('click', async () => {
+    const syncBtn = document.getElementById('gallery-sync-btn');
+    if (syncBtn) { syncBtn.disabled = true; syncBtn.textContent = '⏳ Syncing Media...'; }
+    const result = await adminFetch('/gallery/sync', { method: 'POST' });
+    if (syncBtn) { syncBtn.disabled = false; syncBtn.textContent = '🔄 Sync Media / Clear Cache'; }
+
+    if (result.ok) {
+      const s = result.data.data || {};
+      const parts = [];
+      if (s.photos?.configured) parts.push(`${s.photos.count} photo${s.photos.count === 1 ? '' : 's'}`);
+      if (s.videos?.configured) parts.push(`${s.videos.count} video${s.videos.count === 1 ? '' : 's'}`);
+      const msg = parts.length ? `Cache cleared & synced ${parts.join(' and ')}! ✅` : 'Gallery cache cleared! ✅';
+      adminToast(msg);
+      if (s.photos?.error) adminToast(`Photos warning: ${s.photos.error}`, 'error');
+      if (s.videos?.error) adminToast(`Videos warning: ${s.videos.error}`, 'error');
+      await loadGalleryConfig();
+    } else {
+      adminToast(result.data.message || 'Failed to sync gallery media.', 'error');
+    }
+  });
+});
+
+// ====== HOMEPAGE MANAGER ======
+let _hpData = { heroVideo: {}, banners: [], highlights: [] };
+
+function extractYouTubeIdAdmin(url) {
+  if (!url) return '';
+  const m = String(url).match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|v\/|embed\/|shorts\/))([^&\n?#]+)/);
+  return m ? m[1] : '';
+}
+
+function escAdminHtml(str) {
+  return String(str || '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+}
+
+async function loadHomepageManager() {
+  const result = await adminFetch('/homepage/config');
+  if (!result.ok) {
+    adminToast('Could not load homepage configuration.', 'error');
+    return;
+  }
+  _hpData = result.data.data || { heroVideo: {}, banners: [], highlights: [] };
+
+  renderHeroVideoManager(_hpData.heroVideo, _hpData.activeEventPromo);
+  renderBannersTable(_hpData.banners);
+  renderHighlightsTable(_hpData.highlights);
+}
+
+function renderHeroVideoManager(hero, activeEventPromo) {
+  const badge = document.getElementById('hero-video-status-badge');
+  const previewBox = document.getElementById('hero-preview-inner');
+  const ytInput = document.getElementById('hero-youtube-url');
+  const ytRadio = document.getElementById('hero-src-youtube');
+  const upRadio = document.getElementById('hero-src-upload');
+  const ytGroup = document.getElementById('hero-youtube-group');
+  const upGroup = document.getElementById('hero-upload-group');
+
+  const effectiveUrl = hero?.effectiveUrl || '';
+  const type = hero?.type || 'youtube';
+
+  if (hero?.url) {
+    if (type === 'upload') {
+      if (badge) {
+        badge.textContent = 'Active: Uploaded MP4';
+        badge.style.color = '#38ef7d';
+        badge.style.background = 'rgba(56, 239, 125, 0.12)';
+      }
+      if (upRadio) upRadio.checked = true;
+      if (ytGroup) ytGroup.style.display = 'none';
+      if (upGroup) upGroup.style.display = 'block';
+    } else {
+      if (badge) {
+        badge.textContent = 'Active: Custom YouTube';
+        badge.style.color = '#FFD700';
+        badge.style.background = 'rgba(255, 215, 0, 0.12)';
+      }
+      if (ytRadio) ytRadio.checked = true;
+      if (ytInput) ytInput.value = hero.url;
+      if (ytGroup) ytGroup.style.display = 'block';
+      if (upGroup) upGroup.style.display = 'none';
+    }
+  } else {
+    if (badge) {
+      badge.textContent = activeEventPromo ? 'Active: Event Promo Fallback' : 'No Video Configured';
+      badge.style.color = 'var(--admin-text-dim)';
+      badge.style.background = 'rgba(255, 255, 255, 0.08)';
+    }
+    if (ytRadio) ytRadio.checked = true;
+    if (ytInput) ytInput.value = '';
+    if (ytGroup) ytGroup.style.display = 'block';
+    if (upGroup) upGroup.style.display = 'none';
+  }
+
+  // Render preview
+  if (previewBox) {
+    if (effectiveUrl) {
+      if (type === 'upload' || effectiveUrl.endsWith('.mp4') || effectiveUrl.endsWith('.webm') || effectiveUrl.startsWith('/uploads/')) {
+        previewBox.innerHTML = `
+          <video src="${effectiveUrl}" controls muted playsinline style="width:100%;height:100%;object-fit:cover;"></video>
+        `;
+      } else {
+        const ytId = extractYouTubeIdAdmin(effectiveUrl);
+        if (ytId) {
+          previewBox.innerHTML = `
+            <iframe src="https://www.youtube.com/embed/${ytId}?autoplay=0&rel=0" style="width:100%;height:100%;border:none;" allowfullscreen></iframe>
+          `;
+        } else {
+          previewBox.innerHTML = `
+            <div style="padding:20px;text-align:center;color:var(--admin-text-dim);font-size:0.84rem;">
+              URL: ${effectiveUrl}
+            </div>
+          `;
+        }
+      }
+    } else {
+      previewBox.innerHTML = `
+        <div style="padding:20px;text-align:center;color:var(--admin-text-dim);font-size:0.84rem;">
+          🎬 No promo video set yet. Add a YouTube URL or MP4 upload above.
+        </div>
+      `;
+    }
+  }
+}
+
+function renderBannersTable(banners) {
+  const tbody = document.getElementById('banners-table-body');
+  if (!tbody) return;
+
+  if (!banners || banners.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--admin-text-dim);">No banners added yet. Click "+ Add Banner" above.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = banners.map((b, idx) => {
+    const isFirst = idx === 0;
+    const isLast = idx === banners.length - 1;
+    const hasText = b.headlineGold || b.headlineWhite || b.headline || b.subheading || b.description;
+    const textPreview = hasText
+      ? `<div style="font-weight:600;font-size:0.86rem;color:#fff;">
+          <span style="color:var(--admin-gold);">${escAdminHtml(b.headlineGold || '')}</span>
+          ${escAdminHtml(b.headlineWhite || b.headline || '')}
+         </div>
+         <div style="font-size:0.76rem;color:var(--admin-text-dim);margin-top:3px;">
+          ${escAdminHtml(b.subheading || '')}
+         </div>`
+      : `<span class="admin-badge" style="background:rgba(255,200,50,0.1);color:var(--admin-gold);font-size:0.74rem;">Graphic Only (Pre-Designed)</span>`;
+
+    const btnPreview = (b.btn1Label || b.btn2Label)
+      ? `<div style="font-size:0.76rem;">
+          ${b.btn1Label ? `<div>🔘 <strong>${escAdminHtml(b.btn1Label)}</strong> <span style="opacity:0.6;">(${escAdminHtml(b.btn1Link || '')})</span></div>` : ''}
+          ${b.btn2Label ? `<div style="margin-top:2px;">🔘 <strong>${escAdminHtml(b.btn2Label)}</strong> <span style="opacity:0.6;">(${escAdminHtml(b.btn2Link || '')})</span></div>` : ''}
+         </div>`
+      : `<span style="font-size:0.76rem;color:var(--admin-text-dim);">None</span>`;
+
+    return `
+      <tr data-banner-id="${b.id}">
+        <td>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <strong>#${b.order || idx + 1}</strong>
+            <div style="display:flex;flex-direction:column;gap:2px;">
+              <button type="button" class="admin-btn admin-btn-outline" style="padding:1px 5px;font-size:0.65rem;line-height:1;" onclick="moveBannerOrder('${b.id}', -1)" ${isFirst ? 'disabled' : ''} title="Move Up">▲</button>
+              <button type="button" class="admin-btn admin-btn-outline" style="padding:1px 5px;font-size:0.65rem;line-height:1;" onclick="moveBannerOrder('${b.id}', 1)" ${isLast ? 'disabled' : ''} title="Move Down">▼</button>
+            </div>
+          </div>
+        </td>
+        <td>
+          <img src="${b.imageUrl}" alt="Banner" style="width:96px;height:52px;object-fit:cover;border-radius:6px;border:1px solid rgba(255,255,255,0.12);" onerror="this.onerror=null;this.src='/images/hero-stage-thumb.jpg'">
+        </td>
+        <td>${textPreview}</td>
+        <td>${btnPreview}</td>
+        <td style="text-align:right;white-space:nowrap;">
+          <button type="button" class="admin-btn admin-btn-outline admin-btn-sm" onclick="editBanner('${b.id}')">✏ Edit</button>
+          <button type="button" class="admin-btn admin-btn-danger admin-btn-sm" style="margin-left:4px;" onclick="deleteBannerItem('${b.id}')">🗑</button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function renderHighlightsTable(highlights) {
+  const tbody = document.getElementById('highlights-table-body');
+  if (!tbody) return;
+
+  if (!highlights || highlights.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:30px;color:var(--admin-text-dim);">No highlight videos added yet. Click "+ Add Highlight Video" above.</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = highlights.map((h, idx) => {
+    const isFirst = idx === 0;
+    const isLast = idx === highlights.length - 1;
+    const thumb = h.thumbnailUrl || (h.videoId ? `https://img.youtube.com/vi/${h.videoId}/hqdefault.jpg` : '/images/hero-stage-thumb.jpg');
+
+    return `
+      <tr data-highlight-id="${h.id}">
+        <td>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <strong>#${h.order || idx + 1}</strong>
+            <div style="display:flex;flex-direction:column;gap:2px;">
+              <button type="button" class="admin-btn admin-btn-outline" style="padding:1px 5px;font-size:0.65rem;line-height:1;" onclick="moveHighlightOrder('${h.id}', -1)" ${isFirst ? 'disabled' : ''} title="Move Up">▲</button>
+              <button type="button" class="admin-btn admin-btn-outline" style="padding:1px 5px;font-size:0.65rem;line-height:1;" onclick="moveHighlightOrder('${h.id}', 1)" ${isLast ? 'disabled' : ''} title="Move Down">▼</button>
+            </div>
+          </div>
+        </td>
+        <td>
+          <img src="${thumb}" alt="Highlight" style="width:84px;height:48px;object-fit:cover;border-radius:6px;border:1px solid rgba(255,255,255,0.12);" onerror="this.onerror=null;this.src='/images/hero-stage-thumb.jpg'">
+        </td>
+        <td>
+          <div style="font-weight:600;font-size:0.86rem;color:#fff;">${escAdminHtml(h.title)}</div>
+          <div style="font-size:0.76rem;color:var(--admin-text-dim);margin-top:2px;">${escAdminHtml(h.subtitle || 'Sur-Sukoon Stage')}</div>
+        </td>
+        <td>
+          <a href="${h.youtubeUrl}" target="_blank" style="color:var(--admin-gold);font-size:0.8rem;display:inline-flex;align-items:center;gap:4px;">
+            <span>▶ Watch</span> ↗
+          </a>
+        </td>
+        <td style="text-align:right;white-space:nowrap;">
+          <button type="button" class="admin-btn admin-btn-outline admin-btn-sm" onclick="editHighlight('${h.id}')">✏ Edit</button>
+          <button type="button" class="admin-btn admin-btn-danger admin-btn-sm" style="margin-left:4px;" onclick="deleteHighlightItem('${h.id}')">🗑</button>
+        </td>
+      </tr>
+    `;
+  }).join('');
+}
+
+async function moveBannerOrder(id, dir) {
+  const banners = _hpData.banners || [];
+  const idx = banners.findIndex(b => b.id === id);
+  if (idx === -1) return;
+  const targetIdx = idx + dir;
+  if (targetIdx < 0 || targetIdx >= banners.length) return;
+
+  const temp = banners[idx];
+  banners[idx] = banners[targetIdx];
+  banners[targetIdx] = temp;
+
+  renderBannersTable(banners);
+
+  const ids = banners.map(b => b.id);
+  const result = await adminFetch('/homepage/admin/banners/reorder', {
+    method: 'PUT',
+    body: JSON.stringify({ ids })
+  });
+
+  if (result.ok) {
+    adminToast('Banner reordered!');
+    await loadHomepageManager();
+  } else {
+    adminToast('Failed to reorder banners.', 'error');
+  }
+}
+
+async function moveHighlightOrder(id, dir) {
+  const highlights = _hpData.highlights || [];
+  const idx = highlights.findIndex(h => h.id === id);
+  if (idx === -1) return;
+  const targetIdx = idx + dir;
+  if (targetIdx < 0 || targetIdx >= highlights.length) return;
+
+  const temp = highlights[idx];
+  highlights[idx] = highlights[targetIdx];
+  highlights[targetIdx] = temp;
+
+  renderHighlightsTable(highlights);
+
+  const ids = highlights.map(h => h.id);
+  const result = await adminFetch('/homepage/admin/highlights/reorder', {
+    method: 'PUT',
+    body: JSON.stringify({ ids })
+  });
+
+  if (result.ok) {
+    adminToast('Highlight video reordered!');
+    await loadHomepageManager();
+  } else {
+    adminToast('Failed to reorder highlights.', 'error');
+  }
+}
+
+function openAddBannerModal() {
+  document.getElementById('modal-banner-title').textContent = 'Add Promotional Banner';
+  document.getElementById('banner-form').reset();
+  document.getElementById('banner-id').value = '';
+  document.getElementById('banner-img-type-file').checked = true;
+  document.getElementById('banner-file-group').style.display = 'block';
+  document.getElementById('banner-url-group').style.display = 'none';
+  document.getElementById('banner-img-preview-wrap').style.display = 'none';
+  document.getElementById('banner-order').value = (_hpData.banners?.length || 0) + 1;
+  openModal('banner-modal');
+}
+
+function editBanner(id) {
+  const b = (_hpData.banners || []).find(item => item.id === id);
+  if (!b) return;
+
+  document.getElementById('modal-banner-title').textContent = 'Edit Promotional Banner';
+  document.getElementById('banner-id').value = b.id;
+  document.getElementById('banner-headline-gold').value = b.headlineGold || '';
+  document.getElementById('banner-headline-white').value = b.headlineWhite || b.headline || '';
+  document.getElementById('banner-subheading').value = b.subheading || '';
+  document.getElementById('banner-description').value = b.description || '';
+  document.getElementById('banner-btn1-label').value = b.btn1Label || '';
+  document.getElementById('banner-btn1-link').value = b.btn1Link || '';
+  document.getElementById('banner-btn2-label').value = b.btn2Label || '';
+  document.getElementById('banner-btn2-link').value = b.btn2Link || '';
+  document.getElementById('banner-order').value = b.order || 1;
+
+  document.getElementById('banner-img-type-url').checked = true;
+  document.getElementById('banner-file-group').style.display = 'none';
+  document.getElementById('banner-url-group').style.display = 'block';
+  document.getElementById('banner-url').value = b.imageUrl || '';
+
+  const previewWrap = document.getElementById('banner-img-preview-wrap');
+  const previewImg = document.getElementById('banner-img-preview');
+  if (b.imageUrl) {
+    previewImg.src = b.imageUrl;
+    previewWrap.style.display = 'block';
+  } else {
+    previewWrap.style.display = 'none';
+  }
+
+  openModal('banner-modal');
+}
+
+async function deleteBannerItem(id) {
+  if (!confirm('Are you sure you want to delete this promotional banner?')) return;
+  const result = await adminFetch(`/homepage/admin/banner/${encodeURIComponent(id)}`, { method: 'DELETE' });
+  if (result.ok) {
+    adminToast('Banner deleted successfully!');
+    await loadHomepageManager();
+  } else {
+    adminToast(result.data.message || 'Failed to delete banner.', 'error');
+  }
+}
+
+function openAddHighlightModal() {
+  document.getElementById('modal-highlight-title').textContent = 'Add Highlight Video';
+  document.getElementById('highlight-form').reset();
+  document.getElementById('highlight-id').value = '';
+  document.getElementById('highlight-order').value = (_hpData.highlights?.length || 0) + 1;
+  openModal('highlight-modal');
+}
+
+function editHighlight(id) {
+  const h = (_hpData.highlights || []).find(item => item.id === id);
+  if (!h) return;
+
+  document.getElementById('modal-highlight-title').textContent = 'Edit Highlight Video';
+  document.getElementById('highlight-id').value = h.id;
+  document.getElementById('highlight-title').value = h.title || '';
+  document.getElementById('highlight-subtitle').value = h.subtitle || '';
+  document.getElementById('highlight-url').value = h.youtubeUrl || '';
+  document.getElementById('highlight-order').value = h.order || 1;
+  openModal('highlight-modal');
+}
+
+async function deleteHighlightItem(id) {
+  if (!confirm('Are you sure you want to delete this highlight video?')) return;
+  const result = await adminFetch(`/homepage/admin/highlight/${encodeURIComponent(id)}`, { method: 'DELETE' });
+  if (result.ok) {
+    adminToast('Highlight video deleted successfully!');
+    await loadHomepageManager();
+  } else {
+    adminToast(result.data.message || 'Failed to delete video.', 'error');
+  }
+}
+
+function initHomepageManagerEvents() {
+  // Hero Video Source Radio toggle
+  const ytRadio = document.getElementById('hero-src-youtube');
+  const upRadio = document.getElementById('hero-src-upload');
+  const ytGroup = document.getElementById('hero-youtube-group');
+  const upGroup = document.getElementById('hero-upload-group');
+
+  ytRadio?.addEventListener('change', () => {
+    if (ytRadio.checked) {
+      if (ytGroup) ytGroup.style.display = 'block';
+      if (upGroup) upGroup.style.display = 'none';
+    }
+  });
+  upRadio?.addEventListener('change', () => {
+    if (upRadio.checked) {
+      if (ytGroup) ytGroup.style.display = 'none';
+      if (upGroup) upGroup.style.display = 'block';
+    }
+  });
+
+  // Hero Video Form submit
+  document.getElementById('hero-video-form')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const saveBtn = document.getElementById('hero-video-save-btn');
+    const isUpload = document.getElementById('hero-src-upload')?.checked;
+
+    if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = '⏳ Saving...'; }
+
+    let result;
+    if (isUpload) {
+      const fileInput = document.getElementById('hero-mp4-file');
+      if (!fileInput.files.length) {
+        if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = '💾 Save Hero Video'; }
+        adminToast('Please select an MP4 video file to upload, or switch to YouTube URL.', 'error');
+        return;
+      }
+      const fd = new FormData();
+      fd.append('video', fileInput.files[0]);
+      result = await adminFetch('/homepage/admin/hero-video', { method: 'POST', body: fd });
+    } else {
+      const url = document.getElementById('hero-youtube-url')?.value.trim() || '';
+      result = await adminFetch('/homepage/admin/hero-video', {
+        method: 'POST',
+        body: JSON.stringify({ url, type: 'youtube' })
+      });
+    }
+
+    if (saveBtn) { saveBtn.disabled = false; saveBtn.textContent = '💾 Save Hero Video'; }
+
+    if (result.ok) {
+      adminToast(result.data.message || 'Hero video saved successfully! ✅');
+      await loadHomepageManager();
+    } else {
+      adminToast(result.data.message || 'Failed to save hero video.', 'error');
+    }
+  });
+
+  // Hero Video Reset button
+  document.getElementById('hero-video-reset-btn')?.addEventListener('click', async () => {
+    if (!confirm('Reset hero video to fall back to the upcoming event promo video?')) return;
+    const result = await adminFetch('/homepage/admin/hero-video', {
+      method: 'POST',
+      body: JSON.stringify({ clear: true })
+    });
+    if (result.ok) {
+      adminToast('Reset to event fallback! ✅');
+      await loadHomepageManager();
+    } else {
+      adminToast('Failed to reset.', 'error');
+    }
+  });
+
+  // Banner Modal Image Source Radio toggle
+  const bFileRadio = document.getElementById('banner-img-type-file');
+  const bUrlRadio = document.getElementById('banner-img-type-url');
+  const bFileGroup = document.getElementById('banner-file-group');
+  const bUrlGroup = document.getElementById('banner-url-group');
+
+  bFileRadio?.addEventListener('change', () => {
+    if (bFileRadio.checked) {
+      if (bFileGroup) bFileGroup.style.display = 'block';
+      if (bUrlGroup) bUrlGroup.style.display = 'none';
+    }
+  });
+  bUrlRadio?.addEventListener('change', () => {
+    if (bUrlRadio.checked) {
+      if (bFileGroup) bFileGroup.style.display = 'none';
+      if (bUrlGroup) bUrlGroup.style.display = 'block';
+    }
+  });
+
+  // Banner image file preview
+  document.getElementById('banner-file')?.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    const previewWrap = document.getElementById('banner-img-preview-wrap');
+    const previewImg = document.getElementById('banner-img-preview');
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        if (previewImg) previewImg.src = evt.target.result;
+        if (previewWrap) previewWrap.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    }
+  });
+
+  document.getElementById('banner-url')?.addEventListener('input', (e) => {
+    const previewWrap = document.getElementById('banner-img-preview-wrap');
+    const previewImg = document.getElementById('banner-img-preview');
+    if (e.target.value.trim()) {
+      if (previewImg) previewImg.src = e.target.value.trim();
+      if (previewWrap) previewWrap.style.display = 'block';
+    }
+  });
+
+  // Add Banner button
+  document.getElementById('add-banner-btn')?.addEventListener('click', openAddBannerModal);
+
+  // Banner Form submit
+  document.getElementById('banner-form')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('banner-id').value;
+    const isUrl = document.getElementById('banner-img-type-url').checked;
+    const fileInput = document.getElementById('banner-file');
+    const urlInput = document.getElementById('banner-url');
+
+    const submitBtn = document.getElementById('banner-form').querySelector('[type="submit"]');
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = '⏳ Saving...'; }
+
+    let result;
+    if (!isUrl && fileInput.files.length) {
+      const fd = new FormData();
+      fd.append('image', fileInput.files[0]);
+      fd.append('headlineGold', document.getElementById('banner-headline-gold').value);
+      fd.append('headlineWhite', document.getElementById('banner-headline-white').value);
+      fd.append('subheading', document.getElementById('banner-subheading').value);
+      fd.append('description', document.getElementById('banner-description').value);
+      fd.append('btn1Label', document.getElementById('banner-btn1-label').value);
+      fd.append('btn1Link', document.getElementById('banner-btn1-link').value);
+      fd.append('btn2Label', document.getElementById('banner-btn2-label').value);
+      fd.append('btn2Link', document.getElementById('banner-btn2-link').value);
+      fd.append('order', document.getElementById('banner-order').value);
+
+      const endpoint = id ? `/homepage/admin/banner/${encodeURIComponent(id)}` : '/homepage/admin/banner';
+      result = await adminFetch(endpoint, { method: id ? 'PUT' : 'POST', body: fd });
+    } else {
+      const imageUrl = urlInput.value.trim();
+      if (!imageUrl && !id) {
+        if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Save Banner'; }
+        adminToast('Please choose an image file or provide an image URL.', 'error');
+        return;
+      }
+
+      const body = {
+        imageUrl,
+        headlineGold: document.getElementById('banner-headline-gold').value,
+        headlineWhite: document.getElementById('banner-headline-white').value,
+        subheading: document.getElementById('banner-subheading').value,
+        description: document.getElementById('banner-description').value,
+        btn1Label: document.getElementById('banner-btn1-label').value,
+        btn1Link: document.getElementById('banner-btn1-link').value,
+        btn2Label: document.getElementById('banner-btn2-label').value,
+        btn2Link: document.getElementById('banner-btn2-link').value,
+        order: document.getElementById('banner-order').value
+      };
+
+      const endpoint = id ? `/homepage/admin/banner/${encodeURIComponent(id)}` : '/homepage/admin/banner';
+      result = await adminFetch(endpoint, {
+        method: id ? 'PUT' : 'POST',
+        body: JSON.stringify(body)
+      });
+    }
+
+    if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Save Banner'; }
+
+    if (result.ok) {
+      adminToast(id ? 'Banner updated successfully! ✅' : 'Banner added successfully! ✅');
+      closeModal('banner-modal');
+      await loadHomepageManager();
+    } else {
+      adminToast(result.data.message || 'Failed to save banner.', 'error');
+    }
+  });
+
+  // Add Highlight button
+  document.getElementById('add-highlight-btn')?.addEventListener('click', openAddHighlightModal);
+
+  // Highlight Form submit
+  document.getElementById('highlight-form')?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const id = document.getElementById('highlight-id').value;
+    const title = document.getElementById('highlight-title').value.trim();
+    const subtitle = document.getElementById('highlight-subtitle').value.trim();
+    const youtubeUrl = document.getElementById('highlight-url').value.trim();
+    const order = document.getElementById('highlight-order').value;
+
+    const submitBtn = document.getElementById('highlight-form').querySelector('[type="submit"]');
+    if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = '⏳ Saving...'; }
+
+    const body = { title, subtitle, youtubeUrl, order };
+    const endpoint = id ? `/homepage/admin/highlight/${encodeURIComponent(id)}` : '/homepage/admin/highlight';
+    const result = await adminFetch(endpoint, {
+      method: id ? 'PUT' : 'POST',
+      body: JSON.stringify(body)
+    });
+
+    if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Save Video'; }
+
+    if (result.ok) {
+      adminToast(id ? 'Highlight video updated! ✅' : 'Highlight video added! ✅');
+      closeModal('highlight-modal');
+      await loadHomepageManager();
+    } else {
+      adminToast(result.data.message || 'Failed to save highlight video.', 'error');
+    }
+  });
+}
+
 // ====== SETTINGS ======
 async function loadSettingsPage() {
   const result = await adminFetch('/settings?keys=whatsappNumber,upiId,upiQrUrl,bankName,accountName,accountNumber,ifscCode,maintenanceMode,impactNumbers,socialLinks');
@@ -807,6 +1532,20 @@ async function loadSettingsPage() {
   setVal('set-ifsc', s.ifscCode);
   setCheck('set-maintenance', s.maintenanceMode);
 
+  // QR Code preview
+  const qrPreview = document.getElementById('set-qr-preview');
+  const qrPlaceholder = document.getElementById('set-qr-placeholder');
+  const qrUrlInput = document.getElementById('set-upi-qr-url');
+  if (s.upiQrUrl) {
+    if (qrPreview) { qrPreview.src = s.upiQrUrl; qrPreview.style.display = 'block'; }
+    if (qrPlaceholder) qrPlaceholder.style.display = 'none';
+    if (qrUrlInput) qrUrlInput.value = s.upiQrUrl;
+  } else {
+    if (qrPreview) { qrPreview.src = ''; qrPreview.style.display = 'none'; }
+    if (qrPlaceholder) qrPlaceholder.style.display = 'block';
+    if (qrUrlInput) qrUrlInput.value = '';
+  }
+
   const nums = s.impactNumbers || {};
   setVal('set-impact-cities', nums.cities);
   setVal('set-impact-volunteers', nums.volunteers);
@@ -820,11 +1559,51 @@ async function loadSettingsPage() {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
+  // QR Upload Button
+  const btnUploadQr = document.getElementById('btn-upload-qr');
+  const qrFileInput = document.getElementById('set-qr-file');
+  btnUploadQr?.addEventListener('click', async () => {
+    const file = qrFileInput?.files[0];
+    if (!file) {
+      adminToast('Please select a QR code image to upload.', 'error');
+      return;
+    }
+    const formData = new FormData();
+    formData.append('qrImage', file);
+    btnUploadQr.disabled = true;
+    btnUploadQr.textContent = 'Uploading...';
+    try {
+      const result = await adminFetch('/admin/upload-qr', {
+        method: 'POST',
+        body: formData
+      });
+      btnUploadQr.disabled = false;
+      btnUploadQr.textContent = '📤 Upload QR';
+      if (result.ok && result.data && result.data.upiQrUrl) {
+        const qrUrl = result.data.upiQrUrl;
+        const qrPreview = document.getElementById('set-qr-preview');
+        const qrPlaceholder = document.getElementById('set-qr-placeholder');
+        const qrUrlInput = document.getElementById('set-upi-qr-url');
+        if (qrPreview) { qrPreview.src = qrUrl; qrPreview.style.display = 'block'; }
+        if (qrPlaceholder) qrPlaceholder.style.display = 'none';
+        if (qrUrlInput) qrUrlInput.value = qrUrl;
+        adminToast('UPI QR Code uploaded successfully! ✅');
+      } else {
+        adminToast(result.data?.message || 'QR upload failed.', 'error');
+      }
+    } catch (err) {
+      btnUploadQr.disabled = false;
+      btnUploadQr.textContent = '📤 Upload QR';
+      adminToast('QR upload error: ' + err.message, 'error');
+    }
+  });
+
   document.getElementById('settings-form')?.addEventListener('submit', async (e) => {
     e.preventDefault();
     const updates = {
       whatsappNumber: document.getElementById('set-whatsapp').value,
       upiId: document.getElementById('set-upi-id').value,
+      upiQrUrl: document.getElementById('set-upi-qr-url')?.value || '',
       bankName: document.getElementById('set-bank-name').value,
       accountName: document.getElementById('set-account-name').value,
       accountNumber: document.getElementById('set-account-number').value,
@@ -958,6 +1737,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (result.ok) {
       authToken = result.data.token;
       localStorage.setItem('admin_token', authToken);
+      localStorage.setItem('adminToken', authToken);
       errorEl.classList.remove('show');
       showDashboardPage();
     } else {
@@ -1025,6 +1805,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (result.ok) { adminToast('Testimonial added!'); e.target.reset(); }
     else adminToast('Failed.', 'error');
   });
+
+  // Initialize Homepage Manager event handlers
+  initHomepageManagerEvents();
 
   // Verify token if already logged in
   if (authToken) {

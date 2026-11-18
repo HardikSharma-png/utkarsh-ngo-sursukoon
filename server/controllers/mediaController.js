@@ -56,7 +56,9 @@ const uploadPhoto = async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ success: false, message: 'No file uploaded.' });
     const { title, category, mediaType, date } = req.body;
-    const url = `/uploads/${req.file.filename}`;
+    const url = req.file.buffer
+      ? `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`
+      : `/uploads/${req.file.filename}`;
     const section = mediaType === 'sursukoon' ? 'sursukoon' : 'ngo';
     const album = (category || 'general').trim().toLowerCase().replace(/\s+/g, '-');
     if (isDbReady() && Media) {
@@ -132,7 +134,7 @@ const deleteMedia = async (req, res) => {
       if (!media) return res.status(404).json({ success: false, message: 'Media not found.' });
       if (media.type === 'photo' && media.url && media.url.startsWith('/uploads/')) {
         const filePath = path.join(__dirname, '../../public', media.url);
-        if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+        if (fs.existsSync(filePath)) { try { fs.unlinkSync(filePath); } catch(_) {} }
       }
       await Media.findByIdAndDelete(req.params.id);
       return res.json({ success: true, message: 'Media deleted.' });

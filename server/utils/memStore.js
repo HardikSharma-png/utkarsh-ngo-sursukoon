@@ -28,6 +28,8 @@ const store = {
     accountNumber: 'XXXXXXXXXXXX',
     ifscCode: 'SBIN0XXXXXX',
     maintenanceMode: false,
+    googlePhotosAlbumUrl: '',
+    youtubePlaylistUrl: '',
     impactNumbers: { cities: 13, founded: 2005, volunteers: 50, programmes: 8 },
     socialLinks: {
       facebook: '#',
@@ -68,6 +70,9 @@ function ensureSSEvents() {
         performerSeats: 20,
         availableSeats: 20,
         registrationFee: 500,
+        audienceEntryType: 'free',
+        isAudiencePaid: false,
+        audienceFee: 0,
         lastRegistrationDate: new Date('2025-12-01'),
         status: 'upcoming',
         registrationOpen: true,

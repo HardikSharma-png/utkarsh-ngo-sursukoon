@@ -58,7 +58,9 @@ const registerPerformer = async (req, res) => {
     if (!fullName || !phone || !email || !eventId) {
       return res.status(400).json({ success: false, message: 'Name, phone, email, and event are required.' });
     }
-    const paymentScreenshot = req.file ? `/uploads/${req.file.filename}` : null;
+    const paymentScreenshot = req.file
+      ? (req.file.buffer ? `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}` : `/uploads/${req.file.filename}`)
+      : null;
     if (isDbReady() && Sur_Sukoon_Event && Performer_Registration) {
       const event = await Sur_Sukoon_Event.findById(eventId);
       if (!event) return res.status(404).json({ success: false, message: 'Event not found.' });
@@ -88,19 +90,77 @@ const registerAudience = async (req, res) => {
   try {
     const { eventId, fullName, phone, email, numberOfPeople, heardFrom } = req.body;
     if (!fullName || !phone || !eventId) return res.status(400).json({ success: false, message: 'Name, phone, and event are required.' });
+    const paymentScreenshot = req.file
+      ? (req.file.buffer ? `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}` : `/uploads/${req.file.filename}`)
+      : null;
+    const numPeople = parseInt(numberOfPeople) || 1;
+
     if (isDbReady() && Sur_Sukoon_Event && Audience_Registration) {
       const event = await Sur_Sukoon_Event.findById(eventId);
       if (!event) return res.status(404).json({ success: false, message: 'Event not found.' });
-      const registration = new Audience_Registration({ eventId, eventName: event.eventName, fullName, phone, email, numberOfPeople: numberOfPeople || 1, heardFrom });
+
+      const isPaid = event.audienceEntryType === 'paid' || event.isAudiencePaid === true;
+      const audienceFee = isPaid ? (event.audienceFee || 0) : 0;
+      const totalAmount = isPaid ? (audienceFee * numPeople) : 0;
+      const paymentStatus = isPaid ? 'pending' : 'free';
+
+      if (isPaid && !paymentScreenshot) {
+        return res.status(400).json({ success: false, message: 'Payment screenshot is required for paid audience entry.' });
+      }
+
+      const registration = new Audience_Registration({
+        eventId,
+        eventName: event.eventName,
+        fullName,
+        phone,
+        email,
+        numberOfPeople: numPeople,
+        heardFrom,
+        isPaid,
+        audienceFee,
+        totalAmount,
+        paymentScreenshot,
+        paymentStatus
+      });
       await registration.save();
-      return res.status(201).json({ success: true, message: 'Audience registration successful! Entry is FREE.', data: { id: registration._id, name: fullName } });
+      const msg = isPaid
+        ? 'Audience registration submitted! Payment is under verification.'
+        : 'Audience registration successful! Entry is FREE.';
+      return res.status(201).json({ success: true, message: msg, data: { id: registration._id, name: fullName } });
     }
     ensureSSEvents();
     const ev = store.ssEvents.find(e => e._id === eventId);
     if (!ev) return res.status(404).json({ success: false, message: 'Event not found.' });
+    const isPaid = ev.audienceEntryType === 'paid' || ev.isAudiencePaid === true;
+    const audienceFee = isPaid ? (ev.audienceFee || 0) : 0;
+    const totalAmount = isPaid ? (audienceFee * numPeople) : 0;
+    const paymentStatus = isPaid ? 'pending' : 'free';
+
+    if (isPaid && !paymentScreenshot) {
+      return res.status(400).json({ success: false, message: 'Payment screenshot is required for paid audience entry.' });
+    }
+
     const newId = uid();
-    store.audienceRegs.push({ _id: newId, eventId, eventName: ev.eventName, fullName, phone, email: email||'', numberOfPeople: numberOfPeople||1, heardFrom: heardFrom||'', submittedAt: new Date() });
-    res.status(201).json({ success: true, message: 'Audience registration successful! Entry is FREE.', data: { id: newId, name: fullName } });
+    store.audienceRegs.push({
+      _id: newId,
+      eventId,
+      eventName: ev.eventName,
+      fullName,
+      phone,
+      email: email || '',
+      numberOfPeople: numPeople,
+      heardFrom: heardFrom || '',
+      isPaid,
+      audienceFee,
+      totalAmount,
+      paymentScreenshot,
+      paymentStatus,
+      submittedAt: new Date()
+    });
+    const msg = isPaid
+      ? 'Audience registration submitted! Payment is under verification.'
+      : 'Audience registration successful! Entry is FREE.';
+    res.status(201).json({ success: true, message: msg, data: { id: newId, name: fullName } });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
   }
@@ -123,17 +183,25 @@ const getAllEventsAdmin = async (req, res) => {
 
 const createEvent = async (req, res) => {
   try {
+    const eventData = { ...req.body };
+    if (eventData.performerSeats && !eventData.availableSeats) eventData.availableSeats = Number(eventData.performerSeats);
+    if (eventData.audienceEntryType === 'paid' || eventData.isAudiencePaid === true || eventData.isAudiencePaid === 'true') {
+      eventData.audienceEntryType = 'paid';
+      eventData.isAudiencePaid = true;
+      eventData.audienceFee = Number(eventData.audienceFee) || 0;
+    } else {
+      eventData.audienceEntryType = 'free';
+      eventData.isAudiencePaid = false;
+      eventData.audienceFee = 0;
+    }
+
     if (isDbReady() && Sur_Sukoon_Event) {
-      const eventData = { ...req.body };
-      if (eventData.performerSeats && !eventData.availableSeats) eventData.availableSeats = eventData.performerSeats;
       const event = new Sur_Sukoon_Event(eventData);
       await event.save();
       return res.status(201).json({ success: true, data: event, message: 'Event created.' });
     }
     ensureSSEvents();
-    const data = { ...req.body };
-    if (data.performerSeats && !data.availableSeats) data.availableSeats = Number(data.performerSeats);
-    const newEvent = { _id: uid(), ...data, createdAt: new Date() };
+    const newEvent = { _id: uid(), ...eventData, createdAt: new Date() };
     store.ssEvents.push(newEvent);
     res.status(201).json({ success: true, data: newEvent, message: 'Event created.' });
   } catch (err) {
@@ -143,14 +211,27 @@ const createEvent = async (req, res) => {
 
 const updateEvent = async (req, res) => {
   try {
+    const updateData = { ...req.body };
+    if (updateData.audienceEntryType !== undefined || updateData.isAudiencePaid !== undefined) {
+      if (updateData.audienceEntryType === 'paid' || updateData.isAudiencePaid === true || updateData.isAudiencePaid === 'true') {
+        updateData.audienceEntryType = 'paid';
+        updateData.isAudiencePaid = true;
+        updateData.audienceFee = Number(updateData.audienceFee) || 0;
+      } else {
+        updateData.audienceEntryType = 'free';
+        updateData.isAudiencePaid = false;
+        updateData.audienceFee = 0;
+      }
+    }
+
     if (isDbReady() && Sur_Sukoon_Event) {
-      const event = await Sur_Sukoon_Event.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+      const event = await Sur_Sukoon_Event.findByIdAndUpdate(req.params.id, updateData, { new: true, runValidators: true });
       if (!event) return res.status(404).json({ success: false, message: 'Event not found' });
       return res.json({ success: true, data: event, message: 'Event updated.' });
     }
     const idx = store.ssEvents.findIndex(e => e._id === req.params.id);
     if (idx === -1) return res.status(404).json({ success: false, message: 'Event not found' });
-    store.ssEvents[idx] = { ...store.ssEvents[idx], ...req.body };
+    store.ssEvents[idx] = { ...store.ssEvents[idx], ...updateData };
     res.json({ success: true, data: store.ssEvents[idx], message: 'Event updated.' });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -255,6 +336,25 @@ const deletePerformer = async (req, res) => {
   }
 };
 
+const updateAudiencePaymentStatus = async (req, res) => {
+  try {
+    const { status } = req.body;
+    if (isDbReady() && Audience_Registration) {
+      const reg = await Audience_Registration.findById(req.params.id);
+      if (!reg) return res.status(404).json({ success: false, message: 'Registration not found' });
+      reg.paymentStatus = status;
+      await reg.save();
+      return res.json({ success: true, data: reg, message: `Payment status updated to ${status}.` });
+    }
+    const reg = store.audienceRegs.find(r => r._id === req.params.id);
+    if (!reg) return res.status(404).json({ success: false, message: 'Registration not found' });
+    reg.paymentStatus = status;
+    res.json({ success: true, data: reg, message: `Payment status updated to ${status}.` });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
 const deleteAudience = async (req, res) => {
   try {
     if (isDbReady() && Audience_Registration) {
@@ -285,8 +385,8 @@ const exportPerformersCSV = async (req, res) => {
 const exportAudienceCSV = async (req, res) => {
   try {
     const registrations = isDbReady() && Audience_Registration ? await Audience_Registration.find().sort({ submittedAt: -1 }) : store.audienceRegs;
-    const headers = 'Full Name,Phone,Email,Event,Number of People,Heard From,Submitted At\n';
-    const rows = registrations.map(r => `"${r.fullName}","${r.phone}","${r.email||''}","${r.eventName||''}","${r.numberOfPeople}","${r.heardFrom||''}","${new Date(r.submittedAt).toLocaleString('en-IN')}"`).join('\n');
+    const headers = 'Full Name,Phone,Email,Event,Number of People,Entry Type,Fee Per Person,Total Amount,Payment Status,Heard From,Submitted At\n';
+    const rows = registrations.map(r => `"${r.fullName}","${r.phone}","${r.email||''}","${r.eventName||''}","${r.numberOfPeople}","${r.isPaid ? 'PAID' : 'FREE'}","${r.audienceFee||0}","${r.totalAmount||0}","${r.paymentStatus||(r.isPaid?'pending':'free')}","${r.heardFrom||''}","${new Date(r.submittedAt).toLocaleString('en-IN')}"`).join('\n');
     res.setHeader('Content-Type', 'text/csv');
     res.setHeader('Content-Disposition', 'attachment; filename="audience_registrations.csv"');
     res.send(headers + rows);
@@ -300,6 +400,6 @@ module.exports = {
   registerPerformer, registerAudience,
   createEvent, updateEvent, deleteEvent,
   getPerformerRegistrations, getAudienceRegistrations,
-  updatePaymentStatus, deletePerformer, deleteAudience,
+  updatePaymentStatus, updateAudiencePaymentStatus, deletePerformer, deleteAudience,
   exportPerformersCSV, exportAudienceCSV, getAllEventsAdmin
 };

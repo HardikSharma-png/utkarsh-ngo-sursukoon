@@ -7,7 +7,7 @@ const {
   registerPerformer, registerAudience,
   createEvent, updateEvent, deleteEvent,
   getPerformerRegistrations, getAudienceRegistrations,
-  updatePaymentStatus, deletePerformer, deleteAudience,
+  updatePaymentStatus, updateAudiencePaymentStatus, deletePerformer, deleteAudience,
   exportPerformersCSV, exportAudienceCSV, getAllEventsAdmin
 } = require('../controllers/sursukoonController');
 
@@ -16,7 +16,7 @@ router.get('/events', getEvents);
 router.get('/events/all', getAllEvents);
 router.get('/events/:id', getEvent);
 router.post('/register/performer', upload.single('paymentScreenshot'), registerPerformer);
-router.post('/register/audience', registerAudience);
+router.post('/register/audience', upload.single('paymentScreenshot'), registerAudience);
 
 // Admin routes
 router.get('/admin/events', authMiddleware, getAllEventsAdmin);
@@ -26,6 +26,7 @@ router.delete('/admin/events/:id', authMiddleware, deleteEvent);
 router.get('/admin/registrations/performers', authMiddleware, getPerformerRegistrations);
 router.get('/admin/registrations/audience', authMiddleware, getAudienceRegistrations);
 router.put('/admin/registrations/performers/:id/payment', authMiddleware, updatePaymentStatus);
+router.put('/admin/registrations/audience/:id/payment', authMiddleware, updateAudiencePaymentStatus);
 router.delete('/admin/registrations/performers/:id', authMiddleware, deletePerformer);
 router.delete('/admin/registrations/audience/:id', authMiddleware, deleteAudience);
 router.get('/admin/export/performers', authMiddleware, exportPerformersCSV);
