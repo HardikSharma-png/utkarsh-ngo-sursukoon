@@ -351,12 +351,16 @@ async function loadSSEvents() {
   tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:20px;">Loading...</td></tr>';
 
   const result = await adminFetch('/sursukoon/admin/events');
-  if (!result.ok) { tbody.innerHTML = `<tr><td colspan="6">Error.</td></tr>`; return; }
+  if (!result.ok) { tbody.innerHTML = `<tr><td colspan="6">Error loading events.</td></tr>`; return; }
 
   const events = result.data.data || [];
+  window._ssEventsList = events;
   if (!events.length) { tbody.innerHTML = `<tr class="empty-row"><td colspan="6">No events yet.</td></tr>`; return; }
 
-  tbody.innerHTML = events.map(e => `
+  tbody.innerHTML = events.map(e => {
+    const eventId = e._id || e.id || '';
+    const safeName = (e.eventName || '').replace(/'/g, "\\'");
+    return `
     <tr>
       <td><strong>${e.eventName}</strong></td>
       <td>${e.date ? new Date(e.date).toLocaleDateString('en-IN') : '—'}</td>
@@ -367,25 +371,40 @@ async function loadSSEvents() {
         <span class="badge ${e.registrationOpen ? 'badge-blue' : 'badge-red'} mt-4" style="margin-left:4px;">${e.registrationOpen ? 'Open' : 'Closed'}</span>
       </td>
       <td class="actions-cell">
-        <button class="admin-btn admin-btn-magenta admin-btn-sm" onclick="editSSEvent('${e._id}')">✏️ Edit</button>
-        <button class="admin-btn admin-btn-gold admin-btn-sm" onclick="toggleSSReg('${e._id}', ${e.registrationOpen})">${e.registrationOpen ? '🔒 Close' : '🔓 Open'}</button>
-        <button class="admin-btn admin-btn-red admin-btn-sm" onclick="deleteSSEvent('${e._id}', '${e.eventName}')">🗑️</button>
+        <button class="admin-btn admin-btn-magenta admin-btn-sm" onclick="editSSEvent('${eventId}')">✏️ Edit</button>
+        <button class="admin-btn admin-btn-gold admin-btn-sm" onclick="toggleSSReg('${eventId}', ${e.registrationOpen})">${e.registrationOpen ? '🔒 Close' : '🔓 Open'}</button>
+        <button class="admin-btn admin-btn-red admin-btn-sm" onclick="deleteSSEvent('${eventId}', '${safeName}')">🗑️</button>
       </td>
-    </tr>`).join('');
+    </tr>`;
+  }).join('');
 }
 
 async function editSSEvent(id) {
-  const result = await adminFetch(`/sursukoon/events/${id}`);
-  if (!result.ok) return;
-  const e = result.data.data;
+  const cleanId = String(id || '').trim();
+  let e = (window._ssEventsList || []).find(x => String(x._id || x.id) === cleanId);
+  if (!e) {
+    let result = await adminFetch(`/sursukoon/admin/events/${cleanId}`);
+    if (!result.ok) {
+      result = await adminFetch(`/sursukoon/events/${cleanId}`);
+    }
+    if (result.ok && result.data && result.data.data) {
+      e = result.data.data;
+    }
+  }
 
-  document.getElementById('ss-event-id').value = e._id;
+  if (!e) {
+    adminToast('Could not load event details.', 'error');
+    return;
+  }
+
+  const resolvedId = e._id || e.id || cleanId;
+  document.getElementById('ss-event-id').value = resolvedId;
   document.getElementById('ss-event-name').value = e.eventName || '';
   document.getElementById('ss-event-date').value = e.date ? e.date.split('T')[0] : '';
   document.getElementById('ss-event-time').value = e.time || '';
   document.getElementById('ss-event-venue').value = e.venue || '';
   document.getElementById('ss-event-seats').value = e.performerSeats || 20;
-  document.getElementById('ss-event-fee').value = e.registrationFee || 500;
+  document.getElementById('ss-event-fee').value = e.registrationFee !== undefined ? e.registrationFee : 500;
 
   const audType = e.audienceEntryType || (e.isAudiencePaid ? 'paid' : 'free');
   document.getElementById('ss-event-audience-type').value = audType;
@@ -395,7 +414,7 @@ async function editSSEvent(id) {
 
   document.getElementById('ss-event-deadline').value = e.lastRegistrationDate ? e.lastRegistrationDate.split('T')[0] : '';
   document.getElementById('ss-event-status').value = e.status || 'upcoming';
-  document.getElementById('ss-event-reg-open').checked = e.registrationOpen;
+  document.getElementById('ss-event-reg-open').checked = e.registrationOpen !== false;
   document.getElementById('ss-event-description').value = e.description || '';
   document.getElementById('ss-event-promo').value = e.promoVideoUrl || '';
 
@@ -423,15 +442,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('ss-event-form')?.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const id = document.getElementById('ss-event-id').value;
+    const id = (document.getElementById('ss-event-id')?.value || '').trim();
     const isAudPaid = document.getElementById('ss-event-audience-type').value === 'paid';
     const body = {
       eventName: document.getElementById('ss-event-name').value,
       date: document.getElementById('ss-event-date').value,
       time: document.getElementById('ss-event-time').value,
       venue: document.getElementById('ss-event-venue').value,
-      performerSeats: parseInt(document.getElementById('ss-event-seats').value),
-      registrationFee: parseFloat(document.getElementById('ss-event-fee').value),
+      performerSeats: parseInt(document.getElementById('ss-event-seats').value) || 20,
+      registrationFee: parseFloat(document.getElementById('ss-event-fee').value) || 0,
       audienceEntryType: document.getElementById('ss-event-audience-type').value,
       isAudiencePaid: isAudPaid,
       audienceFee: isAudPaid ? (parseFloat(document.getElementById('ss-event-audience-fee').value) || 0) : 0,
@@ -442,12 +461,13 @@ document.addEventListener('DOMContentLoaded', () => {
       promoVideoUrl: document.getElementById('ss-event-promo').value,
     };
 
-    const url = id ? `/sursukoon/admin/events/${id}` : '/sursukoon/admin/events';
-    const method = id ? 'PUT' : 'POST';
+    const hasValidId = id && id !== 'undefined' && id !== 'null';
+    const url = hasValidId ? `/sursukoon/admin/events/${id}` : '/sursukoon/admin/events';
+    const method = hasValidId ? 'PUT' : 'POST';
     const result = await adminFetch(url, { method, body: JSON.stringify(body) });
 
     if (result.ok) {
-      adminToast(id ? 'Event updated.' : 'Event created.');
+      adminToast(hasValidId ? 'Event updated.' : 'Event created.');
       closeModal('ss-event-modal');
       loadSSEvents();
     } else adminToast(result.data.message || 'Save failed.', 'error');
@@ -456,13 +476,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
 async function deleteSSEvent(id, name) {
   if (!confirm(`Delete event "${name}"?`)) return;
-  const result = await adminFetch(`/sursukoon/admin/events/${id}`, { method: 'DELETE' });
+  const cleanId = String(id || '').trim();
+  const result = await adminFetch(`/sursukoon/admin/events/${cleanId}`, { method: 'DELETE' });
   if (result.ok) { adminToast('Event deleted.'); loadSSEvents(); }
   else adminToast(result.data.message || 'Delete failed.', 'error');
 }
 
 async function toggleSSReg(id, currentState) {
-  const result = await adminFetch(`/sursukoon/admin/events/${id}`, {
+  const cleanId = String(id || '').trim();
+  const result = await adminFetch(`/sursukoon/admin/events/${cleanId}`, {
     method: 'PUT',
     body: JSON.stringify({ registrationOpen: !currentState })
   });
@@ -915,7 +937,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const googlePhotosAlbumUrl = document.getElementById('gallery-google-photos-url')?.value.trim() || '';
     const youtubePlaylistUrl = document.getElementById('gallery-youtube-playlist-url')?.value.trim() || '';
 
-    if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = '⏳ Saving...'; }
+    if (saveBtn) { saveBtn.disabled = true; saveBtn.textContent = '⏳ Saving & Syncing...'; }
     const result = await adminFetch('/gallery/config', {
       method: 'PUT',
       body: JSON.stringify({ googlePhotosAlbumUrl, youtubePlaylistUrl })
@@ -924,6 +946,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     if (result.ok) {
       adminToast(result.data.message || 'Gallery configuration saved! ✅');
+      if (result.data.data?.cache) {
+        renderGalleryCacheStatus(result.data.data.cache);
+      }
       await loadGalleryConfig();
     } else {
       adminToast(result.data.message || 'Failed to save gallery configuration.', 'error');
@@ -937,7 +962,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (syncBtn) { syncBtn.disabled = false; syncBtn.textContent = '🔄 Sync Media / Clear Cache'; }
 
     if (result.ok) {
-      const s = result.data.data || {};
+      const d = result.data.data || {};
+      const s = d.summary || d;
       const parts = [];
       if (s.photos?.configured) parts.push(`${s.photos.count} photo${s.photos.count === 1 ? '' : 's'}`);
       if (s.videos?.configured) parts.push(`${s.videos.count} video${s.videos.count === 1 ? '' : 's'}`);
@@ -945,6 +971,9 @@ document.addEventListener('DOMContentLoaded', () => {
       adminToast(msg);
       if (s.photos?.error) adminToast(`Photos warning: ${s.photos.error}`, 'error');
       if (s.videos?.error) adminToast(`Videos warning: ${s.videos.error}`, 'error');
+      if (d.cache) {
+        renderGalleryCacheStatus(d.cache);
+      }
       await loadGalleryConfig();
     } else {
       adminToast(result.data.message || 'Failed to sync gallery media.', 'error');

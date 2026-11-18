@@ -20,9 +20,14 @@ router.post('/register/audience', upload.single('paymentScreenshot'), registerAu
 
 // Admin routes
 router.get('/admin/events', authMiddleware, getAllEventsAdmin);
+router.get('/admin/events/:id', authMiddleware, getEvent);
 router.post('/admin/events', authMiddleware, createEvent);
 router.put('/admin/events/:id', authMiddleware, updateEvent);
 router.delete('/admin/events/:id', authMiddleware, deleteEvent);
+
+// Route aliases
+router.put('/events/:id', authMiddleware, updateEvent);
+router.delete('/events/:id', authMiddleware, deleteEvent);
 router.get('/admin/registrations/performers', authMiddleware, getPerformerRegistrations);
 router.get('/admin/registrations/audience', authMiddleware, getAudienceRegistrations);
 router.put('/admin/registrations/performers/:id/payment', authMiddleware, updatePaymentStatus);

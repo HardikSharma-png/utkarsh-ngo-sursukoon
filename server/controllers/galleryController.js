@@ -20,6 +20,8 @@ function clearGalleryCache() {
 function isCacheFresh(bucket, currentUrl) {
   return (
     bucket.data !== null &&
+    Array.isArray(bucket.data) &&
+    bucket.data.length > 0 &&
     bucket.url === currentUrl &&
     Date.now() - bucket.fetchedAt < CACHE_TTL_MS
   );
@@ -30,24 +32,28 @@ function isCacheFresh(bucket, currentUrl) {
 async function getSettingValue(key) {
   try {
     if (isDbReady() && Settings) {
-      const doc = await Settings.findOne({ key });
+      const doc = await Settings.findOne({ key }).lean();
       if (doc && doc.value !== undefined && doc.value !== null) {
         store.settings[key] = doc.value;
         return doc.value;
       }
     }
   } catch (e) {}
-  return store.settings[key] || '';
+  return store.settings[key] !== undefined ? store.settings[key] : null;
 }
 
 async function saveSettingValue(key, value) {
   store.settings[key] = value;
   if (isDbReady() && Settings) {
-    await Settings.findOneAndUpdate(
-      { key },
-      { key, value },
-      { upsert: true, new: true }
-    );
+    try {
+      await Settings.findOneAndUpdate(
+        { key },
+        { key, value },
+        { upsert: true, new: true }
+      );
+    } catch (e) {
+      console.error(`[Gallery] Failed to save setting "${key}":`, e.message);
+    }
   }
 }
 
@@ -206,7 +212,8 @@ async function scrapeGooglePhotosAlbum(albumUrl) {
     headers: {
       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
       'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-      'Accept-Language': 'en-US,en;q=0.9'
+      'Accept-Language': 'en-US,en;q=0.9',
+      'Cookie': 'CONSENT=YES+cb.20240301-00-p0.en+FX+000;'
     },
     signal: AbortSignal.timeout(18000)
   });
@@ -460,10 +467,11 @@ async function fetchYouTubePlaylistVideosRSS(playlistId) {
   const rssUrl = `https://www.youtube.com/feeds/videos.xml?playlist_id=${encodeURIComponent(playlistId)}`;
   const res = await fetch(rssUrl, {
     headers: {
-      'User-Agent': 'Mozilla/5.0 (compatible; SurSukoonGallery/1.0)',
-      'Accept': 'application/atom+xml, application/xml, text/xml;q=0.9'
+      'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
+      'Accept': 'application/atom+xml, application/xml, text/xml;q=0.9, */*;q=0.8',
+      'Accept-Language': 'en-US,en;q=0.9'
     },
-    signal: AbortSignal.timeout(12000)
+    signal: AbortSignal.timeout(15000)
   });
 
   if (!res.ok) {
@@ -520,8 +528,9 @@ async function fetchYouTubePlaylistVideos(playlistUrl) {
     const pageRes = await fetch(pageUrl, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-        'Accept-Language': 'en-US,en;q=0.9'
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+        'Accept-Language': 'en-US,en;q=0.9',
+        'Cookie': 'CONSENT=YES+cb.20240301-00-p0.en+FX+000; SOCS=CAESEwgDEgk2ODEzNTAxMzUaAmVuIAEaBgiA_LyaBg;'
       },
       signal: AbortSignal.timeout(18000)
     });
@@ -532,6 +541,7 @@ async function fetchYouTubePlaylistVideos(playlistUrl) {
     html = await pageRes.text();
   } catch (err) {
     // If page request fails, fallback to RSS
+    console.warn(`[Gallery] Playlist HTML fetch failed (${err.message}). Falling back to RSS.`);
     const rssVideos = await fetchYouTubePlaylistVideosRSS(playlistId);
     return { playlistId, videos: rssVideos, source: 'youtube-rss-fallback' };
   }
@@ -634,7 +644,8 @@ async function fetchYouTubePlaylistVideos(playlistUrl) {
           'X-Youtube-Client-Name': '1',
           'X-Youtube-Client-Version': clientVer,
           'Origin': 'https://www.youtube.com',
-          'Referer': pageUrl
+          'Referer': pageUrl,
+          'Cookie': 'CONSENT=YES+cb.20240301-00-p0.en+FX+000; SOCS=CAESEwgDEgk2ODEzNTAxMzUaAmVuIAEaBgiA_LyaBg;'
         },
         body: JSON.stringify({
           context: {
@@ -748,6 +759,72 @@ async function getLocalFallbackVideos() {
   }
 }
 
+// ─── MEDIA SYNC & PERSISTENCE HELPER ────────────────────────────
+
+async function performSync({ googlePhotosAlbumUrl, youtubePlaylistUrl }) {
+  const status = {
+    syncedAt: new Date().toISOString(),
+    photos: { configured: !!googlePhotosAlbumUrl, count: 0, error: null },
+    videos: { configured: !!youtubePlaylistUrl, count: 0, error: null }
+  };
+
+  let syncedPhotos = null;
+  let syncedVideos = null;
+
+  if (googlePhotosAlbumUrl) {
+    try {
+      const photos = await scrapeGooglePhotosAlbum(googlePhotosAlbumUrl);
+      galleryCache.photos = {
+        url: googlePhotosAlbumUrl,
+        data: photos,
+        fetchedAt: Date.now(),
+        error: null
+      };
+      await saveSettingValue('gallerySyncedPhotos', photos);
+      syncedPhotos = photos;
+      status.photos.count = photos.length;
+    } catch (err) {
+      console.error('[Gallery] Error syncing Google Photos:', err.message);
+      status.photos.error = err.message;
+      galleryCache.photos.error = err.message;
+      const prev = await getSettingValue('gallerySyncedPhotos');
+      syncedPhotos = Array.isArray(prev) ? prev : [];
+      status.photos.count = syncedPhotos.length;
+    }
+  }
+
+  if (youtubePlaylistUrl) {
+    try {
+      const { playlistId, videos, source } = await fetchYouTubePlaylistVideos(youtubePlaylistUrl);
+      galleryCache.videos = {
+        url: youtubePlaylistUrl,
+        data: videos,
+        fetchedAt: Date.now(),
+        error: null
+      };
+      await saveSettingValue('gallerySyncedVideos', videos);
+      syncedVideos = videos;
+      status.videos.count = videos.length;
+    } catch (err) {
+      console.error('[Gallery] Error syncing YouTube Playlist:', err.message);
+      status.videos.error = err.message;
+      galleryCache.videos.error = err.message;
+      const prev = await getSettingValue('gallerySyncedVideos');
+      syncedVideos = Array.isArray(prev) ? prev : [];
+      status.videos.count = syncedVideos.length;
+    }
+  }
+
+  await saveSettingValue('galleryLastSyncedAt', status.syncedAt);
+  await saveSettingValue('gallerySyncStatus', status);
+
+  return {
+    photos: syncedPhotos,
+    videos: syncedVideos,
+    status
+  };
+}
+
 // ─── PUBLIC ROUTE HANDLERS ──────────────────────────────────────
 
 const getGalleryPhotos = async (req, res) => {
@@ -767,6 +844,7 @@ const getGalleryPhotos = async (req, res) => {
       });
     }
 
+    // 1. In-memory fresh cache
     if (!forceRefresh && isCacheFresh(galleryCache.photos, albumUrl)) {
       return res.json({
         success: true,
@@ -779,6 +857,30 @@ const getGalleryPhotos = async (req, res) => {
       });
     }
 
+    // 2. Persistent MongoDB store (essential for Vercel serverless cold-starts)
+    if (!forceRefresh) {
+      const storedPhotos = await getSettingValue('gallerySyncedPhotos');
+      if (Array.isArray(storedPhotos) && storedPhotos.length > 0) {
+        galleryCache.photos = {
+          url: albumUrl,
+          data: storedPhotos,
+          fetchedAt: Date.now(),
+          error: null
+        };
+        const lastSyncedAt = await getSettingValue('galleryLastSyncedAt');
+        return res.json({
+          success: true,
+          source: 'google-photos',
+          cached: true,
+          configured: true,
+          cachedAt: lastSyncedAt || new Date().toISOString(),
+          count: storedPhotos.length,
+          data: storedPhotos
+        });
+      }
+    }
+
+    // 3. Fallback: fetch/scrape fresh
     const photos = await scrapeGooglePhotosAlbum(albumUrl);
     galleryCache.photos = {
       url: albumUrl,
@@ -786,6 +888,8 @@ const getGalleryPhotos = async (req, res) => {
       fetchedAt: Date.now(),
       error: null
     };
+    await saveSettingValue('gallerySyncedPhotos', photos);
+    await saveSettingValue('galleryLastSyncedAt', new Date().toISOString());
 
     return res.json({
       success: true,
@@ -798,15 +902,16 @@ const getGalleryPhotos = async (req, res) => {
     });
   } catch (err) {
     galleryCache.photos.error = err.message;
-    if (galleryCache.photos.data && galleryCache.photos.data.length) {
+    const storedPhotos = await getSettingValue('gallerySyncedPhotos');
+    if (Array.isArray(storedPhotos) && storedPhotos.length > 0) {
       return res.json({
         success: true,
         source: 'google-photos',
         cached: true,
         stale: true,
         warning: err.message,
-        count: galleryCache.photos.data.length,
-        data: galleryCache.photos.data
+        count: storedPhotos.length,
+        data: storedPhotos
       });
     }
     const localPhotos = await getLocalFallbackPhotos();
@@ -838,6 +943,7 @@ const getGalleryVideos = async (req, res) => {
       });
     }
 
+    // 1. In-memory fresh cache
     if (!forceRefresh && isCacheFresh(galleryCache.videos, playlistUrl)) {
       return res.json({
         success: true,
@@ -850,6 +956,30 @@ const getGalleryVideos = async (req, res) => {
       });
     }
 
+    // 2. Persistent MongoDB store (essential for Vercel serverless cold-starts)
+    if (!forceRefresh) {
+      const storedVideos = await getSettingValue('gallerySyncedVideos');
+      if (Array.isArray(storedVideos) && storedVideos.length > 0) {
+        galleryCache.videos = {
+          url: playlistUrl,
+          data: storedVideos,
+          fetchedAt: Date.now(),
+          error: null
+        };
+        const lastSyncedAt = await getSettingValue('galleryLastSyncedAt');
+        return res.json({
+          success: true,
+          source: 'youtube-playlist',
+          cached: true,
+          configured: true,
+          cachedAt: lastSyncedAt || new Date().toISOString(),
+          count: storedVideos.length,
+          data: storedVideos
+        });
+      }
+    }
+
+    // 3. Fallback: fetch playlist from YouTube (with automatic RSS fallback)
     const { playlistId, videos, source } = await fetchYouTubePlaylistVideos(playlistUrl);
     galleryCache.videos = {
       url: playlistUrl,
@@ -857,6 +987,8 @@ const getGalleryVideos = async (req, res) => {
       fetchedAt: Date.now(),
       error: null
     };
+    await saveSettingValue('gallerySyncedVideos', videos);
+    await saveSettingValue('galleryLastSyncedAt', new Date().toISOString());
 
     return res.json({
       success: true,
@@ -870,15 +1002,16 @@ const getGalleryVideos = async (req, res) => {
     });
   } catch (err) {
     galleryCache.videos.error = err.message;
-    if (galleryCache.videos.data && galleryCache.videos.data.length) {
+    const storedVideos = await getSettingValue('gallerySyncedVideos');
+    if (Array.isArray(storedVideos) && storedVideos.length > 0) {
       return res.json({
         success: true,
         source: 'youtube-playlist',
         cached: true,
         stale: true,
         warning: err.message,
-        count: galleryCache.videos.data.length,
-        data: galleryCache.videos.data
+        count: storedVideos.length,
+        data: storedVideos
       });
     }
     const localVideos = await getLocalFallbackVideos();
@@ -897,22 +1030,43 @@ const getGalleryVideos = async (req, res) => {
 
 const getGalleryConfig = async (req, res) => {
   try {
-    const googlePhotosAlbumUrl = await getSettingValue('googlePhotosAlbumUrl');
-    const youtubePlaylistUrl = await getSettingValue('youtubePlaylistUrl');
+    const googlePhotosAlbumUrl = (await getSettingValue('googlePhotosAlbumUrl')) || '';
+    const youtubePlaylistUrl = (await getSettingValue('youtubePlaylistUrl')) || '';
+    const lastSyncedAt = await getSettingValue('galleryLastSyncedAt');
+    const syncStatus = (await getSettingValue('gallerySyncStatus')) || {};
+    const syncedPhotos = await getSettingValue('gallerySyncedPhotos');
+    const syncedVideos = await getSettingValue('gallerySyncedVideos');
+
+    const photosCount = (galleryCache.photos.data && Array.isArray(galleryCache.photos.data))
+      ? galleryCache.photos.data.length
+      : (Array.isArray(syncedPhotos) && syncedPhotos.length > 0 ? syncedPhotos.length : (googlePhotosAlbumUrl ? (syncStatus.photos?.count ?? null) : null));
+
+    const videosCount = (galleryCache.videos.data && Array.isArray(galleryCache.videos.data))
+      ? galleryCache.videos.data.length
+      : (Array.isArray(syncedVideos) && syncedVideos.length > 0 ? syncedVideos.length : (youtubePlaylistUrl ? (syncStatus.videos?.count ?? null) : null));
+
+    const photosCachedAt = galleryCache.photos.fetchedAt
+      ? new Date(galleryCache.photos.fetchedAt).toISOString()
+      : (lastSyncedAt || null);
+
+    const videosCachedAt = galleryCache.videos.fetchedAt
+      ? new Date(galleryCache.videos.fetchedAt).toISOString()
+      : (lastSyncedAt || null);
 
     res.json({
       success: true,
       data: {
-        googlePhotosAlbumUrl: googlePhotosAlbumUrl || '',
-        youtubePlaylistUrl: youtubePlaylistUrl || '',
+        googlePhotosAlbumUrl,
+        youtubePlaylistUrl,
         cache: {
           ttlMinutes: Math.round(CACHE_TTL_MS / 60000),
-          photosCount: galleryCache.photos.data ? galleryCache.photos.data.length : null,
-          photosCachedAt: galleryCache.photos.fetchedAt ? new Date(galleryCache.photos.fetchedAt).toISOString() : null,
-          photosError: galleryCache.photos.error,
-          videosCount: galleryCache.videos.data ? galleryCache.videos.data.length : null,
-          videosCachedAt: galleryCache.videos.fetchedAt ? new Date(galleryCache.videos.fetchedAt).toISOString() : null,
-          videosError: galleryCache.videos.error
+          photosCount,
+          photosCachedAt,
+          photosError: galleryCache.photos.error || syncStatus.photos?.error || null,
+          videosCount,
+          videosCachedAt,
+          videosError: galleryCache.videos.error || syncStatus.videos?.error || null,
+          lastSyncedAt: lastSyncedAt || null
         }
       }
     });
@@ -944,10 +1098,26 @@ const updateGalleryConfig = async (req, res) => {
     await saveSettingValue('youtubePlaylistUrl', youtubePlaylistUrl);
     clearGalleryCache();
 
+    // Trigger immediate sync on save so MongoDB and UI cache stats update right away!
+    const syncResult = await performSync({ googlePhotosAlbumUrl, youtubePlaylistUrl });
+
     res.json({
       success: true,
-      message: 'Gallery configuration saved and cache cleared!',
-      data: { googlePhotosAlbumUrl, youtubePlaylistUrl }
+      message: 'Gallery configuration saved and media synced successfully!',
+      data: {
+        googlePhotosAlbumUrl,
+        youtubePlaylistUrl,
+        cache: {
+          ttlMinutes: Math.round(CACHE_TTL_MS / 60000),
+          photosCount: syncResult.photos ? syncResult.photos.length : 0,
+          photosCachedAt: syncResult.status?.syncedAt,
+          photosError: syncResult.status?.photos?.error,
+          videosCount: syncResult.videos ? syncResult.videos.length : 0,
+          videosCachedAt: syncResult.status?.syncedAt,
+          videosError: syncResult.status?.videos?.error,
+          lastSyncedAt: syncResult.status?.syncedAt
+        }
+      }
     });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
@@ -960,38 +1130,24 @@ const syncGalleryMedia = async (req, res) => {
     const googlePhotosAlbumUrl = String(await getSettingValue('googlePhotosAlbumUrl') || '').trim();
     const youtubePlaylistUrl = String(await getSettingValue('youtubePlaylistUrl') || '').trim();
 
-    const summary = {
-      photos: { configured: !!googlePhotosAlbumUrl, count: 0, error: null },
-      videos: { configured: !!youtubePlaylistUrl, count: 0, error: null },
-      syncedAt: new Date().toISOString()
-    };
-
-    if (googlePhotosAlbumUrl) {
-      try {
-        const photos = await scrapeGooglePhotosAlbum(googlePhotosAlbumUrl);
-        galleryCache.photos = { url: googlePhotosAlbumUrl, data: photos, fetchedAt: Date.now(), error: null };
-        summary.photos.count = photos.length;
-      } catch (err) {
-        galleryCache.photos.error = err.message;
-        summary.photos.error = err.message;
-      }
-    }
-
-    if (youtubePlaylistUrl) {
-      try {
-        const { videos } = await fetchYouTubePlaylistVideos(youtubePlaylistUrl);
-        galleryCache.videos = { url: youtubePlaylistUrl, data: videos, fetchedAt: Date.now(), error: null };
-        summary.videos.count = videos.length;
-      } catch (err) {
-        galleryCache.videos.error = err.message;
-        summary.videos.error = err.message;
-      }
-    }
+    const syncResult = await performSync({ googlePhotosAlbumUrl, youtubePlaylistUrl });
 
     res.json({
       success: true,
-      message: 'Gallery cache cleared and media synced.',
-      data: summary
+      message: 'Media sync complete.',
+      data: {
+        summary: syncResult.status,
+        cache: {
+          ttlMinutes: Math.round(CACHE_TTL_MS / 60000),
+          photosCount: syncResult.photos ? syncResult.photos.length : 0,
+          photosCachedAt: syncResult.status?.syncedAt,
+          photosError: syncResult.status?.photos?.error,
+          videosCount: syncResult.videos ? syncResult.videos.length : 0,
+          videosCachedAt: syncResult.status?.syncedAt,
+          videosError: syncResult.status?.videos?.error,
+          lastSyncedAt: syncResult.status?.syncedAt
+        }
+      }
     });
   } catch (err) {
     res.status(500).json({ success: false, message: err.message });
