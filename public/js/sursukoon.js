@@ -1370,4 +1370,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   await initSSRegister();
   await initSSGallery();
   await initSSAbout();
+  // Re-apply translations after dynamic content is loaded
+  if (typeof applyTranslations === 'function') applyTranslations();
 });

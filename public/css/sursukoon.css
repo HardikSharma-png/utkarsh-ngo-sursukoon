@@ -166,6 +166,8 @@ button { cursor: pointer; font-family: var(--ss-font); border: none; outline: no
   border-radius: 50px;
   padding: 3px;
   gap: 2px;
+  width: auto;
+  flex-shrink: 0;
 }
 .ss-lang-toggle .lang-btn {
   padding: 5px 11px;
@@ -303,10 +305,6 @@ body.ss-menu-open .ss-hamburger {
   .ss-nav-right .ss-register-btn {
     display: none !important;
   }
-  .ss-nav-right .ss-lang-toggle {
-    display: none !important;
-  }
-
   .ss-hamburger {
     display: flex !important;
   }
@@ -2640,4 +2638,13 @@ html, body {
   .ss-lb-prev { left: 6px; }
   .ss-lb-next { right: 6px; }
   .gallery-tab-pill { min-width: 96px; padding: 8px 18px; font-size: 0.76rem; }
+}
+
+
+/* Mobile padding & overflow safety */
+@media (max-width: 640px) {
+  .ss-container {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
 }

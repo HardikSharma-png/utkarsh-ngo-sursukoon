@@ -23,12 +23,6 @@
         <li><a href="/about" class="ss-nav-link" data-i18n="ss.nav.about">About</a></li>
         <li><a href="/gallery" class="ss-nav-link" data-i18n="ss.nav.gallery">Gallery</a></li>
         <li class="ss-nav-drawer-cta"><a href="/register" class="ss-btn ss-btn-primary ss-drawer-reg-btn" data-i18n="ss.nav.register">Register Now 🎤</a></li>
-        <li class="ss-nav-drawer-cta" style="margin-top:4px;">
-          <div class="ss-lang-toggle" style="margin:0 auto;">
-            <button class="lang-btn active" data-lang="en">EN</button>
-            <button class="lang-btn" data-lang="hi">हिं</button>
-          </div>
-        </li>
       </ul>
       <div class="ss-nav-right">
         <div class="ss-lang-toggle">
@@ -43,9 +37,9 @@
   <!-- PAGE HEADER -->
   <section style="background:radial-gradient(ellipse at center,var(--ss-purple),var(--ss-dark));padding:120px 0 60px;">
     <div class="ss-container" style="text-align:center;">
-      <div class="ss-hero-label" style="display:inline-flex;margin-bottom:16px;">📝 Registration</div>
-      <h1 style="font-family:var(--ss-font-display);color:var(--ss-white);font-size:clamp(2rem,5vw,3.5rem);">Join <span style="color:var(--ss-gold);">Sur-Sukoon</span></h1>
-      <p style="color:var(--ss-text-dim);margin-top:12px;">Choose your role and fill the form below. We'll confirm on WhatsApp!</p>
+      <div class="ss-hero-label" style="display:inline-flex;margin-bottom:16px;" data-i18n="ss.reg.hero.label">📝 Registration</div>
+      <h1 style="font-family:var(--ss-font-display);color:var(--ss-white);font-size:clamp(2rem,5vw,3.5rem);" data-i18n="ss.reg.heading">Join Sur-Sukoon</h1>
+      <p style="color:var(--ss-text-dim);margin-top:12px;" data-i18n="ss.reg.subtitle">Choose your role and fill the form below. We'll confirm on WhatsApp!</p>
     </div>
   </section>
 
@@ -56,8 +50,8 @@
       <div id="ss-register-container">
         <!-- TOGGLE -->
         <div class="ss-form-toggle ss-fade-in">
-          <button class="ss-toggle-btn active" id="toggle-performer">🎤 Performer</button>
-          <button class="ss-toggle-btn" id="toggle-audience">👥 Audience</button>
+          <button class="ss-toggle-btn active" id="toggle-performer" data-i18n="ss.reg.tab.performer">🎤 Performer</button>
+          <button class="ss-toggle-btn" id="toggle-audience" data-i18n="ss.reg.tab.audience">👥 Audience</button>
         </div>
 
         <!-- PERFORMER FORM -->
@@ -68,35 +62,35 @@
           <form id="performer-registration-form" novalidate enctype="multipart/form-data">
             <div class="ss-form-grid">
               <div class="ss-form-group">
-                <label class="ss-form-label">Full Name <span class="req">*</span></label>
-                <input class="ss-form-input" type="text" name="fullName" required placeholder="Your full name">
+                <label class="ss-form-label" data-i18n="ss.reg.name">Full Name <span class="req">*</span></label>
+                <input class="ss-form-input" type="text" name="fullName" required placeholder="Your full name" data-i18n-placeholder="ss.reg.name.ph">
               </div>
               <div class="ss-form-group">
-                <label class="ss-form-label">Phone Number <span class="req">*</span></label>
-                <input class="ss-form-input" type="tel" name="phone" required placeholder="+91 XXXXX XXXXX">
+                <label class="ss-form-label" data-i18n="ss.reg.phone">Phone Number <span class="req">*</span></label>
+                <input class="ss-form-input" type="tel" name="phone" required placeholder="+91 XXXXX XXXXX" data-i18n-placeholder="ss.reg.phone.ph">
               </div>
             </div>
             <div class="ss-form-grid">
               <div class="ss-form-group">
-                <label class="ss-form-label">Email Address</label>
-                <input class="ss-form-input" type="email" name="email" placeholder="Your email (optional)">
+                <label class="ss-form-label" data-i18n="ss.reg.email">Email Address</label>
+                <input class="ss-form-input" type="email" name="email" placeholder="Your email (optional)" data-i18n-placeholder="ss.reg.email.ph">
               </div>
               <div class="ss-form-group">
-                <label class="ss-form-label">City</label>
-                <input class="ss-form-input" type="text" name="city" placeholder="Your city">
+                <label class="ss-form-label" data-i18n="ss.reg.city">City</label>
+                <input class="ss-form-input" type="text" name="city" placeholder="Your city" data-i18n-placeholder="ss.reg.city.ph">
               </div>
             </div>
             <div class="ss-form-group">
-              <label class="ss-form-label">Select Event <span class="req">*</span></label>
+              <label class="ss-form-label" data-i18n="ss.reg.event">Select Event <span class="req">*</span></label>
               <select class="ss-form-select ss-event-select" name="eventId" required></select>
             </div>
             <div class="ss-form-grid">
               <div class="ss-form-group">
-                <label class="ss-form-label">Song Name or Genre <span class="req">*</span></label>
-                <input class="ss-form-input" type="text" name="songGenre" required placeholder="e.g. Lag Jaa Gale / Ghazal">
+                <label class="ss-form-label" data-i18n="ss.reg.song">Song Name or Genre <span class="req">*</span></label>
+                <input class="ss-form-input" type="text" name="songGenre" required placeholder="e.g. Lag Jaa Gale / Ghazal" data-i18n-placeholder="ss.reg.song.ph">
               </div>
               <div class="ss-form-group">
-                <label class="ss-form-label">Performance Duration</label>
+                <label class="ss-form-label" data-i18n="ss.reg.duration">Performance Duration</label>
                 <select class="ss-form-select" name="duration" id="duration-select" onchange="handleDurationChange(this)">
                   <option value="&lt; 2 mins">&lt; 2 mins</option>
                   <option value="2–5 mins">2–5 mins</option>
@@ -110,13 +104,13 @@
               </div>
             </div>
             <div class="ss-form-group">
-              <label class="ss-form-label">Special Requirements (optional)</label>
-              <textarea class="ss-form-textarea" name="specialRequirements" placeholder="Any special technical, music, or stage requirements..."></textarea>
+              <label class="ss-form-label" data-i18n="ss.reg.requirements">Special Requirements (optional)</label>
+              <textarea class="ss-form-textarea" name="specialRequirements" placeholder="Any special technical, music, or stage requirements..." data-i18n-placeholder="ss.reg.requirements.ph"></textarea>
             </div>
 
             <!-- PAYMENT SECTION -->
             <div class="ss-payment-section">
-              <h4>💳 Payment Details</h4>
+              <h4 data-i18n="ss.reg.payment">💳 Payment Details</h4>
               <p style="color:var(--ss-text-dim);font-size:0.88rem;margin-bottom:16px;">Registration Fee: <strong style="color:var(--ss-gold);"><span class="ss-reg-fee-display">₹500</span></strong> — Pay via UPI</p>
 
               <div class="ss-qr-box">
@@ -137,12 +131,12 @@
             </div>
 
             <div class="ss-form-group">
-              <label class="ss-form-label">Upload Payment Screenshot <span class="req">*</span></label>
+              <label class="ss-form-label" data-i18n="ss.reg.screenshot">Upload Payment Screenshot <span class="req">*</span></label>
               <input class="ss-form-input" type="file" name="paymentScreenshot" id="payment-screenshot" accept="image/*" style="padding:10px;" required>
               <div id="screenshot-preview" style="margin-top:10px;"></div>
             </div>
 
-            <button type="submit" class="ss-btn ss-btn-primary" style="width:100%;justify-content:center;font-size:1rem;padding:16px;">
+            <button type="submit" class="ss-btn ss-btn-primary" style="width:100%;justify-content:center;font-size:1rem;padding:16px;" data-i18n="ss.reg.submit.performer">
               Register as Performer 🎤
             </button>
           </form>
@@ -159,18 +153,18 @@
           <form id="audience-registration-form" novalidate enctype="multipart/form-data">
             <div class="ss-form-grid">
               <div class="ss-form-group">
-                <label class="ss-form-label">Full Name <span class="req">*</span></label>
-                <input class="ss-form-input" type="text" name="fullName" required placeholder="Your full name">
+                <label class="ss-form-label" data-i18n="ss.reg.name">Full Name <span class="req">*</span></label>
+                <input class="ss-form-input" type="text" name="fullName" required placeholder="Your full name" data-i18n-placeholder="ss.reg.name.ph">
               </div>
               <div class="ss-form-group">
-                <label class="ss-form-label">Phone Number <span class="req">*</span></label>
-                <input class="ss-form-input" type="tel" name="phone" required placeholder="+91 XXXXX XXXXX">
+                <label class="ss-form-label" data-i18n="ss.reg.phone">Phone Number <span class="req">*</span></label>
+                <input class="ss-form-input" type="tel" name="phone" required placeholder="+91 XXXXX XXXXX" data-i18n-placeholder="ss.reg.phone.ph">
               </div>
             </div>
             <div class="ss-form-grid">
               <div class="ss-form-group">
-                <label class="ss-form-label">Email Address</label>
-                <input class="ss-form-input" type="email" name="email" placeholder="Your email (optional)">
+                <label class="ss-form-label" data-i18n="ss.reg.email">Email Address</label>
+                <input class="ss-form-input" type="email" name="email" placeholder="Your email (optional)" data-i18n-placeholder="ss.reg.email.ph">
               </div>
               <div class="ss-form-group">
                 <label class="ss-form-label">Number of People</label>
@@ -184,7 +178,7 @@
               </div>
             </div>
             <div class="ss-form-group">
-              <label class="ss-form-label">Select Event <span class="req">*</span></label>
+              <label class="ss-form-label" data-i18n="ss.reg.event">Select Event <span class="req">*</span></label>
               <select class="ss-form-select ss-event-select" name="eventId" id="audience-event-select" required></select>
             </div>
             <div class="ss-form-group">
@@ -211,7 +205,7 @@
               </div>
 
               <div class="ss-payment-section">
-                <h4>💳 Payment Details</h4>
+                <h4 data-i18n="ss.reg.payment">💳 Payment Details</h4>
                 <p style="color:var(--ss-text-dim);font-size:0.88rem;margin-bottom:16px;">Pay via UPI using QR code or UPI ID</p>
 
                 <div class="ss-qr-box">
@@ -232,13 +226,13 @@
               </div>
 
               <div class="ss-form-group">
-                <label class="ss-form-label">Upload Payment Screenshot <span class="req">*</span></label>
+                <label class="ss-form-label" data-i18n="ss.reg.screenshot">Upload Payment Screenshot <span class="req">*</span></label>
                 <input class="ss-form-input" type="file" name="paymentScreenshot" id="audience-payment-screenshot" accept="image/*" style="padding:10px;">
                 <div id="audience-screenshot-preview" style="margin-top:10px;"></div>
               </div>
             </div>
 
-            <button type="submit" class="ss-btn ss-btn-gold" style="width:100%;justify-content:center;font-size:1rem;padding:16px;">
+            <button type="submit" class="ss-btn ss-btn-gold" style="width:100%;justify-content:center;font-size:1rem;padding:16px;" data-i18n="ss.reg.submit.audience">
               Register as Audience 👥
             </button>
           </form>
@@ -253,12 +247,12 @@
       <p style="color:var(--ss-text-dim);font-size:0.85rem;margin-bottom:12px;">Questions? Reach us on WhatsApp</p>
       <a href="https://wa.me/919829344949" target="_blank" class="ss-btn ss-btn-primary" style="background:#25D366;box-shadow:none;justify-content:center;margin-bottom:16px;">💬 98293-44949</a>
       <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;margin-bottom:16px;">
-        <a href="/" style="color:var(--ss-gold);font-size:0.85rem;">Home</a>
-        <a href="/about" style="color:var(--ss-text-dim);font-size:0.85rem;">About</a>
-        <a href="/gallery" style="color:var(--ss-text-dim);font-size:0.85rem;">Gallery</a>
-        <a href="/utkarsh" class="ss-footer-portal-link" style="font-size:0.85rem;">Utkarsh NGO Portal</a>
+        <a href="/" style="color:var(--ss-gold);font-size:0.85rem;" data-i18n="ss.footer.home">Home</a>
+        <a href="/about" style="color:var(--ss-text-dim);font-size:0.85rem;" data-i18n="ss.nav.about">About</a>
+        <a href="/gallery" style="color:var(--ss-text-dim);font-size:0.85rem;" data-i18n="ss.nav.gallery">Gallery</a>
+        <a href="/utkarsh" class="ss-footer-portal-link" style="font-size:0.85rem;" data-i18n="ss.footer.utkarsh">Utkarsh NGO Portal</a>
       </div>
-      <p style="color:rgba(255,255,255,0.3);font-size:0.75rem;">© 2025 Sur-Sukoon by Utkarsh Samajik Seva Sansthan</p>
+      <p style="color:rgba(255,255,255,0.3);font-size:0.75rem;" data-i18n="ss.footer.copy">© 2025 Sur-Sukoon by Utkarsh Samajik Seva Sansthan</p>
     </div>
   </footer>
 

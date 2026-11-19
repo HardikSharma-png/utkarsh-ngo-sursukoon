@@ -21,12 +21,6 @@
         <li><a href="/about" class="ss-nav-link active" data-i18n="ss.nav.about">About</a></li>
         <li><a href="/gallery" class="ss-nav-link" data-i18n="ss.nav.gallery">Gallery</a></li>
         <li class="ss-nav-drawer-cta"><a href="/register" class="ss-btn ss-btn-primary ss-drawer-reg-btn" data-i18n="ss.nav.register">Register Now 🎤</a></li>
-        <li class="ss-nav-drawer-cta" style="margin-top:4px;">
-          <div class="ss-lang-toggle" style="margin:0 auto;">
-            <button class="lang-btn active" data-lang="en">EN</button>
-            <button class="lang-btn" data-lang="hi">हिं</button>
-          </div>
-        </li>
       </ul>
       <div class="ss-nav-right">
         <div class="ss-lang-toggle">
@@ -42,9 +36,9 @@
   <!-- HERO -->
   <section style="background:radial-gradient(ellipse at center,var(--ss-purple),var(--ss-dark));padding:120px 0 60px;">
     <div class="ss-container" style="text-align:center;">
-      <div class="ss-hero-label" style="display:inline-flex;margin-bottom:16px;">🌟 Our Story</div>
-      <h1 style="font-family:var(--ss-font-display);color:var(--ss-white);font-size:clamp(2rem,5vw,3.5rem);">About <span style="color:var(--ss-gold);">Sur-Sukoon</span></h1>
-      <p style="color:var(--ss-text-dim);margin-top:12px;max-width:600px;margin-left:auto;margin-right:auto;">Where every voice finds its moment. A celebration of music, culture, and community.</p>
+      <div class="ss-hero-label" style="display:inline-flex;margin-bottom:16px;" data-i18n="ss.about.hero.label">🌟 Our Story</div>
+      <h1 style="font-family:var(--ss-font-display);color:var(--ss-white);font-size:clamp(2rem,5vw,3.5rem);" data-i18n="ss.about.hero.title">About Sur-Sukoon</h1>
+      <p style="color:var(--ss-text-dim);margin-top:12px;max-width:600px;margin-left:auto;margin-right:auto;" data-i18n="ss.about.hero.sub">Where every voice finds its moment. A celebration of music, culture, and community.</p>
     </div>
   </section>
 
@@ -53,8 +47,8 @@
     <div class="ss-container">
       <div style="max-width:800px;margin:0 auto;" class="ss-fade-in">
         <div class="ss-section-header">
-          <div class="label">Our Identity</div>
-          <h2>What is <span>Sur-Sukoon?</span></h2>
+          <div class="label" data-i18n="ss.about.identity.label">Our Identity</div>
+          <h2 data-i18n="ss.about.identity.title">What is Sur-Sukoon?</h2>
           <div class="gold-line-ss"></div>
         </div>
         <p style="color:var(--ss-text-mid);font-size:1.1rem;line-height:1.9;text-align:center;margin-bottom:24px;">
@@ -159,22 +153,22 @@
   <section class="ss-section" style="background:radial-gradient(ellipse at center,var(--ss-purple),var(--ss-dark));text-align:center;">
     <div class="ss-container">
       <div class="ss-mic" style="font-size:5rem;margin-bottom:24px;">🎤</div>
-      <h2 style="font-family:var(--ss-font-display);color:var(--ss-white);font-size:clamp(1.8rem,4vw,3rem);margin-bottom:12px;">Your Stage Awaits</h2>
-      <p style="color:var(--ss-text-dim);margin-bottom:32px;max-width:500px;margin-left:auto;margin-right:auto;">Register now to perform at Sur-Sukoon Season 5 or come watch as an audience member — absolutely free!</p>
+      <h2 style="font-family:var(--ss-font-display);color:var(--ss-white);font-size:clamp(1.8rem,4vw,3rem);margin-bottom:12px;" data-i18n="ss.about.stage.title">Your Stage Awaits</h2>
+      <p style="color:var(--ss-text-dim);margin-bottom:32px;max-width:500px;margin-left:auto;margin-right:auto;" data-i18n="ss.about.stage.sub">Register now to perform at Sur-Sukoon Season 5 or come watch as an audience member — absolutely free!</p>
       <div style="display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
-        <a href="/register" class="ss-btn ss-btn-primary">🎤 Register as Performer</a>
-        <a href="/register?tab=audience" class="ss-btn ss-btn-outline-gold">👥 Free Audience Entry</a>
+        <a href="/register" class="ss-btn ss-btn-primary" data-i18n="ss.register.performer">🎤 Register as Performer</a>
+        <a href="/register?tab=audience" class="ss-btn ss-btn-outline-gold" data-i18n="ss.register.audience">👥 Free Audience Entry</a>
       </div>
     </div>
   </section>
 
   <footer style="background:var(--ss-black);border-top:1px solid var(--ss-border-magenta);padding:32px 0 24px;">
     <div class="ss-container" style="text-align:center;">
-      <p style="color:var(--ss-text-dim);font-size:0.85rem;">© 2025 Sur-Sukoon by Utkarsh Samajik Seva Sansthan</p>
+      <p style="color:var(--ss-text-dim);font-size:0.85rem;" data-i18n="ss.footer.copy">© 2025 Sur-Sukoon by Utkarsh Samajik Seva Sansthan</p>
       <div style="margin-top:12px;display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
-        <a href="/" style="color:var(--ss-gold);font-size:0.85rem;">Home</a>
-        <a href="/gallery" style="color:var(--ss-text-dim);font-size:0.85rem;">Gallery</a>
-        <a href="/utkarsh" class="ss-footer-portal-link" style="font-size:0.85rem;">Utkarsh NGO Portal</a>
+        <a href="/" style="color:var(--ss-gold);font-size:0.85rem;" data-i18n="ss.footer.home">Home</a>
+        <a href="/gallery" style="color:var(--ss-text-dim);font-size:0.85rem;" data-i18n="ss.footer.gallery">Gallery</a>
+        <a href="/utkarsh" class="ss-footer-portal-link" style="font-size:0.85rem;" data-i18n="ss.footer.utkarsh">Utkarsh NGO Portal</a>
       </div>
     </div>
   </footer>

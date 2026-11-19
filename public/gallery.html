@@ -25,12 +25,6 @@
         <li><a href="/about" class="ss-nav-link" data-i18n="ss.nav.about">About</a></li>
         <li><a href="/gallery" class="ss-nav-link active" data-i18n="ss.nav.gallery">Gallery</a></li>
         <li class="ss-nav-drawer-cta"><a href="/register" class="ss-btn ss-btn-primary ss-drawer-reg-btn" data-i18n="ss.nav.register">Register Now 🎤</a></li>
-        <li class="ss-nav-drawer-cta" style="margin-top:4px;">
-          <div class="ss-lang-toggle" style="margin:0 auto;">
-            <button class="lang-btn active" data-lang="en">EN</button>
-            <button class="lang-btn" data-lang="hi">हिं</button>
-          </div>
-        </li>
       </ul>
 
       <div class="ss-nav-right">
@@ -49,14 +43,14 @@
   <!-- GALLERY HEADER & TAB SWITCHER -->
   <header class="gallery-hero-header">
     <div class="gallery-stage">
-      <p class="gallery-subtitle">Relive the magical moments from past Sur-Sukoon events.</p>
+      <p class="gallery-subtitle" data-i18n="ss.gallery.subtitle">Relive the magical moments from past Sur-Sukoon events.</p>
 
       <!-- Tab Capsules (PHOTOS vs VIDEOS) -->
       <div class="gallery-tabs-row" role="tablist" aria-label="Gallery media type">
-        <button type="button" class="gallery-tab-pill active" id="gallery-tab-photos" data-gallery-tab="photos" role="tab" aria-selected="true" aria-controls="gallery-photos-panel">
+        <button type="button" class="gallery-tab-pill active" id="gallery-tab-photos" data-gallery-tab="photos" role="tab" aria-selected="true" aria-controls="gallery-photos-panel" data-i18n="ss.gallery.photos">
           PHOTOS
         </button>
-        <button type="button" class="gallery-tab-pill" id="gallery-tab-videos" data-gallery-tab="videos" role="tab" aria-selected="false" aria-controls="gallery-videos-panel">
+        <button type="button" class="gallery-tab-pill" id="gallery-tab-videos" data-gallery-tab="videos" role="tab" aria-selected="false" aria-controls="gallery-videos-panel" data-i18n="ss.gallery.videos">
           VIDEOS
         </button>
       </div>
@@ -140,10 +134,10 @@
   <!-- FOOTER (Preserved Intact) -->
   <footer style="background:var(--ss-black);border-top:1px solid var(--ss-border-magenta);padding:32px 0 24px;">
     <div class="ss-container" style="text-align:center;">
-      <p style="color:var(--ss-text-dim);font-size:0.85rem;">© 2025 Sur-Sukoon by Utkarsh Samajik Seva Sansthan</p>
+      <p style="color:var(--ss-text-dim);font-size:0.85rem;" data-i18n="ss.footer.copy">© 2025 Sur-Sukoon by Utkarsh Samajik Seva Sansthan</p>
       <div style="margin-top:12px;display:flex;gap:16px;justify-content:center;flex-wrap:wrap;">
-        <a href="/" style="color:var(--ss-gold);font-size:0.85rem;">← Back to Home</a>
-        <a href="/utkarsh" class="ss-footer-portal-link" style="font-size:0.85rem;">Utkarsh NGO Portal</a>
+        <a href="/" style="color:var(--ss-gold);font-size:0.85rem;" data-i18n="ss.footer.home">← Back to Home</a>
+        <a href="/utkarsh" class="ss-footer-portal-link" style="font-size:0.85rem;" data-i18n="ss.footer.utkarsh">Utkarsh NGO Portal</a>
       </div>
     </div>
   </footer>

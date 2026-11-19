@@ -287,6 +287,9 @@ p { color: var(--text-medium); line-height: 1.8; }
   gap: 2px;
 }
 .navbar.transparent .lang-toggle { background: rgba(255,255,255,0.2); }
+.navbar.transparent .lang-toggle .lang-btn { color: rgba(255,255,255,0.75); }
+.navbar.transparent .lang-toggle .lang-btn.active { background: var(--white); color: var(--green-primary); }
+.navbar.scrolled .lang-toggle .lang-btn { color: var(--text-medium); }
 .lang-btn {
   padding: 5px 12px;
   border-radius: 50px;
@@ -1428,9 +1431,55 @@ html, body {
     min-height: 48px;
   }
   .navbar-inner {
-    padding: 0 16px;
+    padding: 0 12px;
+    height: auto;
+    min-height: 56px;
+    padding-top: 6px;
+    padding-bottom: 6px;
   }
   .container {
     padding: 0 16px;
+  }
+  /* Hide org tagline on mobile — shown in hero badge */
+  .org-tagline-mobile-hide {
+    display: none !important;
+  }
+  /* Size org-name for mobile navbar */
+  .navbar-logo .logo-text .org-name {
+    font-size: 14px;
+    line-height: 1.2;
+  }
+  /* Smaller logo on mobile */
+  .navbar-logo img {
+    height: 36px !important;
+    width: 36px !important;
+  }
+  .navbar-logo {
+    gap: 8px;
+  }
+  /* Smaller WhatsApp button on mobile */
+  .whatsapp-float {
+    width: 48px;
+    height: 48px;
+    font-size: 1.2rem;
+    bottom: 20px;
+    right: 16px;
+  }
+}
+
+/* Hero stats 2x2 grid on small mobile */
+@media (max-width: 640px) {
+  .hero-stats {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px 32px;
+  }
+  .hero-stat .number {
+    font-size: 1.6rem;
+  }
+  .impact-strip .inner {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
   }
 }
