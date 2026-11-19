@@ -16,6 +16,7 @@ const translations = {
     'hero.btn.explore': 'Explore Programmes',
     'hero.btn.volunteer': 'Volunteer With Us',
     'hero.btn.sursukoon': '← Visit Sur-Sukoon 🎵',
+    'banner.visit.sursukoon': 'Visit Sur-Sukoon →',
     // Impact
     'impact.cities': 'Cities Reached',
     'impact.founded': 'Est. Year',
@@ -199,6 +200,7 @@ const translations = {
     'hero.btn.explore': 'कार्यक्रम देखें',
     'hero.btn.volunteer': 'स्वयंसेवक बनें',
     'hero.btn.sursukoon': '← सुर-सुकून देखें 🎵',
+    'banner.visit.sursukoon': 'सुर-सुकून देखें →',
     // Impact
     'impact.cities': 'शहरों तक पहुँच',
     'impact.founded': 'स्थापना वर्ष',

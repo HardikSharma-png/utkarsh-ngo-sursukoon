@@ -325,33 +325,79 @@ p { color: var(--text-medium); line-height: 1.8; }
 /* Hide mobile-only elements on desktop */
 .nav-close { display: none; }
 .hamburger { display: none; }
+.mobile-drawer-sursukoon { display: none; }
 
 @media (max-width: 768px) {
   .hamburger { display: flex; }
   .nav-links {
     display: none;
     position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: var(--white);
+    top: 0; left: 0;
+    width: 100vw;
+    height: 100dvh;
+    background: #0d3b26;
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 12px;
-    z-index: 999;
+    gap: 20px;
+    z-index: 9999;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
   }
   .nav-links.open { display: flex; }
-  .nav-link { font-size: 1.2rem; padding: 14px 32px; }
+  /* Force all nav link text to white on dark-green drawer */
+  .nav-links .nav-link,
+  .navbar.transparent .nav-links .nav-link,
+  .navbar.scrolled .nav-links .nav-link,
+  .nav-links a {
+    color: #ffffff !important;
+    font-size: 1.25rem;
+    padding: 14px 32px;
+    text-decoration: none;
+    opacity: 1;
+  }
+  .nav-links .nav-link:hover,
+  .nav-links .nav-link.active {
+    color: #d4af37 !important;
+  }
   .nav-close {
+    display: block;
     position: absolute;
-    top: 24px; right: 24px;
-    font-size: 1.5rem;
+    top: 20px; right: 20px;
+    font-size: 2rem;
+    line-height: 1;
     background: none;
     border: none;
     cursor: pointer;
-    color: var(--text-dark);
-    font-size: 2rem;
+    color: #ffffff;
+    z-index: 10000;
+    padding: 8px;
+  }
+  .nav-close:hover { color: #d4af37; }
+  /* Sur-Sukoon pill button at bottom of mobile drawer */
+  .mobile-drawer-sursukoon {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 16px;
+    padding: 10px 24px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.3);
+    color: #d4af37 !important;
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .mobile-drawer-sursukoon:hover {
+    background: rgba(255,255,255,0.1);
+    border-color: #d4af37;
   }
   .nav-actions { gap: 8px; }
+  /* Body scroll lock when drawer is open */
+  body.nav-open {
+    overflow: hidden !important;
+  }
 }
 
 /* === HERO SECTION === */

@@ -68,16 +68,29 @@ function initNavbar() {
   const navLinks = document.querySelector('.nav-links');
   const navClose = document.querySelector('.nav-close');
 
-  if (hamburger && navLinks) {
-    hamburger.addEventListener('click', () => navLinks.classList.add('open'));
+  function openDrawer() {
+    if (navLinks) {
+      navLinks.classList.add('open');
+      document.body.classList.add('nav-open');
+    }
   }
-  if (navClose && navLinks) {
-    navClose.addEventListener('click', () => navLinks.classList.remove('open'));
+  function closeDrawer() {
+    if (navLinks) {
+      navLinks.classList.remove('open');
+      document.body.classList.remove('nav-open');
+    }
   }
 
-  // Close on nav link click
-  document.querySelectorAll('.nav-link').forEach(link => {
-    link.addEventListener('click', () => navLinks?.classList.remove('open'));
+  if (hamburger) {
+    hamburger.addEventListener('click', openDrawer);
+  }
+  if (navClose) {
+    navClose.addEventListener('click', closeDrawer);
+  }
+
+  // Close on nav link click (including the Sur-Sukoon pill)
+  document.querySelectorAll('.nav-link, .mobile-drawer-sursukoon').forEach(link => {
+    link.addEventListener('click', closeDrawer);
   });
 
   // Active link highlighting
