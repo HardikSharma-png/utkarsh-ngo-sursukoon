@@ -107,6 +107,7 @@ const translations = {
     // Hero
     'ss.presents': '✦ UTKARSH PRESENTS ✦',
     'ss.tagline': 'Ek Manch... Aapki Awaaz ke Naam',
+    'ss.hero.tagline': '"Ek Manch... Aapki Awaaz ke Naam"',
     'ss.hero.date': 'DATE',
     'ss.hero.time': 'TIME',
     'ss.hero.venue': 'VENUE',
@@ -291,6 +292,7 @@ const translations = {
     // Hero
     'ss.presents': '✦ उत्कर्ष प्रस्तुत करता है ✦',
     'ss.tagline': 'एक मंच... आपकी आवाज़ के नाम',
+    'ss.hero.tagline': '"एक मंच... आपकी आवाज़ के नाम"',
     'ss.hero.date': 'तारीख',
     'ss.hero.time': 'समय',
     'ss.hero.venue': 'स्थान',
@@ -370,27 +372,31 @@ const translations = {
   }
 };
 
-// Get translation
+// Get translation — returns null if key is missing (so callers can keep defaults)
 function t(key) {
   const lang = localStorage.getItem('utkarsh_lang') || 'en';
-  return translations[lang][key] || translations.en[key] || key;
+  return (translations[lang] && translations[lang][key]) || (translations.en && translations.en[key]) || null;
 }
 
 // Apply translations to page
 function applyTranslations() {
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.getAttribute('data-i18n');
+    const val = t(key);
+    if (val === null) return; // Key not found — keep existing default text
     const attr = el.getAttribute('data-i18n-attr');
     if (attr) {
-      el.setAttribute(attr, t(key));
+      el.setAttribute(attr, val);
     } else {
-      el.textContent = t(key);
+      el.textContent = val;
     }
   });
   // Handle placeholder translations
   document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
     const key = el.getAttribute('data-i18n-placeholder');
-    el.placeholder = t(key);
+    const val = t(key);
+    if (val === null) return; // Key not found — keep existing placeholder
+    el.placeholder = val;
   });
 }
 
