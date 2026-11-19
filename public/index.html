@@ -22,14 +22,24 @@
 
       <ul class="ss-nav-links" id="ss-nav-links">
         <button class="nav-close" id="ss-nav-close" aria-label="Close navigation">✕</button>
-        <li><a href="/" class="ss-nav-link active">Home</a></li>
-        <li><a href="/about" class="ss-nav-link">About</a></li>
-        <li><a href="/gallery" class="ss-nav-link">Gallery</a></li>
-        <li class="ss-nav-drawer-cta"><a href="/register" class="ss-btn ss-btn-primary ss-drawer-reg-btn">Register Now 🎤</a></li>
+        <li><a href="/" class="ss-nav-link active" data-i18n="ss.nav.home">Home</a></li>
+        <li><a href="/about" class="ss-nav-link" data-i18n="ss.nav.about">About</a></li>
+        <li><a href="/gallery" class="ss-nav-link" data-i18n="ss.nav.gallery">Gallery</a></li>
+        <li class="ss-nav-drawer-cta"><a href="/register" class="ss-btn ss-btn-primary ss-drawer-reg-btn" data-i18n="ss.nav.register">Register Now 🎤</a></li>
+        <li class="ss-nav-drawer-cta" style="margin-top:4px;">
+          <div class="ss-lang-toggle" style="margin:0 auto;">
+            <button class="lang-btn active" data-lang="en">EN</button>
+            <button class="lang-btn" data-lang="hi">हिं</button>
+          </div>
+        </li>
       </ul>
 
       <div class="ss-nav-right">
-        <a href="/register" class="ss-register-btn" id="ss-reg-nav-btn">Register Now ↗</a>
+        <div class="ss-lang-toggle">
+          <button class="lang-btn active" data-lang="en">EN</button>
+          <button class="lang-btn" data-lang="hi">हिं</button>
+        </div>
+        <a href="/register" class="ss-register-btn" id="ss-reg-nav-btn" data-i18n="ss.nav.register">Register Now ↗</a>
         <button class="ss-hamburger" id="ss-hamburger" aria-label="Toggle navigation">
           <span></span><span></span><span></span>
         </button>
@@ -328,6 +338,7 @@
 
   </div><!-- #ss-home-page -->
 
+  <script src="/js/translations.js"></script>
   <script src="/js/sursukoon.js"></script>
 </body>
 </html>

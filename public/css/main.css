@@ -247,6 +247,38 @@ p { color: var(--text-medium); line-height: 1.8; }
   50% { box-shadow: 0 4px 25px rgba(139,0,93,0.6); }
 }
 .nav-actions { display: flex; align-items: center; gap: 12px; }
+/* "← Sur-Sukoon" cross-portal back button in Utkarsh navbar */
+.ss-portal-back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  background: linear-gradient(135deg, rgba(139,0,93,0.12), rgba(192,0,106,0.08));
+  border: 1px solid rgba(139,0,93,0.4);
+  color: #C0006A;
+  border-radius: 50px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  transition: var(--transition);
+  white-space: nowrap;
+  letter-spacing: 0.3px;
+}
+.ss-portal-back-btn:hover {
+  background: linear-gradient(135deg, rgba(139,0,93,0.25), rgba(192,0,106,0.2));
+  color: #8B005D;
+  transform: translateX(-2px);
+}
+/* Transparent navbar version */
+.navbar.transparent .ss-portal-back-btn {
+  border-color: rgba(255,100,180,0.5);
+  color: #FFB3D9;
+  background: rgba(139,0,93,0.2);
+}
+.navbar.transparent .ss-portal-back-btn:hover {
+  background: rgba(139,0,93,0.4);
+  color: #fff;
+}
+
 .lang-toggle {
   display: flex;
   background: var(--gray-light);

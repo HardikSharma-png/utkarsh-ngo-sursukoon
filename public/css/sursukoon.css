@@ -158,6 +158,39 @@ button { cursor: pointer; font-family: var(--ss-font); border: none; outline: no
   transition: var(--ss-transition);
 }
 .ss-back-btn:hover { background: rgba(15,76,58,0.8); color: #AEFFD8; }
+/* Sur-Sukoon Lang Toggle — dark theme pill */
+.ss-lang-toggle {
+  display: flex;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,215,0,0.15);
+  border-radius: 50px;
+  padding: 3px;
+  gap: 2px;
+}
+.ss-lang-toggle .lang-btn {
+  padding: 5px 11px;
+  border-radius: 50px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  background: transparent;
+  color: rgba(255,255,255,0.55);
+  transition: var(--ss-transition);
+  border: none;
+  cursor: pointer;
+  font-family: var(--ss-font);
+  letter-spacing: 0.5px;
+}
+.ss-lang-toggle .lang-btn.active {
+  background: linear-gradient(135deg, var(--ss-magenta), var(--ss-magenta-bright));
+  color: var(--ss-white);
+  box-shadow: 0 2px 8px rgba(192,0,106,0.4);
+}
+.ss-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
 .ss-register-btn {
   background: linear-gradient(135deg, var(--ss-magenta), var(--ss-magenta-bright));
   color: var(--ss-white);
@@ -270,6 +303,10 @@ body.ss-menu-open .ss-hamburger {
   .ss-nav-right .ss-register-btn {
     display: none !important;
   }
+  .ss-nav-right .ss-lang-toggle {
+    display: none !important;
+  }
+
   .ss-hamburger {
     display: flex !important;
   }

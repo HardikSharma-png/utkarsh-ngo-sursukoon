@@ -1337,11 +1337,35 @@ function getSSYouTubeEmbed(url) {
   return match ? `https://www.youtube.com/embed/${match[1]}` : url;
 }
 
+// ====== LANG SYSTEM (shared with Utkarsh via translations.js) ======
+function initSSLang() {
+  // translations.js is NOT loaded on SS pages separately — we embed a lightweight
+  // version that reuses the same localStorage key 'utkarsh_lang' so language
+  // persists across both portals.
+  if (typeof initLang === 'function') {
+    initLang();
+    return;
+  }
+  // Fallback: manual wiring if translations.js wasn't loaded
+  const currentLang = localStorage.getItem('utkarsh_lang') || 'en';
+  document.querySelectorAll('.lang-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.lang === currentLang);
+    btn.addEventListener('click', () => {
+      const lang = btn.dataset.lang;
+      localStorage.setItem('utkarsh_lang', lang);
+      document.querySelectorAll('.lang-btn').forEach(b => b.classList.toggle('active', b.dataset.lang === lang));
+      if (typeof applyTranslations === 'function') applyTranslations();
+    });
+  });
+  if (typeof applyTranslations === 'function') applyTranslations();
+}
+
 // ====== INIT ======
 document.addEventListener('DOMContentLoaded', async () => {
   initSSNavbar();
   initSSAnimations();
   initSSWhatsApp();
+  initSSLang();
   await initSSHome();
   await initSSRegister();
   await initSSGallery();
