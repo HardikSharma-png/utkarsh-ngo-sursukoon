@@ -106,8 +106,6 @@ const translations = {
     'ss.nav.utkarsh': '← Utkarsh NGO',
     // Hero
     'ss.presents': '✦ UTKARSH PRESENTS ✦',
-    'ss.tagline': 'Ek Manch... Aapki Awaaz ke Naam',
-    'ss.hero.tagline': '"Ek Manch... Aapki Awaaz ke Naam"',
     'ss.hero.date': 'DATE',
     'ss.hero.time': 'TIME',
     'ss.hero.venue': 'VENUE',
@@ -170,6 +168,7 @@ const translations = {
     'ss.reg.email': 'Email Address',
     'ss.reg.city': 'City',
     'ss.reg.event': 'Select Event',
+    'ss.reg.people': 'Number of People',
     'ss.reg.song': 'Song Name or Genre',
     'ss.reg.duration': 'Performance Duration',
     'ss.reg.requirements': 'Special Requirements (optional)',
@@ -291,8 +290,6 @@ const translations = {
     'ss.nav.utkarsh': '← उत्कर्ष NGO',
     // Hero
     'ss.presents': '✦ उत्कर्ष प्रस्तुत करता है ✦',
-    'ss.tagline': 'एक मंच... आपकी आवाज़ के नाम',
-    'ss.hero.tagline': '"एक मंच... आपकी आवाज़ के नाम"',
     'ss.hero.date': 'तारीख',
     'ss.hero.time': 'समय',
     'ss.hero.venue': 'स्थान',

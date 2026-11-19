@@ -59,40 +59,41 @@
           <h3 style="color:var(--ss-white);margin-bottom:8px;">Performer Registration</h3>
           <p style="color:var(--ss-text-dim);font-size:0.9rem;margin-bottom:28px;">Fill in your details to perform at Sur-Sukoon. Limited seats available!</p>
 
-          <form id="performer-registration-form" novalidate enctype="multipart/form-data">
+          <form id="performer-registration-form" enctype="multipart/form-data">
             <div class="ss-form-grid">
               <div class="ss-form-group">
-                <label class="ss-form-label" data-i18n="ss.reg.name">Full Name <span class="req">*</span></label>
+                <label class="ss-form-label"><span data-i18n="ss.reg.name">Full Name </span><span class="req">*</span></label>
                 <input class="ss-form-input" type="text" name="fullName" required placeholder="Your full name" data-i18n-placeholder="ss.reg.name.ph">
               </div>
               <div class="ss-form-group">
-                <label class="ss-form-label" data-i18n="ss.reg.phone">Phone Number <span class="req">*</span></label>
+                <label class="ss-form-label"><span data-i18n="ss.reg.phone">Phone Number </span><span class="req">*</span></label>
                 <input class="ss-form-input" type="tel" name="phone" required placeholder="+91 XXXXX XXXXX" data-i18n-placeholder="ss.reg.phone.ph">
               </div>
             </div>
             <div class="ss-form-grid">
               <div class="ss-form-group">
-                <label class="ss-form-label" data-i18n="ss.reg.email">Email Address</label>
+                <label class="ss-form-label"><span data-i18n="ss.reg.email">Email Address</span></label>
                 <input class="ss-form-input" type="email" name="email" placeholder="Your email (optional)" data-i18n-placeholder="ss.reg.email.ph">
               </div>
               <div class="ss-form-group">
-                <label class="ss-form-label" data-i18n="ss.reg.city">City</label>
-                <input class="ss-form-input" type="text" name="city" placeholder="Your city" data-i18n-placeholder="ss.reg.city.ph">
+                <label class="ss-form-label"><span data-i18n="ss.reg.city">City</span><span class="req">*</span></label>
+                <input class="ss-form-input" type="text" name="city" required placeholder="Your city" data-i18n-placeholder="ss.reg.city.ph">
               </div>
             </div>
             <div class="ss-form-group">
-              <label class="ss-form-label" data-i18n="ss.reg.event">Select Event <span class="req">*</span></label>
-              <select class="ss-form-select ss-event-select" name="eventId" required></select>
+              <label class="ss-form-label"><span data-i18n="ss.reg.event">Select Event </span><span class="req">*</span></label>
+              <select class="ss-form-select ss-event-select" name="eventId" required><option value="" disabled selected>Select an event</option></select>
             </div>
             <div class="ss-form-grid">
               <div class="ss-form-group">
-                <label class="ss-form-label" data-i18n="ss.reg.song">Song Name or Genre <span class="req">*</span></label>
+                <label class="ss-form-label"><span data-i18n="ss.reg.song">Song Name or Genre </span><span class="req">*</span></label>
                 <input class="ss-form-input" type="text" name="songGenre" required placeholder="e.g. Lag Jaa Gale / Ghazal" data-i18n-placeholder="ss.reg.song.ph">
               </div>
               <div class="ss-form-group">
-                <label class="ss-form-label" data-i18n="ss.reg.duration">Performance Duration</label>
-                <select class="ss-form-select" name="duration" id="duration-select" onchange="handleDurationChange(this)">
-                  <option value="&lt; 2 mins">&lt; 2 mins</option>
+                <label class="ss-form-label"><span data-i18n="ss.reg.duration">Performance Duration</span><span class="req">*</span></label>
+                <select class="ss-form-select" name="duration" id="duration-select" required onchange="handleDurationChange(this)">
+                    <option value="" disabled selected>Select duration</option>
+                    <option value="&lt; 2 mins">&lt; 2 mins</option>
                   <option value="2–5 mins">2–5 mins</option>
                   <option value="5–8 mins">5–8 mins</option>
                   <option value="&gt; 8 mins">&gt; 8 mins</option>
@@ -104,7 +105,7 @@
               </div>
             </div>
             <div class="ss-form-group">
-              <label class="ss-form-label" data-i18n="ss.reg.requirements">Special Requirements (optional)</label>
+              <label class="ss-form-label"><span data-i18n="ss.reg.requirements">Special Requirements (optional)</span></label>
               <textarea class="ss-form-textarea" name="specialRequirements" placeholder="Any special technical, music, or stage requirements..." data-i18n-placeholder="ss.reg.requirements.ph"></textarea>
             </div>
 
@@ -131,7 +132,7 @@
             </div>
 
             <div class="ss-form-group">
-              <label class="ss-form-label" data-i18n="ss.reg.screenshot">Upload Payment Screenshot <span class="req">*</span></label>
+              <label class="ss-form-label"><span data-i18n="ss.reg.screenshot">Upload Payment Screenshot </span><span class="req">*</span></label>
               <input class="ss-form-input" type="file" name="paymentScreenshot" id="payment-screenshot" accept="image/*" style="padding:10px;" required>
               <div id="screenshot-preview" style="margin-top:10px;"></div>
             </div>
@@ -150,25 +151,25 @@
             <span style="color:#00C896;font-weight:600;">✅ Free Entry</span> — No payment required. Just register and come enjoy the evening!
           </div>
 
-          <form id="audience-registration-form" novalidate enctype="multipart/form-data">
+          <form id="audience-registration-form" enctype="multipart/form-data">
             <div class="ss-form-grid">
               <div class="ss-form-group">
-                <label class="ss-form-label" data-i18n="ss.reg.name">Full Name <span class="req">*</span></label>
+                <label class="ss-form-label"><span data-i18n="ss.reg.name">Full Name </span><span class="req">*</span></label>
                 <input class="ss-form-input" type="text" name="fullName" required placeholder="Your full name" data-i18n-placeholder="ss.reg.name.ph">
               </div>
               <div class="ss-form-group">
-                <label class="ss-form-label" data-i18n="ss.reg.phone">Phone Number <span class="req">*</span></label>
+                <label class="ss-form-label"><span data-i18n="ss.reg.phone">Phone Number </span><span class="req">*</span></label>
                 <input class="ss-form-input" type="tel" name="phone" required placeholder="+91 XXXXX XXXXX" data-i18n-placeholder="ss.reg.phone.ph">
               </div>
             </div>
             <div class="ss-form-grid">
               <div class="ss-form-group">
-                <label class="ss-form-label" data-i18n="ss.reg.email">Email Address</label>
+                <label class="ss-form-label"><span data-i18n="ss.reg.email">Email Address</span></label>
                 <input class="ss-form-input" type="email" name="email" placeholder="Your email (optional)" data-i18n-placeholder="ss.reg.email.ph">
               </div>
               <div class="ss-form-group">
-                <label class="ss-form-label">Number of People</label>
-                <select class="ss-form-select" name="numberOfPeople" id="audience-people-select">
+                <label class="ss-form-label"><span data-i18n="ss.reg.people">Number of People</span><span class="req">*</span></label>
+                <select class="ss-form-select" name="numberOfPeople" id="audience-people-select" required>
                   <option value="1">Just me (1)</option>
                   <option value="2">2 People</option>
                   <option value="3">3 People</option>
@@ -178,8 +179,8 @@
               </div>
             </div>
             <div class="ss-form-group">
-              <label class="ss-form-label" data-i18n="ss.reg.event">Select Event <span class="req">*</span></label>
-              <select class="ss-form-select ss-event-select" name="eventId" id="audience-event-select" required></select>
+              <label class="ss-form-label"><span data-i18n="ss.reg.event">Select Event </span><span class="req">*</span></label>
+              <select class="ss-form-select ss-event-select" name="eventId" id="audience-event-select" required><option value="" disabled selected>Select an event</option></select>
             </div>
             <div class="ss-form-group">
               <label class="ss-form-label">How did you hear about Sur-Sukoon?</label>
@@ -226,7 +227,7 @@
               </div>
 
               <div class="ss-form-group">
-                <label class="ss-form-label" data-i18n="ss.reg.screenshot">Upload Payment Screenshot <span class="req">*</span></label>
+                <label class="ss-form-label"><span data-i18n="ss.reg.screenshot">Upload Payment Screenshot </span><span class="req">*</span></label>
                 <input class="ss-form-input" type="file" name="paymentScreenshot" id="audience-payment-screenshot" accept="image/*" style="padding:10px;">
                 <div id="audience-screenshot-preview" style="margin-top:10px;"></div>
               </div>

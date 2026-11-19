@@ -750,9 +750,10 @@ async function loadSSEventsForForm() {
         select.innerHTML = '<option value="">No upcoming events</option>';
         return;
       }
-      select.innerHTML = _ssFormEvents.map(e =>
-        `<option value="${e._id}" ${!e.registrationOpen ? 'disabled' : ''}>${e.eventName}${!e.registrationOpen ? ' (Closed)' : ''}</option>`
-      ).join('');
+      select.innerHTML = '<option value="" disabled selected>Select an event</option>' +
+        _ssFormEvents.map(e =>
+          `<option value="${e._id}" ${!e.registrationOpen ? 'disabled' : ''}>${e.eventName}${!e.registrationOpen ? ' (Closed)' : ''}</option>`
+        ).join('');
     });
 
     // Update performer fee display (single ₹)
@@ -791,24 +792,71 @@ async function submitPerformerForm(e) {
   e.preventDefault();
   const form = e.target;
   const submitBtn = form.querySelector('[type="submit"]');
-  submitBtn.disabled = true;
-  submitBtn.innerHTML = '⏳ Submitting...';
 
-  const formData = new FormData(form);
+  // ---- Validate all mandatory fields ----
+  const fields = [
+    { el: form.querySelector('[name="fullName"]'), msg: 'Please enter your full name' },
+    { el: form.querySelector('[name="phone"]'), msg: 'Please enter your phone number' },
+    { el: form.querySelector('[name="city"]'), msg: 'Please enter your city' },
+    { el: form.querySelector('[name="eventId"]'), msg: 'Please select an event' },
+    { el: form.querySelector('[name="songGenre"]'), msg: 'Please enter your song name or genre' },
+    { el: form.querySelector('[name="duration"]'), msg: 'Please select your performance duration' },
+  ];
 
-  // Handle custom duration: replace the hidden select value with the typed text
+  for (const { el, msg } of fields) {
+    if (!el) continue;
+    const val = (el.value || '').trim();
+    if (!val) {
+      ssToast(msg, 'error');
+      el.focus();
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+  }
+
+  // Custom duration validation
   const durationSelect = document.getElementById('duration-select');
   if (durationSelect && durationSelect.value === 'Custom') {
     const customInput = document.getElementById('duration-custom-input');
     const customVal = (customInput?.value || '').trim();
     if (!customVal) {
-      submitBtn.disabled = false;
-      submitBtn.innerHTML = 'Register as Performer 🎤';
       ssToast('Please enter your custom performance duration.', 'error');
       customInput?.focus();
+      customInput?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
-    formData.set('duration', customVal);
+  }
+
+  // Phone validation (at least 10 digits)
+  const phoneVal = form.querySelector('[name="phone"]').value.replace(/\D/g, '');
+  if (phoneVal.length < 10) {
+    ssToast('Please enter a valid phone number (at least 10 digits)', 'error');
+    form.querySelector('[name="phone"]').focus();
+    return;
+  }
+
+  // Payment screenshot validation (when fee > 0)
+  const eventId = form.querySelector('[name="eventId"]').value;
+  const ev = _ssFormEvents.find(x => x._id === eventId);
+  const regFee = ev ? (ev.registrationFee || 0) : 0;
+  const screenshotInput = document.getElementById('payment-screenshot');
+  if (regFee > 0 && (!screenshotInput || !screenshotInput.files || !screenshotInput.files[0])) {
+    ssToast('Please upload your payment screenshot', 'error');
+    screenshotInput?.focus();
+    screenshotInput?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+
+  // ---- All validations passed — submit ----
+  submitBtn.disabled = true;
+  submitBtn.innerHTML = '⏳ Submitting...';
+
+  const formData = new FormData(form);
+
+  // Handle custom duration
+  if (durationSelect && durationSelect.value === 'Custom') {
+    const customInput = document.getElementById('duration-custom-input');
+    formData.set('duration', (customInput?.value || '').trim());
   }
 
   const result = await ssApiCall(`${SS_API}/register/performer`, {
@@ -829,17 +877,47 @@ async function submitPerformerForm(e) {
 async function submitAudienceForm(e) {
   e.preventDefault();
   const form = e.target;
+
+  // ---- Validate all mandatory fields ----
+  const fields = [
+    { el: form.querySelector('[name="fullName"]'), msg: 'Please enter your full name' },
+    { el: form.querySelector('[name="phone"]'), msg: 'Please enter your phone number' },
+    { el: form.querySelector('[name="eventId"]'), msg: 'Please select an event' },
+  ];
+
+  for (const { el, msg } of fields) {
+    if (!el) continue;
+    const val = (el.value || '').trim();
+    if (!val) {
+      ssToast(msg, 'error');
+      el.focus();
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+  }
+
+  // Phone validation
+  const phoneVal = form.querySelector('[name="phone"]').value.replace(/\D/g, '');
+  if (phoneVal.length < 10) {
+    ssToast('Please enter a valid phone number (at least 10 digits)', 'error');
+    form.querySelector('[name="phone"]').focus();
+    return;
+  }
+
   const eventId = form.querySelector('[name="eventId"]')?.value;
   const ev = _ssFormEvents.find(x => x._id === eventId);
   const isPaid = ev ? (ev.audienceEntryType === 'paid' || ev.isAudiencePaid === true) : false;
 
+  // Payment screenshot validation (when paid entry)
   const screenshotInput = document.getElementById('audience-payment-screenshot');
   if (isPaid && (!screenshotInput || !screenshotInput.files || !screenshotInput.files[0])) {
-    ssToast('Please upload your payment screenshot.', 'error');
+    ssToast('Please upload your payment screenshot', 'error');
     screenshotInput?.focus();
+    screenshotInput?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     return;
   }
 
+  // ---- All validations passed — submit ----
   const submitBtn = form.querySelector('[type="submit"]');
   submitBtn.disabled = true;
   submitBtn.innerHTML = '⏳ Submitting...';

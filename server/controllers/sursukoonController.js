@@ -59,6 +59,15 @@ const registerPerformer = async (req, res) => {
     if (!fullName || !phone || !eventId) {
       return res.status(400).json({ success: false, message: 'Name, phone, and event are required.' });
     }
+    if (!city || !city.trim()) {
+      return res.status(400).json({ success: false, message: 'City is required.' });
+    }
+    if (!songGenre || !songGenre.trim()) {
+      return res.status(400).json({ success: false, message: 'Song name or genre is required.' });
+    }
+    if (!duration || !duration.trim()) {
+      return res.status(400).json({ success: false, message: 'Performance duration is required.' });
+    }
     const paymentScreenshot = req.file
       ? (req.file.buffer ? `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}` : `/uploads/${req.file.filename}`)
       : null;
@@ -67,6 +76,11 @@ const registerPerformer = async (req, res) => {
     if (!event) return res.status(404).json({ success: false, message: 'Event not found.' });
     if (!event.registrationOpen) return res.status(400).json({ success: false, message: 'Registration is closed.' });
     if (event.availableSeats <= 0) return res.status(400).json({ success: false, message: 'No performer seats available.' });
+
+    const regFee = event.registrationFee || 0;
+    if (regFee > 0 && !paymentScreenshot) {
+      return res.status(400).json({ success: false, message: 'Payment screenshot is required when registration fee applies.' });
+    }
 
     const registration = new Performer_Registration({
       eventId,
