@@ -64,6 +64,49 @@ function logout() {
   showLoginPage();
 }
 
+// ====== PROOF LIGHTBOX MODAL ======
+function openProofModal(proofUrl) {
+  if (!proofUrl) return;
+  let overlay = document.getElementById('proof-lightbox-overlay');
+  if (!overlay) {
+    overlay = document.createElement('div');
+    overlay.id = 'proof-lightbox-overlay';
+    overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.88);display:flex;align-items:center;justify-content:center;padding:16px;';
+    overlay.innerHTML = `
+      <div id="proof-lightbox-box" style="position:relative;max-width:92vw;max-height:92vh;background:#111;border-radius:16px;overflow:hidden;box-shadow:0 20px 80px rgba(0,0,0,0.8);display:flex;flex-direction:column;">
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:rgba(255,255,255,0.05);border-bottom:1px solid rgba(255,255,255,0.1);">
+          <span style="font-size:0.9rem;font-weight:600;color:#fff;">🧾 Payment Proof</span>
+          <div style="display:flex;gap:10px;">
+            <a id="proof-download-btn" href="" download="payment_proof" style="padding:6px 14px;background:var(--admin-gold,#FFD700);color:#000;border-radius:8px;font-size:0.82rem;font-weight:700;text-decoration:none;">⬇ Download</a>
+            <button id="proof-close-btn" style="padding:6px 12px;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);border-radius:8px;color:#fff;font-size:0.9rem;cursor:pointer;">✕ Close</button>
+          </div>
+        </div>
+        <div style="overflow:auto;flex:1;display:flex;align-items:center;justify-content:center;padding:16px;">
+          <img id="proof-lightbox-img" src="" alt="Payment Proof" style="max-width:100%;max-height:75vh;object-fit:contain;border-radius:8px;">
+        </div>
+      </div>`;
+    document.body.appendChild(overlay);
+    document.getElementById('proof-close-btn').addEventListener('click', closeProofModal);
+    overlay.addEventListener('click', (e) => { if (e.target === overlay) closeProofModal(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeProofModal(); });
+  }
+  document.getElementById('proof-lightbox-img').src = proofUrl;
+  // For Base64 blobs, create a downloadable href
+  if (proofUrl.startsWith('data:')) {
+    document.getElementById('proof-download-btn').href = proofUrl;
+  } else {
+    document.getElementById('proof-download-btn').href = proofUrl;
+    document.getElementById('proof-download-btn').target = '_blank';
+  }
+  overlay.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+function closeProofModal() {
+  const overlay = document.getElementById('proof-lightbox-overlay');
+  if (overlay) overlay.style.display = 'none';
+  document.body.style.overflow = '';
+}
+
 // ====== TOAST ======
 function adminToast(message, type = 'success') {
   const container = document.getElementById('admin-toast-container');
@@ -516,7 +559,7 @@ async function loadSSPerformers() {
       <td>${r.city || '—'}</td>
       <td><span class="badge ${r.paymentStatus === 'verified' ? 'badge-green' : r.paymentStatus === 'rejected' ? 'badge-red' : 'badge-yellow'}">${r.paymentStatus}</span></td>
       <td class="actions-cell">
-        ${r.paymentScreenshot ? `<a href="${r.paymentScreenshot}" target="_blank" class="admin-btn admin-btn-gold admin-btn-sm">🧾 Proof</a>` : '<span style="color:var(--admin-text-dim);font-size:0.8rem;">No proof</span>'}
+        ${r.paymentScreenshot ? `<button class="admin-btn admin-btn-gold admin-btn-sm" onclick="openProofModal(this.dataset.url)" data-url="${r.paymentScreenshot.replace(/"/g,'&quot;')}">🧾 Proof</button>` : '<span style="color:var(--admin-text-dim);font-size:0.8rem;">No proof</span>'}
         <select class="admin-form-control" style="padding:5px 8px;width:auto;font-size:0.78rem;" onchange="updatePayment('${r._id}', this.value)">
           <option value="pending" ${r.paymentStatus === 'pending' ? 'selected' : ''}>Pending</option>
           <option value="verified" ${r.paymentStatus === 'verified' ? 'selected' : ''}>Verified</option>
@@ -571,7 +614,7 @@ async function loadSSAudience() {
     const paymentBadge = isPaid
       ? `<div style="display:flex;flex-direction:column;gap:5px;">
            <span class="badge ${r.paymentStatus === 'verified' ? 'badge-green' : r.paymentStatus === 'rejected' ? 'badge-red' : 'badge-yellow'}">PAID: ${(r.paymentStatus || 'pending').toUpperCase()} (₹${r.totalAmount || (r.audienceFee ? r.audienceFee * (r.numberOfPeople || 1) : 0)})</span>
-           ${r.paymentScreenshot ? `<a href="${r.paymentScreenshot}" target="_blank" class="admin-btn admin-btn-gold admin-btn-sm" style="padding:2px 8px;font-size:0.75rem;width:fit-content;">🧾 Proof</a>` : '<span style="color:var(--admin-text-dim);font-size:0.75rem;">No proof</span>'}
+           ${r.paymentScreenshot ? `<button class="admin-btn admin-btn-gold admin-btn-sm" style="padding:2px 8px;font-size:0.75rem;" onclick="openProofModal(this.dataset.url)" data-url="${r.paymentScreenshot.replace(/"/g,'&quot;')}">🧾 Proof</button>` : '<span style="color:var(--admin-text-dim);font-size:0.75rem;">No proof</span>'}
            <select class="admin-form-control" style="padding:3px 6px;width:auto;font-size:0.75rem;" onchange="updateAudiencePayment('${r._id}', this.value)">
              <option value="pending" ${r.paymentStatus === 'pending' ? 'selected' : ''}>Pending</option>
              <option value="verified" ${r.paymentStatus === 'verified' ? 'selected' : ''}>Verified</option>

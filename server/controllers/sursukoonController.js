@@ -56,8 +56,8 @@ const getEvent = async (req, res) => {
 const registerPerformer = async (req, res) => {
   try {
     const { eventId, fullName, phone, email, city, songGenre, duration, specialRequirements } = req.body;
-    if (!fullName || !phone || !email || !eventId) {
-      return res.status(400).json({ success: false, message: 'Name, phone, email, and event are required.' });
+    if (!fullName || !phone || !eventId) {
+      return res.status(400).json({ success: false, message: 'Name, phone, and event are required.' });
     }
     const paymentScreenshot = req.file
       ? (req.file.buffer ? `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}` : `/uploads/${req.file.filename}`)

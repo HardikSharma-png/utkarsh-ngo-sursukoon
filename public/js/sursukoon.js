@@ -677,6 +677,22 @@ async function initSSRegister() {
   });
 }
 
+// ====== CUSTOM DURATION HANDLER ======
+function handleDurationChange(select) {
+  const wrap = document.getElementById('duration-custom-wrap');
+  const customInput = document.getElementById('duration-custom-input');
+  if (!wrap || !customInput) return;
+  if (select.value === 'Custom') {
+    wrap.style.display = 'block';
+    customInput.required = true;
+    customInput.focus();
+  } else {
+    wrap.style.display = 'none';
+    customInput.required = false;
+    customInput.value = '';
+  }
+}
+
 function updateAudienceFeeDisplay() {
   const eventSelect = document.getElementById('audience-event-select');
   const peopleSelect = document.getElementById('audience-people-select');
@@ -734,11 +750,9 @@ async function loadSSEventsForForm() {
         select.innerHTML = '<option value="">No upcoming events</option>';
         return;
       }
-      select.innerHTML = _ssFormEvents.map(e => {
-        const date = e.date ? new Date(e.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
-        const entryBadge = (e.audienceEntryType === 'paid' || e.isAudiencePaid) ? ` [Paid: ₹${e.audienceFee || 0}]` : ' [Free]';
-        return `<option value="${e._id}" ${!e.registrationOpen ? 'disabled' : ''}>${e.eventName} — ${date}${entryBadge}${!e.registrationOpen ? ' (Closed)' : ''}</option>`;
-      }).join('');
+      select.innerHTML = _ssFormEvents.map(e =>
+        `<option value="${e._id}" ${!e.registrationOpen ? 'disabled' : ''}>${e.eventName}${!e.registrationOpen ? ' (Closed)' : ''}</option>`
+      ).join('');
     });
 
     // Update performer fee display (single ₹)
@@ -781,6 +795,21 @@ async function submitPerformerForm(e) {
   submitBtn.innerHTML = '⏳ Submitting...';
 
   const formData = new FormData(form);
+
+  // Handle custom duration: replace the hidden select value with the typed text
+  const durationSelect = document.getElementById('duration-select');
+  if (durationSelect && durationSelect.value === 'Custom') {
+    const customInput = document.getElementById('duration-custom-input');
+    const customVal = (customInput?.value || '').trim();
+    if (!customVal) {
+      submitBtn.disabled = false;
+      submitBtn.innerHTML = 'Register as Performer 🎤';
+      ssToast('Please enter your custom performance duration.', 'error');
+      customInput?.focus();
+      return;
+    }
+    formData.set('duration', customVal);
+  }
 
   const result = await ssApiCall(`${SS_API}/register/performer`, {
     method: 'POST',

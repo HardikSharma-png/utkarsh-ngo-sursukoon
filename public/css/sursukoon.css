@@ -180,6 +180,11 @@ button { cursor: pointer; font-family: var(--ss-font); border: none; outline: no
 body.ss-menu-open {
   overflow: hidden !important;
 }
+/* Hide hamburger while drawer is open — prevents duplicate ×/☰ overlap */
+body.ss-menu-open .ss-hamburger {
+  opacity: 0;
+  pointer-events: none;
+}
 
 /* Stray ✕ close button hidden by default everywhere on desktop */
 .nav-close,

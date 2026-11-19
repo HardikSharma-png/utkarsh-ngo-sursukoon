@@ -68,8 +68,8 @@
             </div>
             <div class="ss-form-grid">
               <div class="ss-form-group">
-                <label class="ss-form-label">Email Address <span class="req">*</span></label>
-                <input class="ss-form-input" type="email" name="email" required placeholder="Your email">
+                <label class="ss-form-label">Email Address</label>
+                <input class="ss-form-input" type="email" name="email" placeholder="Your email (optional)">
               </div>
               <div class="ss-form-group">
                 <label class="ss-form-label">City</label>
@@ -87,12 +87,16 @@
               </div>
               <div class="ss-form-group">
                 <label class="ss-form-label">Performance Duration</label>
-                <select class="ss-form-select" name="duration">
-                  <option value="5 minutes">5 minutes</option>
-                  <option value="8 minutes">8 minutes</option>
-                  <option value="10 minutes">10 minutes</option>
-                  <option value="15 minutes">15 minutes</option>
+                <select class="ss-form-select" name="duration" id="duration-select" onchange="handleDurationChange(this)">
+                  <option value="&lt; 2 mins">&lt; 2 mins</option>
+                  <option value="2–5 mins">2–5 mins</option>
+                  <option value="5–8 mins">5–8 mins</option>
+                  <option value="&gt; 8 mins">&gt; 8 mins</option>
+                  <option value="Custom">Custom</option>
                 </select>
+                <div id="duration-custom-wrap" style="display:none;margin-top:10px;">
+                  <input class="ss-form-input" type="text" id="duration-custom-input" placeholder="Enter custom duration (e.g. 12 mins)">
+                </div>
               </div>
             </div>
             <div class="ss-form-group">

@@ -5,7 +5,7 @@ const Performer_RegistrationSchema = new mongoose.Schema({
   eventName: { type: String },
   fullName: { type: String, required: true },
   phone: { type: String, required: true },
-  email: { type: String, required: true },
+  email: { type: String, required: false },
   city: { type: String },
   songGenre: { type: String },
   duration: { type: String },
